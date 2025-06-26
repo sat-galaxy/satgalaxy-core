@@ -2,6 +2,7 @@
 set(MINISAT_LIB_SOURCES
     minisat/utils/Options.cc
     minisat/core/Solver.cc
+    minisat/external/minisat_port.cc
     minisat/simp/SimpSolver.cc)
 
 add_library(minisat-lib-static STATIC ${MINISAT_LIB_SOURCES})
@@ -25,6 +26,6 @@ set_target_properties(minisat-lib-shared
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib)
 
-    install(DIRECTORY minisat/mtl minisat/utils minisat/core minisat/simp
+    install(DIRECTORY minisat/mtl minisat/utils minisat/core minisat/simp minisat/external
             DESTINATION include/minisat
             FILES_MATCHING PATTERN "*.h")

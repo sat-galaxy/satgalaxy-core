@@ -22,7 +22,7 @@ set(MINISAT_WASM_LIB_SOURCES
     minisat/utils/Options.cc
     minisat/core/Solver.cc
     minisat/simp/SimpSolver.cc
-    external/wasm.cc
+    minisat/external/wasm.cc
     )
 add_executable(minisat-wasm ${MINISAT_WASM_LIB_SOURCES})
 set_target_properties(minisat-wasm PROPERTIES
