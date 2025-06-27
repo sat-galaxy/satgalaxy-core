@@ -36,13 +36,15 @@ extern "C"
     int minisat_value(void *solver, int x);
 
     // Solving:
-    //
+    // return as bool, do_simp and turn_off_simp as bool
     int minisat_solve_assumps(void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
+    //  0 for true, 1 for false, 2 for unkown 
     int minisat_solve_limited(void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp );
+    // return as bool
     int minisat_solve(void *solver, int do_simp , int turn_off_simp);
     int minisat_eliminate(
         void *solver,
@@ -53,6 +55,8 @@ extern "C"
     int minisat_nvars(void *solver);    // The current number of variables.
     int minisat_nfree_vars(void *solver);
     void minisat_destroy(void *solver);
+    // return bool
+    int minisat_okay(void *solver);
 #ifdef __cplusplus
 }
 #endif

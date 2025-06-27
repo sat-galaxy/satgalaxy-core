@@ -42,7 +42,7 @@ Solver::Solver() :
 
     // Parameters (user settable):
     //
-    verbosity        (0)
+    verbosity        (opt_verbosity)
   , var_decay        (opt_var_decay)
   , clause_decay     (opt_clause_decay)
   , random_var_freq  (opt_random_var_freq)

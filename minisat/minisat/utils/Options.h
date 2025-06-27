@@ -24,6 +24,7 @@ namespace Minisat
     extern int opt_clause_lim;
     extern int opt_subsumption_lim;
     extern double opt_simp_garbage_frac;
+    extern int opt_verbosity;
 
     void set_opt_var_decay(double decay);
     void set_opt_clause_decay(double decay);
@@ -42,9 +43,9 @@ namespace Minisat
     void set_opt_use_elim(bool opt_use_elim);
     void set_opt_grow(int opt_grow);
     void set_opt_clause_lim(int opt_clause_lim);
-    // okok
     void set_opt_subsumption_lim(int opt_subsumption_lim);
     void set_opt_simp_garbage_frac(double opt_simp_garbage_frac);
+    void set_opt_verbosity(int opt_verbosity);
 
 }
 
