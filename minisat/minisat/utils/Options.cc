@@ -21,7 +21,7 @@ int Minisat::opt_grow = 0;                   // Allow a variable elimination ste
 int Minisat::opt_clause_lim = 20;            // Variables are not eliminated if it produces a resolvent with a length above this limit. -1 means no limit
 int Minisat::opt_subsumption_lim = 1000;     // Do not check if subsumption against a clause larger than this. -1 means no limit.
 double Minisat::opt_simp_garbage_frac = 0.5; // The fraction of wasted memory allowed before a garbage collection is triggered during simplification.
-int Minisat::opt_verbosity =1; // 0=silent, 1=some, 2=verbose
+int Minisat::opt_verbosity =0; // 0=silent, 1=some, 2=verbose
 
 void Minisat::set_opt_var_decay(double decay){
     opt_var_decay = decay;

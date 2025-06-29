@@ -22,7 +22,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "minisat/mtl/Alg.h"
 #include "minisat/mtl/Sort.h"
-#include "minisat/utils/System.h"
 #include "minisat/core/Solver.h"
 #include <cstdlib>
 #include <cstdio>
