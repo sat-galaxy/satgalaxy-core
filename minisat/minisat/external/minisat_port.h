@@ -1,5 +1,5 @@
-#ifndef Minisat_StdSimpSolver_h
-#define Minisat_StdSimpSolver_h
+#ifndef MINISAT_PORT_H
+#define MINISAT_PORT_H
 
 //=================================================================================================
 
@@ -27,20 +27,23 @@ extern "C"
     void minisat_set_opt_clause_lim(int opt_clause_lim);
     void minisat_set_opt_subsumption_lim(int opt_subsumption_lim);
     void minisat_set_opt_simp_garbage_frac(double opt_simp_garbage_frac);
+    void minisat_set_opt_verbosity(int verb);
 
     void *minisat_new_solver();
     int minisat_new_var(void *solver);
     void minisat_release_var(void *solver, int l);
     int minisat_add_clause(void *solver, const int ps[], unsigned long length);
     int minisat_add_empty_clause(void *solver); // Add the empty clause to the solver.
+    // start with 1
     int minisat_value(void *solver, int x);
+    int minisat_model_value(void *solver, int x);
 
     // Solving:
     // return as bool, do_simp and turn_off_simp as bool
     int minisat_solve_assumps(void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
-    //  0 for true, 1 for false, 2 for unkown 
+    //  10 for sat, 20 for unsat, 30 for unkown 
     int minisat_solve_limited(void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp );

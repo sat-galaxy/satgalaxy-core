@@ -66,7 +66,10 @@ int minisat_solve_limited(void *s, const int ps[], unsigned long length, int do_
     {
         lits.push(make_lit(solver, ps[i]));
     }
-    return Minisat::toInt(solver->solveLimited(lits, (int)do_simp, (int)turn_off_simp));
+    return (Minisat::toInt(solver->solveLimited(lits, (int)do_simp, (int)turn_off_simp))+1)*10;
+ 
+    
+    
 }
 int minisat_solve(void *s, int do_simp, int turn_off_simp)
 {
@@ -107,9 +110,25 @@ int minisat_nfree_vars(void *s)
 }
 int minisat_value(void *s, int val)
 {
+    int abs_val = abs(val);
+
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
-    Minisat::lbool b = solver->model[val];
-    return (b == Minisat::l_True);
+    if (abs_val==0||abs_val > solver->nVars())
+    {
+        return 0;
+    }
+    return  ( (val<0) ^(solver->value(abs_val - 1) == Minisat::l_True));
+}
+int minisat_model_value(void *s, int val)
+{
+    int abs_val = abs(val);
+
+    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    if (abs_val==0||abs_val > solver->nVars())
+    {
+        return 0;
+    }
+    return (int)(((val<0) ^solver->model[abs_val - 1] == Minisat::l_True));
 }
 int minisat_okay(void *s)
 {
@@ -195,3 +214,6 @@ void minisat_set_opt_simp_garbage_frac(double opt_simp_garbage_frac)
     Minisat::set_opt_simp_garbage_frac(opt_simp_garbage_frac);
 }
 
+void minisat_set_opt_verbosity(int verb){
+    Minisat::set_opt_verbosity(verb);
+}
