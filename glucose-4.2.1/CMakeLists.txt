@@ -11,10 +11,12 @@ add_definitions(-DGALAXY_CORE)
 
 
 # Basic Library
-file(GLOB lib_srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+set(lib_srcs
     utils/Options.cc
     core/Solver.cc
-    external/minisat_port.cc
+    core/Solver.h
+    external/glucose_port.cc
+    core/lcm.cc
     simp/SimpSolver.cc)
 
 message(${lib_srcs})

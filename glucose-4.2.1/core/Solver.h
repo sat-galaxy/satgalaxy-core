@@ -670,7 +670,8 @@ inline void Solver::printInitialClause(CRef cr)
     }
 }
 
-template <typename T>inline void Solver::addToDrat(T &lits, bool add) {
+template <typename T>
+inline void Solver::addToDrat(T &lits, bool add) {
     if(vbyte) {
         if(add)
             write_char('a');

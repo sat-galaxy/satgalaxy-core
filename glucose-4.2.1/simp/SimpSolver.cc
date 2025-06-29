@@ -49,6 +49,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "mtl/Sort.h"
 #include "simp/SimpSolver.h"
+#include "core/Solver.h"
 
 using namespace Glucose;
 
@@ -211,8 +212,9 @@ bool SimpSolver::addClause_(vec<Lit>& ps)
     if (!Solver::addClause_(ps))
         return false;
 
-    if(!parsing && certifiedUNSAT)
-        addToDrat(ps, true);
+    if(!parsing && certifiedUNSAT){
+        // addToDrat(ps, true);
+    }
 
     if (use_simplification && clauses.size() == nclauses + 1){
         CRef          cr = clauses.last();
@@ -283,8 +285,9 @@ bool SimpSolver::strengthenClause(CRef cr, Lit l)
         removeClause(cr);
         c.strengthen(l);
     }else{
-        if (certifiedUNSAT)
-            addToDrat(c, false);
+        if (certifiedUNSAT){
+            // addToDrat(c, false);
+        }
 
         detachClause(cr, true);
         c.strengthen(l);
@@ -753,7 +756,7 @@ bool SimpSolver::eliminate(bool turn_off_elim)
         checkGarbage();
     }
 
-    if (verbosity >= 0 && elimclauses.size() > 0)
+    if (verbosity >= 1 && elimclauses.size() > 0)
         printf("c |  Eliminated clauses:     %10.2f Mb                                                                |\n", 
                double(elimclauses.size() * sizeof(uint32_t)) / (1024*1024));
 

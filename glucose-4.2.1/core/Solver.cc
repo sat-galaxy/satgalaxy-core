@@ -50,7 +50,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <math.h>
 
 #include "mtl/Sort.h"
-#include "core/Solver.h"
+#include "Solver.h"
 #include "core/Constants.h"
 #include "simp/SimpSolver.h"
 
@@ -380,8 +380,8 @@ bool Solver::addClause_(vec <Lit> &ps) {
     ps.shrink(i - j);
 
     if(flag && (certifiedUNSAT)) {
-        addToDrat(ps,true);
-        addToDrat(oc, false);
+        // addToDrat(ps,true);
+        // addToDrat(oc, false);
     }
 
 
@@ -472,7 +472,7 @@ void Solver::removeClause(CRef cr, bool inPurgatory) {
     Clause &c = ca[cr];
 
     if(certifiedUNSAT) {
-        addToDrat(c, false);
+        // addToDrat(c, false);
     }
 
     if(inPurgatory)
@@ -1462,9 +1462,9 @@ lbool Solver::search(int nof_conflicts) {
 
             cancelUntil(backtrack_level);
 
-            if(certifiedUNSAT)
-                addToDrat(learnt_clause, true);
-
+            if(certifiedUNSAT){
+                // addToDrat(learnt_clause, true);
+            }
 
 
             if(learnt_clause.size() == 1) {
@@ -1562,7 +1562,11 @@ lbool Solver::search(int nof_conflicts) {
                 decisions++;
                 next = pickBranchLit();
                 if(next == lit_Undef) {
-                    printf("c last restart ## conflicts  :  %d %d \n", conflictC, decisionLevel());
+                    if (verbosity>0)
+                    {
+                        printf("c last restart ## conflicts  :  %d %d \n", conflictC, decisionLevel());
+                    }
+                    
                     // Model found:
                     return l_True;
                 }

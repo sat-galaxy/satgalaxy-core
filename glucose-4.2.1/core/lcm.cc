@@ -371,8 +371,8 @@ bool Solver::simplifyAll()
                             }
                         }
                         c.shrink(li - lj);
-                        if(certifiedUNSAT)
-                            addToDrat(c, true);
+                        // if(certifiedUNSAT)
+                        //     addToDrat(c, true);
                     }
                     ////
                     if (c.simplified() || c.lbd() > 3) {
@@ -397,8 +397,8 @@ bool Solver::simplifyAll()
                                 nbSize2++;
                             }
                         }
-                        if(certifiedOutput)
-                            addToDrat(c, true);
+                        // if(certifiedOutput)
+                        //     addToDrat(c, true);
                         stats[lcmreduced]++;
                     }
 
@@ -465,8 +465,8 @@ bool Solver::simplifyAll()
                             }
                         }
                         c.shrink(li - lj);
-                        if(certifiedUNSAT)
-                            addToDrat(c, true);
+                        // if(certifiedUNSAT)
+                        //     addToDrat(c, true);
                     }
                     ////
                     if (ci < learnts.size() / 2 || c.simplified()) {
@@ -490,8 +490,8 @@ bool Solver::simplifyAll()
                                 nbSize2++;
                             }
                         }
-                        if(certifiedOutput)
-                            addToDrat(c, true);
+                        // if(certifiedOutput)
+                            // addToDrat(c, true);
                         stats[lcmreduced]++;
                     }
 

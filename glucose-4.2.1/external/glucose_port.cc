@@ -167,7 +167,7 @@ void glucose_set_opt_lb_lbd_frozen_clause(int value)
     Glucose::set_opt_lb_lbd_frozen_clause(value);
 }
 
-void glucose_set_opt_chanseok_hack(bool value)
+void glucose_set_opt_chanseok_hack(int value)
 {
     Glucose::set_opt_chanseok_hack(value);
 }
@@ -187,12 +187,12 @@ void glucose_set_opt_lb_lbd_minimzing_clause(int value)
     Glucose::set_opt_lb_lbd_minimzing_clause(value);
 }
 
-void glucose_set_opt_lcm(bool value)
+void glucose_set_opt_lcm(int value)
 {
     Glucose::set_opt_lcm(value);
 }
 
-void glucose_set_opt_lcm_update_lbd(bool value)
+void glucose_set_opt_lcm_update_lbd(int value)
 {
     Glucose::set_opt_lcm_update_lbd(value);
 }
@@ -232,7 +232,7 @@ void glucose_set_opt_phase_saving(int value)
     Glucose::set_opt_phase_saving(value);
 }
 
-void glucose_set_opt_rnd_init_act(bool value)
+void glucose_set_opt_rnd_init_act(int value)
 {
     Glucose::set_opt_rnd_init_act(value);
 }
@@ -242,12 +242,12 @@ void glucose_set_opt_garbage_frac(double value)
     Glucose::set_opt_garbage_frac(value);
 }
 
-void glucose_set_opt_glu_reduction(bool value)
+void glucose_set_opt_glu_reduction(int value)
 {
     Glucose::set_opt_glu_reduction(value);
 }
 
-void glucose_set_opt_luby_restart(bool value)
+void glucose_set_opt_luby_restart(int value)
 {
     Glucose::set_opt_luby_restart(value);
 }
@@ -267,32 +267,32 @@ void glucose_set_opt_randomize_phase_on_restarts(int value)
     Glucose::set_opt_randomize_phase_on_restarts(value);
 }
 
-void glucose_set_opt_fixed_randomize_phase_on_restarts(bool value)
+void glucose_set_opt_fixed_randomize_phase_on_restarts(int value)
 {
     Glucose::set_opt_fixed_randomize_phase_on_restarts(value);
 }
 
-void glucose_set_opt_adapt(bool value)
+void glucose_set_opt_adapt(int value)
 {
     Glucose::set_opt_adapt(value);
 }
 
-void glucose_set_opt_forceunsat(bool value)
+void glucose_set_opt_forceunsat(int value)
 {
     Glucose::set_opt_forceunsat(value);
 }
 
-void glucose_set_opt_use_asymm(bool value)
+void glucose_set_opt_use_asymm(int value)
 {
     Glucose::set_opt_use_asymm(value);
 }
 
-void glucose_set_opt_use_rcheck(bool value)
+void glucose_set_opt_use_rcheck(int value)
 {
     Glucose::set_opt_use_rcheck(value);
 }
 
-void glucose_set_opt_use_elim(bool value)
+void glucose_set_opt_use_elim(int value)
 {
     Glucose::set_opt_use_elim(value);
 }
