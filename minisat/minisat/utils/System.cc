@@ -22,7 +22,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <stdio.h>
 
 #include "minisat/utils/System.h"
-
+#if defined(__linux__)
+#include <fpu_control.h>
+#endif
 #if defined(__linux__)
 
 #include <stdlib.h>
