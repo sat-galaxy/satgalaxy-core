@@ -50,7 +50,6 @@ extern "C"
 
     void *glucose_new_solver();
     int glucose_new_var(void *solver);
-    void glucose_release_var(void *solver, int l);
     int glucose_add_clause(void *solver, const int ps[], unsigned long length);
     int glucose_add_empty_clause(void *solver); // Add the empty clause to the solver.
     // start with 1

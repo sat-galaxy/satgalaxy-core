@@ -280,7 +280,11 @@ Solver::~Solver() {
 
 
 void Solver::write_char(unsigned char ch) {
-    if(putc_unlocked((int) ch, certifiedOutput) == EOF)
+    #if defined(_WIN32) || defined(_WIN64)
+            if(putc((int) ch, certifiedOutput) == EOF)
+    #else
+        if(putc_unlocked((int) ch, certifiedOutput) == EOF)
+    #endif
         exit(1);
 }
 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(glucose)
+include(../cmake/config.cmake)
 
 option(BUILD_SHARED_LIBS OFF "True for building shared object")
 
