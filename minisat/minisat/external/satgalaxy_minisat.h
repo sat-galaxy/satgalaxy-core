@@ -1,5 +1,5 @@
-#ifndef MINISAT_PORT_H
-#define MINISAT_PORT_H
+#ifndef SATGALAXY_MINISAT_H
+#define SATGALAXY_MINISAT_H
 
 //=================================================================================================
 
@@ -28,6 +28,8 @@ extern "C"
     void minisat_set_opt_subsumption_lim(int opt_subsumption_lim);
     void minisat_set_opt_simp_garbage_frac(double opt_simp_garbage_frac);
     void minisat_set_opt_verbosity(int verb);
+
+
 
     void *minisat_new_solver();
     int minisat_new_var(void *solver);

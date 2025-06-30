@@ -6,7 +6,6 @@ include(../cmake/config.cmake)
 #--------------------------------------------------------------------------------------------------
 # Configurable options:
 
-option(STATIC_BINARIES "Link binaries statically." ON)
 option(USE_SORELEASE   "Use SORELEASE in shared library filename." ON)
 
 
@@ -39,9 +38,6 @@ include_directories(${minisat_SOURCE_DIR})
 add_definitions(-D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
 
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY 	${CMAKE_CURRENT_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG 	${CMAKE_CURRENT_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RLEASE 	${CMAKE_CURRENT_BINARY_DIR}/lib)
 #--------------------------------------------------------------------------------------------------
 # Build Targets:
 
@@ -49,30 +45,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RLEASE 	${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(MINISAT_LIB_SOURCES
     minisat/utils/Options.cc
     minisat/core/Solver.cc
-    minisat/external/minisat_port.cc
+    minisat/external/satgalaxy_minisat.cc
     minisat/simp/SimpSolver.cc)
 
-add_library(minisat-lib-static STATIC ${MINISAT_LIB_SOURCES})
-add_library(minisat-lib-shared SHARED ${MINISAT_LIB_SOURCES})
+add_library(minisat STATIC ${MINISAT_LIB_SOURCES})
 
 
-set_target_properties(minisat-lib-static PROPERTIES OUTPUT_NAME "minisat")
-set_target_properties(minisat-lib-shared
-  PROPERTIES
-    OUTPUT_NAME "minisat"
-    VERSION ${MINISAT_VERSION}
-    SOVERSION ${MINISAT_SOVERSION})
+set_target_properties(minisat PROPERTIES OUTPUT_NAME "satgalaxy_minisat")
 
-
-#--------------------------------------------------------------------------------------------------
-# Installation targets:
-
-
-install(TARGETS minisat-lib-static minisat-lib-shared
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-
-install(DIRECTORY minisat/mtl minisat/utils minisat/core minisat/simp minisat/external
-    DESTINATION include/minisat
-    FILES_MATCHING PATTERN "*.h")
+file(COPY minisat/external/ DESTINATION "${HEADER_OUTPUT_DIR}/satgalaxy"
+     FILES_MATCHING PATTERN "*.h")

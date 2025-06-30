@@ -1,5 +1,5 @@
 
-#include "minisat_port.h"
+#include "satgalaxy_minisat.h"
 #include "minisat/simp/SimpSolver.h"
 #include "minisat/utils/Options.h"
 

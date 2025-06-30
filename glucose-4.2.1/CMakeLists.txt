@@ -16,7 +16,7 @@ set(lib_srcs
     utils/Options.cc
     core/Solver.cc
     core/Solver.h
-    external/glucose_port.cc
+    external/satgalaxy_glucose.cc
     core/lcm.cc
     simp/SimpSolver.cc)
 
@@ -38,5 +38,7 @@ include_directories(
 
 # base library
 add_library(glucose ${lib_type} ${lib_srcs})
+set_target_properties(glucose PROPERTIES OUTPUT_NAME "satgalaxy_glucose")
 
-
+file(COPY external/ DESTINATION "${HEADER_OUTPUT_DIR}/satgalaxy"
+     FILES_MATCHING PATTERN "*.h")

@@ -1,5 +1,6 @@
-#ifndef MINISAT_PORT_H
-#define MINISAT_PORT_H
+#ifndef SATGALAXY_GLUCOSE_H
+#define SATGALAXY_GLUCOSE_H
+
 
 //=================================================================================================
 
@@ -47,6 +48,8 @@ extern "C"
     void glucose_set_opt_subsumption_lim(int value);
     void glucose_set_opt_simp_garbage_frac(double value);
     void glucose_set_opt_verbosity(int value);
+
+
 
     void *glucose_new_solver();
     int glucose_new_var(void *solver);

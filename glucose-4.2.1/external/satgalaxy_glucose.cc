@@ -1,5 +1,5 @@
 
-#include "glucose_port.h"
+#include "satgalaxy_glucose.h"
 #include "simp/SimpSolver.h"
 #include "utils/Options.h"
 
@@ -321,3 +321,4 @@ void glucose_set_opt_verbosity(int value)
 {
     Glucose::set_opt_verbosity(value);
 }
+
