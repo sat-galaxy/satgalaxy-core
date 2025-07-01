@@ -52,35 +52,35 @@ extern "C"
 
 
     void *glucose_new_solver();
-    int glucose_new_var(void *solver);
-    int glucose_add_clause(void *solver, const int ps[], unsigned long length);
-    int glucose_add_empty_clause(void *solver); // Add the empty clause to the solver.
+    int glucose_new_var(const void *solver);
+    int glucose_add_clause(const void *solver, const int ps[], unsigned long length);
+    int glucose_add_empty_clause(const void *solver); // Add the empty clause to the solver.
     // start with 1
-    int glucose_value(void *solver, int x);
-    int glucose_model_value(void *solver, int x);
+    int glucose_value(const void *solver, int x);
+    int glucose_model_value(const void *solver, int x);
 
     // Solving:
     // return as int, do_simp and turn_off_simp as int
-    int glucose_solve_assumps(void *solver, const int assumps[],
+    int glucose_solve_assumps(const void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
     //  10 for sat, 20 for unsat, 30 for unkown
-    int glucose_solve_limited(void *solver, const int assumps[],
+    int glucose_solve_limited(const void *solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
     // return as int
-    int glucose_solve(void *solver, int do_simp, int turn_off_simp);
+    int glucose_solve(const void *solver, int do_simp, int turn_off_simp);
     int glucose_eliminate(
-        void *solver,
+        const void *solver,
         int turn_off_elim);             // Perform variable elimination based simplification.
-    int glucose_nassigns(void *solver); // The current number of assigned literals.
-    int glucose_nclauses(void *solver); // The current number of original clauses.
-    int glucose_nlearnts(void *solver); // The current number of learnt clauses.
-    int glucose_nvars(void *solver);    // The current number of variables.
-    int glucose_nfree_vars(void *solver);
-    void glucose_destroy(void *solver);
+    int glucose_nassigns(const void *solver); // The current number of assigned literals.
+    int glucose_nclauses(const void *solver); // The current number of original clauses.
+    int glucose_nlearnts(const void *solver); // The current number of learnt clauses.
+    int glucose_nvars(const void *solver);    // The current number of variables.
+    int glucose_nfree_vars(const void *solver);
+    void glucose_destroy(const void *solver);
     // return int
-    int glucose_okay(void *solver);
+    int glucose_okay(const void *solver);
 #ifdef __cplusplus
 }
 #endif

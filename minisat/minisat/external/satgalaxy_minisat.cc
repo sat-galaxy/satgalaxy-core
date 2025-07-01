@@ -16,23 +16,23 @@ void *minisat_new_solver()
 {
     return new Minisat::SimpSolver();
 }
-void minisat_destroy(void *s)
+void minisat_destroy(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     delete solver;
 }
-int minisat_new_var(void *s)
+int minisat_new_var(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->newVar();
 }
-void minisat_release_var(void *s, int l)
+void minisat_release_var(const void *s, int l)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     solver->releaseVar(make_lit(solver, l));
 }
 
-int minisat_add_clause(void *s, const int ps[], unsigned long length)
+int minisat_add_clause(const void *s, const int ps[], unsigned long length)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     Minisat::vec<Minisat::Lit> lits;
@@ -42,13 +42,13 @@ int minisat_add_clause(void *s, const int ps[], unsigned long length)
     }
     return solver->addClause(lits);
 }
-int minisat_add_empty_clause(void *s)
+int minisat_add_empty_clause(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->addEmptyClause();
 }
 
-int minisat_solve_assumps(void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_assumps(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     Minisat::vec<Minisat::Lit> lits;
@@ -58,7 +58,7 @@ int minisat_solve_assumps(void *s, const int ps[], unsigned long length, int do_
     }
     return solver->solve(lits, (int)do_simp, (int)turn_off_simp);
 }
-int minisat_solve_limited(void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_limited(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     Minisat::vec<Minisat::Lit> lits;
@@ -71,44 +71,44 @@ int minisat_solve_limited(void *s, const int ps[], unsigned long length, int do_
     
     
 }
-int minisat_solve(void *s, int do_simp, int turn_off_simp)
+int minisat_solve(const void *s, int do_simp, int turn_off_simp)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->solve((int)do_simp, (int)turn_off_simp);
 }
 
-int minisat_eliminate(void *s, int turn_off_elim)
+int minisat_eliminate(const void *s, int turn_off_elim)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->eliminate(turn_off_elim);
 }
 
-int minisat_nassigns(void *s)
+int minisat_nassigns(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->nAssigns();
 }
-int minisat_nclauses(void *s)
+int minisat_nclauses(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->nClauses();
 }
-int minisat_nlearnts(void *s)
+int minisat_nlearnts(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->nLearnts();
 }
-int minisat_nvars(void *s)
+int minisat_nvars(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->nVars();
 }
-int minisat_nfree_vars(void *s)
+int minisat_nfree_vars(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return solver->nFreeVars();
 }
-int minisat_value(void *s, int val)
+int minisat_value(const void *s, int val)
 {
     int abs_val = abs(val);
 
@@ -119,7 +119,7 @@ int minisat_value(void *s, int val)
     }
     return  ( (val<0) ^(solver->value(abs_val - 1) == Minisat::l_True));
 }
-int minisat_model_value(void *s, int val)
+int minisat_model_value(const void *s, int val)
 {
     int abs_val = abs(val);
 
@@ -130,7 +130,7 @@ int minisat_model_value(void *s, int val)
     }
     return (int)(((val<0) ^solver->model[abs_val - 1] == Minisat::l_True));
 }
-int minisat_okay(void *s)
+int minisat_okay(const void *s)
 {
     Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
     return (int)solver->okay();

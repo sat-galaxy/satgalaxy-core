@@ -16,18 +16,18 @@ void *glucose_new_solver()
 {
     return new Glucose::SimpSolver();
 }
-void glucose_destroy(void *s)
+void glucose_destroy(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     delete solver;
 }
-int glucose_new_var(void *s)
+int glucose_new_var(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->newVar();
 }
 
-int glucose_add_clause(void *s, const int ps[], unsigned long length)
+int glucose_add_clause(const void *s, const int ps[], unsigned long length)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     Glucose::vec<Glucose::Lit> lits;
@@ -37,13 +37,13 @@ int glucose_add_clause(void *s, const int ps[], unsigned long length)
     }
     return solver->addClause(lits);
 }
-int glucose_add_empty_clause(void *s)
+int glucose_add_empty_clause(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->addEmptyClause();
 }
 
-int glucose_solve_assumps(void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int glucose_solve_assumps(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     Glucose::vec<Glucose::Lit> lits;
@@ -53,7 +53,7 @@ int glucose_solve_assumps(void *s, const int ps[], unsigned long length, int do_
     }
     return solver->solve(lits, (int)do_simp, (int)turn_off_simp);
 }
-int glucose_solve_limited(void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int glucose_solve_limited(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     Glucose::vec<Glucose::Lit> lits;
@@ -63,44 +63,44 @@ int glucose_solve_limited(void *s, const int ps[], unsigned long length, int do_
     }
     return (Glucose::toInt(solver->solveLimited(lits, (int)do_simp, (int)turn_off_simp)) + 1) * 10;
 }
-int glucose_solve(void *s, int do_simp, int turn_off_simp)
+int glucose_solve(const void *s, int do_simp, int turn_off_simp)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->solve((int)do_simp, (int)turn_off_simp);
 }
 
-int glucose_eliminate(void *s, int turn_off_elim)
+int glucose_eliminate(const void *s, int turn_off_elim)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->eliminate(turn_off_elim);
 }
 
-int glucose_nassigns(void *s)
+int glucose_nassigns(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->nAssigns();
 }
-int glucose_nclauses(void *s)
+int glucose_nclauses(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->nClauses();
 }
-int glucose_nlearnts(void *s)
+int glucose_nlearnts(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->nLearnts();
 }
-int glucose_nvars(void *s)
+int glucose_nvars(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->nVars();
 }
-int glucose_nfree_vars(void *s)
+int glucose_nfree_vars(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return solver->nFreeVars();
 }
-int glucose_value(void *s, int val)
+int glucose_value(const void *s, int val)
 {
     int abs_val = abs(val);
 
@@ -111,7 +111,7 @@ int glucose_value(void *s, int val)
     }
     return ((val < 0) ^ (solver->value(abs_val - 1) == l_True));
 }
-int glucose_model_value(void *s, int val)
+int glucose_model_value(const void *s, int val)
 {
     int abs_val = abs(val);
 
@@ -122,7 +122,7 @@ int glucose_model_value(void *s, int val)
     }
     return (int)(((val < 0) ^ solver->model[abs_val - 1] == l_True));
 }
-int glucose_okay(void *s)
+int glucose_okay(const void *s)
 {
     Glucose::SimpSolver *solver = (Glucose::SimpSolver *)s;
     return (int)solver->okay();
