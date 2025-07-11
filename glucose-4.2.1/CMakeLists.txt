@@ -20,7 +20,6 @@ set(lib_srcs
     core/lcm.cc
     simp/SimpSolver.cc)
 
-message(${lib_srcs})
 
 
 
