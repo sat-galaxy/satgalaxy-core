@@ -8443,3 +8443,7 @@ picosat_deref_partial (PS * ps, int int_lit)
 
   return pderef (ps, int_lit);
 }
+
+int picosat_state (PS *ps){
+  return (int)ps->state;
+}

@@ -646,4 +646,16 @@ void picosat_write_rup_trace (PicoSAT *, FILE * trace_file);
 
 int picosat_usedlit (PicoSAT *, int lit);
 /*------------------------------------------------------------------------*/
+
+/*
+ * enum State
+{
+  RESET = 0,
+  READY = 1,
+  SAT = 2,
+  UNSAT = 3,
+  UNKNOWN = 4,
+};
+ */
+int picosat_state (PicoSAT *);
 #endif

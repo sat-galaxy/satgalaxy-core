@@ -21,53 +21,64 @@ extern "C"
     typedef void (*satgalaxy_picosat_free)(void *, void *, size_t);
 
     /// @brief Initializes a new PicoSAT solver instance (constructor).
+    /// @param error Pointer to an integer to store the error code.
     /// @return Pointer to the initialized PicoSATSolver.
-    PicoSATSolver *satgalaxy_picosat_init(void);
+    PicoSATSolver *satgalaxy_picosat_init(int* error);
+
 
     /// @brief Initializes a PicoSAT solver with custom memory management functions.
     /// @param state User-defined state for memory management.
     /// @param m Malloc function for memory allocation.
     /// @param r Realloc function for memory reallocation.
     /// @param f Free function for memory deallocation.
+    /// @param error Pointer to an integer to store the error code.
     /// @return Pointer to the initialized PicoSATSolver.
-    PicoSATSolver *satgalaxy_picosat_minit(void *state, satgalaxy_picosat_malloc m, satgalaxy_picosat_realloc r, satgalaxy_picosat_free f);
+    PicoSATSolver *satgalaxy_picosat_minit(void *state, satgalaxy_picosat_malloc m, satgalaxy_picosat_realloc r, satgalaxy_picosat_free f,int* error);
 
     /// @brief Destroys a PicoSAT solver instance (destructor).
     /// @param solver Pointer to the PicoSATSolver to reset.
-    void satgalaxy_picosat_reset(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_reset(PicoSATSolver *solver,int* error);
+
 
     /// @brief Configures initial solver settings. These functions must be called immediately after satgalaxy_picosat_init and before adding literals.
     /// @note Do not call these after adding literals.
-
     /// @param solver Pointer to the PicoSATSolver.
     /// @param file Output file for solver messages (default: stdout).
-    void satgalaxy_picosat_set_output(PicoSATSolver *solver, FILE *file);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_output(PicoSATSolver *solver, FILE *file,int* error);
 
     /// @brief Measure all time spent in all calls in the solver.  By default only the time spent in 'satgalaxy_picosat_sat' is measured.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Enabling this may significantly increase time for adding large CNFs due to getrusage calls.
-    void satgalaxy_picosat_measure_all_calls(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_measure_all_calls(PicoSATSolver *solver,int* error);
 
     /// @param solver Pointer to the PicoSATSolver.
     /// @param prefix String prefix for verbose messages and statistics (default: "c ").
-    void satgalaxy_picosat_set_prefix(PicoSATSolver *solver, const char *prefix);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_prefix(PicoSATSolver *solver, const char *prefix,int* error);
+
 
     /// @param solver Pointer to the PicoSATSolver.
     /// @param new_verbosity_level Verbosity level (1+ for detailed progress reports).
     /// @note Reports are printed to the output file set by satgalaxy_picosat_set_output, prefixed by satgalaxy_picosat_set_prefix.
-    void satgalaxy_picosat_set_verbosity(PicoSATSolver *solver, int new_verbosity_level);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_verbosity(PicoSATSolver *solver, int new_verbosity_level,int* error);
 
     /// @param solver Pointer to the PicoSATSolver.
     /// @param new_plain_value Non-zero to disable preprocessing (plain solving), zero to enable.
     /// @note Currently affects only failed literal probing.
-    void satgalaxy_picosat_set_plain(PicoSATSolver *solver, int new_plain_value);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_plain(PicoSATSolver *solver, int new_plain_value,int* error);
 
     /// @brief Sets the default initial phase for decision variables.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param phase Phase value: 0 (false), 1 (true), 2 (Jeroslow-Wang, default), 3 (random).
     /// @note After first assignment, variables reuse their previous value for decisions.
-    /// @return None.
-    void satgalaxy_picosat_set_global_default_phase(PicoSATSolver *solver, int phase);
+    /// @param error Pointer to an integer to store the error code.
+    /// @return None.   
+    void satgalaxy_picosat_set_global_default_phase(PicoSATSolver *solver, int phase,int* error);
 
     /// @brief Sets the initial phase for a specific variable when chosen as a decision variable.
     /// @param solver Pointer to the PicoSATSolver.
@@ -75,35 +86,47 @@ extern "C"
     /// @param phase Phase value: negative (false), positive (true), 0 (use global default phase).
     /// @note Forced assignments override this phase for decision variables.
     /// @return None.
-    void satgalaxy_picosat_set_default_phase_lit(PicoSATSolver *solver, int lit, int phase);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_default_phase_lit(PicoSATSolver *solver, int lit, int phase,int* error);
 
     /// @brief Resets all variable phases to their default state.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return None.
-    void satgalaxy_picosat_reset_phases(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_reset_phases(PicoSATSolver *solver,int* error);
 
     /// @brief Erases variable scores, keeping learned clauses and literal pointers.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Incremental mode may differ from a fresh CNF due to retained clauses.
     /// @return None.
-    void satgalaxy_picosat_reset_scores(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_reset_scores(PicoSATSolver *solver,int* error);
+
+    /// @brief Resets assignment in SAT state and removes a percentage of less active learned clauses.
+    /// @param solver Pointer to the PicoSATSolver.
+    /// @return None.
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_reset_scores(PicoSATSolver *solver,int* error);
 
     /// @brief Resets assignment in SAT state and removes a percentage of less active learned clauses.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param percentage Percentage of large learned clauses to remove (100% removes all).
     /// @return None.
-    void satgalaxy_picosat_remove_learned(PicoSATSolver *solver, unsigned percentage);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_remove_learned(PicoSATSolver *solver, unsigned percentage,int* error);
 
     /// @brief Sets priority for decision variables.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to mark as more important.
     /// @note Default is all variables marked as indifferent.
-    void satgalaxy_picosat_set_more_important_lit(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_more_important_lit(PicoSATSolver *solver, int lit,int* error);
     /// @brief Sets priority for decision variables.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to mark as less important.
     /// @note Default is all variables marked as indifferent.
-    void satgalaxy_picosat_set_less_important_lit(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_less_important_lit(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Prints a message to the solver's internal output file.
     /// @param solver Pointer to the PicoSATSolver.
@@ -118,14 +141,16 @@ extern "C"
     /// @param random_number_generator_seed Seed value for the random number generator.
     /// @note Useful for benchmarking different parameter sets, less effective for industrial examples.
     /// @return None.
-    void satgalaxy_picosat_set_seed(PicoSATSolver *solver, unsigned random_number_generator_seed);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_random_seed(PicoSATSolver *solver, unsigned random_number_generator_seed,int* error);
 
     /// @brief Enables proof trace generation for extracting cores or traces.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Must be called immediately after satgalaxy_picosat_init. Not needed for satgalaxy_picosat_set_incremental_rup_file.
     /// @note Trace generation may not be included if compiled with full optimization (e.g., './configure -O').
     /// @return Non-zero if trace generation is supported, zero otherwise.
-    int satgalaxy_picosat_enable_trace_generation(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_enable_trace_generation(PicoSATSolver *solver,int* error);
 
     /// @brief Sets a file for incremental RUP proof trace dumping.
     /// @param solver Pointer to the PicoSATSolver.
@@ -134,18 +159,21 @@ extern "C"
     /// @param n Number of original clauses.
     /// @note Reduces memory usage but dumped clauses may not be in the clausal core.
     /// @return None.
-    void satgalaxy_picosat_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n,int* error);
 
     /// @brief Saves original clauses for use with satgalaxy_picosat_deref_partial.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return None.
-    void satgalaxy_picosat_save_original_clauses(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_save_original_clauses(PicoSATSolver *solver,int* error);
 
     /// @brief Allocates and returns the next unused variable index.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note The variable is treated as used in future calls to satgalaxy_picosat_sat, satgalaxy_picosat_deref, and satgalaxy_picosat_changed.
     /// @return The next available variable index.
-    int satgalaxy_picosat_inc_max_var(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_inc_max_var(PicoSATSolver *solver,int* error);
 
     /// @brief Push and pop semantics for PicoSAT.   'picosat_push' opens up a new
     /// context.  All clauses added in this context are attached to it and
@@ -163,98 +191,117 @@ extern "C"
     /// @return The return value is the index of the literal that assumes this context.
     /// This literal can only be used for 'picosat_failed_context' otherwise
     /// it will lead to an API usage error.
-    int satgalaxy_picosat_push(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_push(PicoSATSolver *solver,int* error);
     /// @brief This is as 'picosat_failed_assumption', but only for internal variables
     /// generated by 'picosat_push'.
     /// @param solver
     /// @param lit
     /// @return boolean value
-    int satgalaxy_picosat_failed_context(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_failed_context(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief
     /// @param solver
     /// @return the literal that assumes the current context or zero if the outer context has been reached.
-    int satgalaxy_picosat_context(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_context(PicoSATSolver *solver,int* error);
     /// @brief Closes the current context and recycles the literal generated for assuming this context.
     /// @return return value is the literal for the new outer context or zero if the outer most context has been reached.
-    int satgalaxy_picosat_pop(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_pop(PicoSATSolver *solver,int* error);
 
     /// @brief Forces immediate removal of satisfied clauses and those in closed contexts.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Called internally after sufficient units are learned or contexts closed (MAXCILS limit).
     /// @note Retains learned clauses involving outer contexts.
+    /// @param error Pointer to an integer to store the error code.
     /// @return None.
-    void satgalaxy_picosat_simplify(PicoSATSolver *solver);
+    void satgalaxy_picosat_simplify(PicoSATSolver *solver,int* error);
 
     /// @brief Optimizes variable table size to reduce resizing.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param max_idx Estimated maximum variable index.
     /// @note Has the same effect as satgalaxy_picosat_inc_max_var but optimizes allocation.
     /// @return None.
-    void satgalaxy_picosat_adjust(PicoSATSolver *solver, int max_idx);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_adjust(PicoSATSolver *solver, int max_idx,int* error);  
 
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return  Number of variables (p cnf <m> n).
-    int satgalaxy_picosat_variables(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_variables(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return  Number of original clauses (p cnf m <n>).
-    int satgalaxy_picosat_added_original_clauses(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_added_original_clauses(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return  Maximum memory allocated.
-    size_t satgalaxy_picosat_max_bytes_allocated(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    size_t satgalaxy_picosat_max_bytes_allocated(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return Current process time.
-    double satgalaxy_picosat_time_stamp(void);
+    /// @param error Pointer to an integer to store the error code.
+    double satgalaxy_picosat_time_stamp(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return  None (prints to output file).
-    void satgalaxy_picosat_stats(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_stats(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param file Output file for satgalaxy_picosat_stats (others return directly).
     /// @return  Number of propagations.
-    unsigned long long satgalaxy_picosat_propagations(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    unsigned long long satgalaxy_picosat_propagations(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return  Number of decisions.
-    unsigned long long satgalaxy_picosat_decisions(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    unsigned long long satgalaxy_picosat_decisions(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return Number of visits.
-    unsigned long long satgalaxy_picosat_visits(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    unsigned long long satgalaxy_picosat_visits(PicoSATSolver *solver,int* error);
     /// @brief Retrieves solver statistics.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return Time spent in library calls or satgalaxy_picosat_sat (if satgalaxy_picosat_measure_all_calls enabled).
-    double satgalaxy_picosat_seconds(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    double satgalaxy_picosat_seconds(PicoSATSolver *solver,int* error);
 
     /// @brief Adds literals or clauses to the solver incrementally.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to add (satgalaxy_picosat_add).
     /// @note Adding a literal resets the previous assignment.
     /// @return The original clause index (starting at 0) for the added literal or clause.
-    int satgalaxy_picosat_add(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_add(PicoSATSolver *solver, int lit,int* error);
     /// @brief Adds literals or clauses to the solver incrementally.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param ... Variable argument list of literals terminated by zero (satgalaxy_picosat_add_arg).
     /// @note Adding a literal resets the previous assignment.
     /// @return The original clause index (starting at 0) for the added literal or clause.
-    int satgalaxy_picosat_add_arg(PicoSATSolver *solver, ...);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_add_arg(PicoSATSolver *solver,int* error, ...);
     /// @brief Adds literals or clauses to the solver incrementally.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lits Array of literals terminated by zero (satgalaxy_picosat_add_lits).
     /// @note Adding a literal resets the previous assignment.
     /// @return The original clause index (starting at 0) for the added literal or clause.
-    int satgalaxy_picosat_add_lits(PicoSATSolver *solver, int *lits);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_add_lits(PicoSATSolver *solver, int *lits,int* error);
 
     /// @brief Prints the CNF to a file in DIMACS format.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param file Output file for the CNF.
     /// @return None.
-    void satgalaxy_picosat_print(PicoSATSolver *solver, FILE *file);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_print(PicoSATSolver *solver, FILE *file,int* error);
 
     /// @brief Adds an assumption for the next satgalaxy_picosat_sat call.
     /// @param solver Pointer to the PicoSATSolver.
@@ -262,72 +309,84 @@ extern "C"
     /// @note Assumptions are valid only for the next satgalaxy_picosat_sat call and are cleared afterward unless reassumed.
     /// @note Assumptions remain valid post-satgalaxy_picosat_sat for satgalaxy_picosat_failed_assumption until satgalaxy_picosat_add, satgalaxy_picosat_assume, or another satgalaxy_picosat_sat is called.
     /// @return None.
-    void satgalaxy_picosat_assume(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_assume(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Adds a literal to the global all-different constraint (ADC).
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to add to the ADC.
     /// @note Only one global ADC is supported; all bit-vectors must have identical bit-width.
+    /// @param error Pointer to an integer to store the error code.
     /// @note TODO: Handle top-level assigned literals.
     /// @return None.
-    void satgalaxy_picosat_add_ado_lit(PicoSATSolver *solver, int lit);
+    void satgalaxy_picosat_add_ado_lit(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Runs the main SAT solving routine.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param decision_limit Maximum number of decisions (negative for no limit).
     /// @return PICOSAT_SATISFIABLE, PICOSAT_UNSATISFIABLE, or PICOSAT_UNKNOWN.
-    int satgalaxy_picosat_sat(PicoSATSolver *solver, int decision_limit);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_sat(PicoSATSolver *solver, int decision_limit,int* error);
 
     /// @brief Sets a propagation limit for satgalaxy_picosat_sat.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param limit Maximum number of propagations.
     /// @note Must be called after satgalaxy_picosat_init and before satgalaxy_picosat_sat.
     /// @return None.
-    void satgalaxy_picosat_set_propagation_limit(PicoSATSolver *solver, unsigned long long limit);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_set_propagation_limit(PicoSATSolver *solver, unsigned long long limit,int* error);
 
     /// @brief Returns the result of the last satgalaxy_picosat_sat call.
     /// @param solver Pointer to the PicoSATSolver.
     /// @return Last satgalaxy_picosat_sat result or 0 if not called.
-    int satgalaxy_picosat_res(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_res(PicoSATSolver *solver,int* error);
 
     /// @brief Dereferences a literal to get its assignment after satgalaxy_picosat_sat returns PICOSAT_SATISFIABLE.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to dereference.
+    /// @param error Pointer to an integer to store the error code.
     /// @return 1 (true), -1 (false), or 0 (unknown).
-    int satgalaxy_picosat_deref(PicoSATSolver *solver, int lit);
+    int satgalaxy_picosat_deref(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Checks if a literal is forced at the top level.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to check.
     /// @note Does not require satgalaxy_picosat_sat and does not reset incremental usage.
-    /// @return 1 (true), -1 (false), or 0 (unknown).
-    int satgalaxy_picosat_deref_toplevel(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    /// @return 1 (true), -1 (false), or 0 (unknown).   
+    int satgalaxy_picosat_deref_toplevel(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Retrieves a partial satisfying assignment for original clauses after satgalaxy_picosat_sat returns PICOSAT_SATISFIABLE.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to dereference.
     /// @note Requires satgalaxy_picosat_save_original_clauses to be called after initialization.
     /// @return 1 (true), -1 (false), or 0 (unknown).
-    int satgalaxy_picosat_deref_partial(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_deref_partial(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Checks if the CNF is unsatisfiable due to an empty clause.
     /// @param solver Pointer to the PicoSATSolver.
+    /// @param error Pointer to an integer to store the error code.
     /// @return Non-zero if unsatisfiable due to an empty clause, zero otherwise.
-    int satgalaxy_picosat_inconsistent(PicoSATSolver *solver);
+    int satgalaxy_picosat_inconsistent(PicoSATSolver *solver,int* error);
 
     /// @brief Checks if a literal is a failed assumption in the last satgalaxy_picosat_sat call.
     /// @param solver Pointer to the PicoSATSolver.
     /// @param lit Literal to check.
     /// @note Only valid while current assumptions are active (see satgalaxy_picosat_assume).
     /// @return Non-zero if the literal is a failed assumption, zero otherwise.
-    int satgalaxy_picosat_failed_assumption(PicoSATSolver *solver, int lit);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_failed_assumption(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Returns a zero-terminated list of failed assumptions from the last satgalaxy_picosat_sat call.
     /// @param solver Pointer to the PicoSATSolver.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Valid until the next satgalaxy_picosat_sat or satgalaxy_picosat_failed_assumptions call.
     /// @note Only meaningful if satgalaxy_picosat_sat returned PICOSAT_UNSATISFIABLE.
     /// @return Pointer to a zero-terminated array of failed assumptions.
-    const int *satgalaxy_picosat_failed_assumptions(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    const int *satgalaxy_picosat_failed_assumptions(PicoSATSolver *solver,int* error);
 
     /// @brief Computes a minimized list of failed assumptions from the last satgalaxy_picosat_sat call.
     /// @param solver Pointer to the PicoSATSolver.
@@ -345,22 +404,25 @@ extern "C"
     /// @note Reassumes all assumptions before returning.
     /// @note Setting assumption phases to true may improve performance.
     /// @return Pointer to a zero-terminated array of consistent assumptions.
-    const int *satgalaxy_picosat_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    const int *satgalaxy_picosat_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver,int* error);
 
     /// @brief Iterates over maximal satisfiable subsets of assumptions.
     /// @param solver Pointer to the PicoSATSolver.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Requires assumptions set via satgalaxy_picosat_assume; calls satgalaxy_picosat_sat internally unless inconsistent.
     /// @note Adds a blocking clause to rule out the returned subset, altering the CNF.
     /// @note Setting assumption phases to true may improve performance.
     /// @return Pointer to a zero-terminated array of consistent assumptions or NULL if none remain.
-    const int *satgalaxy_picosat_next_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver);
+    const int *satgalaxy_picosat_next_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver,int* error);
 
     /// @brief Iterates over minimal correcting assumption sets.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Each assumed literal appears once in the result, even if assumed multiple times.
     /// @note Setting assumption phases to true may improve performance.
     /// @return Pointer to a zero-terminated array of minimal correcting assumptions.
-    const int *satgalaxy_picosat_next_minimal_correcting_subset_of_assumptions(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    const int *satgalaxy_picosat_next_minimal_correcting_subset_of_assumptions(PicoSATSolver *solver,int* error);
 
     /// @brief Computes the union of all minimal correcting assumption sets (HUMUS).
     /// @param solver Pointer to the PicoSATSolver.
@@ -369,14 +431,16 @@ extern "C"
     /// @note Renders the CNF inconsistent after one call; requires solver reset.
     /// @note Uses satgalaxy_picosat_next_minimal_correcting_subset_of_assumptions internally.
     /// @return Pointer to a zero-terminated array of assumptions in the HUMUS.
-    const int *satgalaxy_picosat_humus(PicoSATSolver *solver, void (*callback)(void *state, int nmcs, int nhumus), void *state);
+    /// @param error Pointer to an integer to store the error code.
+    const int *satgalaxy_picosat_humus(PicoSATSolver *solver, void (*callback)(void *state, int nmcs, int nhumus), void *state,int* error);
 
     /// @brief Checks if the assignment of old variables changed between satgalaxy_picosat_sat calls returning SATISFIABLE.
     /// @param solver Pointer to the PicoSATSolver.
     /// @note Valid until satgalaxy_picosat_add, satgalaxy_picosat_assume, or satgalaxy_picosat_sat is called.
     /// @note May return non-zero even if no change occurred due to internal flip tracking (TODO: exact tracking not implemented).
     /// @return 0 if old variable assignments are unchanged, non-zero if they might have changed.
-    int satgalaxy_picosat_changed(PicoSATSolver *solver);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_changed(PicoSATSolver *solver,int* error);
 
     /// @brief Determines if the i'th original clause is in the clausal core.
     /// @param solver Pointer to the PicoSAT solver.
@@ -384,15 +448,17 @@ extern "C"
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Incremental mode with assumptions tested only for picosat_corelit; may not work reliably here.
     /// @return Non-zero if the clause is in the core, zero otherwise.
-    int satgalaxy_picosat_coreclause(PicoSATSolver *solver, int i);
+    /// @param error Pointer to an integer to store the error code.
+    int satgalaxy_picosat_coreclause(PicoSATSolver *solver, int i,int* error);
 
     /// @brief Checks if a literal is in the variable core (resolved in deriving the empty clause).
     /// @param solver Pointer to the PicoSAT solver.
     /// @param lit Literal to check.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Tested in incremental mode with assumptions; other core functions may not work reliably.
     /// @return Non-zero if the literal is in the variable core, zero otherwise.
-    int satgalaxy_picosat_corelit(PicoSATSolver *solver, int lit);
+    int satgalaxy_picosat_corelit(PicoSATSolver *solver, int lit,int* error);
 
     /// @brief Writes clauses used in deriving the empty clause to a file in DIMACS format.
     /// @param solver Pointer to the PicoSAT solver.
@@ -400,39 +466,44 @@ extern "C"
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Incremental mode with assumptions tested only for picosat_corelit; may not work reliably here.
     /// @return None.
-    void satgalaxy_picosat_write_clausal_core(PicoSATSolver *solver, FILE *core_file);
+    /// @param error Pointer to an integer to store the error code.
+    void satgalaxy_picosat_write_clausal_core(PicoSATSolver *solver, FILE *core_file,int* error);
 
     /// @brief Writes a compact proof trace in TraceCheck format to a file.
     /// @param solver Pointer to the PicoSAT solver.
     /// @param trace_file Output file for the proof trace.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Incremental mode with assumptions tested only for picosat_corelit; may not work reliably here.
     /// @return None.
-    void satgalaxy_picosat_write_compact_trace(PicoSATSolver *solver, FILE *trace_file);
+    void satgalaxy_picosat_write_compact_trace(PicoSATSolver *solver, FILE *trace_file,int* error);
 
     /// @brief Writes an extended proof trace in TraceCheck format to a file.
     /// @param solver Pointer to the PicoSAT solver.
     /// @param trace_file Output file for the proof trace.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Incremental mode with assumptions tested only for picosat_corelit; may not work reliably here.
     /// @return None.
-    void satgalaxy_picosat_write_extended_trace(PicoSATSolver *solver, FILE *trace_file);
+    void satgalaxy_picosat_write_extended_trace(PicoSATSolver *solver, FILE *trace_file,int* error);
 
     /// @brief Writes a RUP trace of learned core clauses to a file.
     /// @param solver Pointer to the PicoSAT solver.
     /// @param trace_file Output file for the RUP trace.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Requires trace generation enabled via picosat_enable_trace_generation after picosat_init.
     /// @note Unlike picosat_set_incremental_rup_file, only includes learned core clauses.
     /// @note Incremental mode with assumptions tested only for picosat_corelit; may not work reliably here.
     /// @return None.
-    void satgalaxy_picosat_write_rup_trace(PicoSATSolver *solver, FILE *trace_file);
+    void satgalaxy_picosat_write_rup_trace(PicoSATSolver *solver, FILE *trace_file,int* error);
 
     /// @brief Checks if a literal was used in resolution to derive a learned clause.
     /// @param solver Pointer to the PicoSAT solver.
     /// @param lit Literal to check.
+    /// @param error Pointer to an integer to store the error code.
     /// @note Core literals are a subset of used literals; does not require keeping proof traces.
     /// @return Non-zero if the literal was used, zero otherwise.
-    int satgalaxy_picosat_usedlit(PicoSATSolver *solver, int lit);
+    int satgalaxy_picosat_usedlit(PicoSATSolver *solver, int lit,int* error);
 #ifdef __cplusplus
 }
 #endif
