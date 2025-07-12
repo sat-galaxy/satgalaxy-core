@@ -9,6 +9,8 @@ extern "C" {
 
 typedef struct CaDiCaLSolver CaDiCaLSolver;
 CaDiCaLSolver *cadical_new_solver ();
+const char *cadical_error_message(int code);
+int cadical_error(CaDiCaLSolver *solver);
 void cadical_add_clause (CaDiCaLSolver *solver, const int ps[],
                          unsigned long length);
 void cadical_add_empty_clause (CaDiCaLSolver *solver);

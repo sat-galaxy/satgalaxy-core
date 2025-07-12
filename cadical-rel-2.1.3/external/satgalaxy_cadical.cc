@@ -52,7 +52,9 @@ struct CaDiCaLSolver
   int last_error;
   CaDiCaL::Solver *solver;
 };
-
+int cadical_error(CaDiCaLSolver *solver){
+  return solver->last_error;
+}
 inline int require_valid_state (CaDiCaL::Solver *solver) {
   if (solver->status () & CaDiCaL::VALID) {
     return 0;
