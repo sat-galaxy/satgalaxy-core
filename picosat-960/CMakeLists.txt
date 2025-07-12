@@ -15,6 +15,11 @@ set(LIB_SOURCES
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR})
 
+if(WIN32)
+    add_definitions(-DNGETRUSAGE -DNALLSIGNALS)
+endif(WIN32)
+
+
 # base library
 add_library(picosat STATIC ${LIB_SOURCES})
 set_target_properties(picosat PROPERTIES OUTPUT_NAME "satgalaxy_picosat")
