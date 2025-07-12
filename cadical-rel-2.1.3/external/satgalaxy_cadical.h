@@ -9,6 +9,8 @@ extern "C" {
 
 typedef struct CaDiCaLSolver CaDiCaLSolver;
 CaDiCaLSolver *cadical_new_solver ();
+void cadical_destroy (CaDiCaLSolver *s);
+int cadical_vars (CaDiCaLSolver *s);
 const char *cadical_error_message(int code);
 int cadical_error(CaDiCaLSolver *solver);
 void cadical_add_clause (CaDiCaLSolver *solver, const int ps[],
@@ -131,7 +133,7 @@ void cadical_freeze (CaDiCaLSolver *, int lit);
 /// @return 
 int cadical_frozen (CaDiCaLSolver *, int lit);
 void cadical_melt (CaDiCaLSolver *, int lit);
-/// @briefThis function executes the given number of preprocessing rounds. It is
+/// @brief This function executes the given number of preprocessing rounds. It is
 /// similar to 'solve' with 'limits ("preprocessing", rounds)' except that
 /// no CDCL nor local search, nor lucky phases are executed.
 /// @param  

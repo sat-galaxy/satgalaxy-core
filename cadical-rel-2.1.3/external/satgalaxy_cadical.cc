@@ -367,6 +367,11 @@ void cadical_destroy (CaDiCaLSolver *s) {
   delete solver;
   delete s;
 }
+int cadical_vars (CaDiCaLSolver *s){
+  CaDiCaL::Solver *solver = s->solver;
+  return solver->vars();
+
+}
 
 void cadical_add_clause (CaDiCaLSolver *s, const int ps[],
                         unsigned long length) {
