@@ -2,6 +2,9 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
 void Reap::init () {
   for (auto &bucket : buckets)
@@ -27,7 +30,13 @@ Reap::Reap () {
 }
 
 static inline unsigned leading_zeroes_of_unsigned (unsigned x) {
-  return x ? __builtin_clz (x) : sizeof (unsigned) * 8;
+  #if defined(_MSC_VER)
+    unsigned long index;
+    _BitScanReverse(&index, x);
+    return x ? 31 - index: sizeof (unsigned) * 8;
+#else
+    return x ? __builtin_clz (x) : sizeof (unsigned) * 8;
+#endif
 }
 
 void Reap::push (unsigned e) {

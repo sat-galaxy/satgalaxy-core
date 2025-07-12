@@ -1,5 +1,18 @@
 #include "internal.hpp"
 
+#ifndef PREFETCH
+#if defined(_MSC_VER)
+#include <intrin.h>
+#define PREFETCH(addr, rw, locality) \
+    _mm_prefetch((const char*)(addr), locality == 0 ? _MM_HINT_NTA : \
+                  (locality == 1 || locality == 2) ? _MM_HINT_T1 : _MM_HINT_T0)
+#elif defined(__GNUC__) || defined(__clang__)
+#define PREFETCH(addr, rw, locality) __builtin_prefetch(addr, rw, locality)
+#else
+// 默认实现（空操作）
+#define PREFETCH(addr, rw, locality) ((void)0)
+#endif
+#endif
 namespace CaDiCaL {
 
 /*------------------------------------------------------------------------*/
@@ -162,7 +175,7 @@ inline void Internal::search_assign (int lit, Clause *reason) {
     const Watches &ws = watches (-lit);
     if (!ws.empty ()) {
       const Watch &w = ws[0];
-      __builtin_prefetch (&w, 0, 1);
+      PREFETCH (&w, 0, 1);
     }
   }
   lrat_chain.clear ();

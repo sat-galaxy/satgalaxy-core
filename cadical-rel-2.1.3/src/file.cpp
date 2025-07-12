@@ -11,8 +11,72 @@ extern "C" {
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <stdio.h>
+#else
 #include <unistd.h>
+#endif
 }
+
+#ifdef _WIN32
+ #include <direct.h>
+ #include <io.h>
+ #else
+ #include <unistd.h>
+ #include <sys/stat.h>
+ #endif
+
+#ifdef _WIN32
+    #define popen _popen
+    #define pclose _pclose
+#endif
+
+#ifdef _WIN32
+    // Windows 文件类型宏定义
+    #ifndef S_ISDIR
+        #define S_ISDIR(mode) (((mode) & _S_IFMT) == _S_IFDIR)
+    #endif
+    #ifndef S_ISREG
+        #define S_ISREG(mode) (((mode) & _S_IFMT) == _S_IFREG)
+    #endif
+    #ifndef S_ISCHR
+        #define S_ISCHR(mode) (((mode) & _S_IFMT) == _S_IFCHR)
+    #endif
+    #ifndef S_ISFIFO
+        #ifdef _S_IFIFO
+            #define S_ISFIFO(mode) (((mode) & _S_IFMT) == _S_IFIFO)
+        #else
+            // Windows 没有原生 FIFO 支持
+            #define S_ISFIFO(mode) (0)
+        #endif
+    #endif
+    #ifndef S_ISLNK
+        #define S_ISLNK(mode) (0) // Windows 符号链接需要特殊处理
+    #endif
+    #ifndef S_ISBLK
+        #define S_ISBLK(mode) (0) // Windows 没有块设备
+    #endif
+    #ifndef S_ISSOCK
+        #define S_ISSOCK(mode) (0) // Windows 套接字不是文件
+    #endif
+#else
+    // POSIX 系统已有定义，确保包含必要头文件
+    #include <unistd.h>
+#endif
+
+#ifndef R_OK
+    #define R_OK 4  // 读权限
+#endif
+#ifndef W_OK
+    #define W_OK 2  // 写权限
+#endif
+#ifndef X_OK
+    #define X_OK 1  // 执行权限
+#endif
+#ifndef F_OK
+    #define F_OK 0  // 文件存在性
+#endif
 
 #ifndef _WIN32
 

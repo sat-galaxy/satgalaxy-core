@@ -1054,10 +1054,18 @@ private:
   //
   // TODO: support for other compilers (beside 'gcc' and 'clang').
 
-#define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, \
-                                 VARIADIC_ARGUMENT_POSITION) \
-  __attribute__ ((format (PRINTF_FORMAT, FORMAT_POSITION, \
-                          VARIADIC_ARGUMENT_POSITION)))
+#if defined(__GNUC__) || defined(__clang__)
+  // GCC 和 Clang 编译器使用原属性
+  #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION) \
+    __attribute__ ((format (printf, FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION)))
+#elif defined(_MSC_VER)
+  // MSVC 编译器使用 SAL 注解
+  #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION) \
+    _Printf_format_string_
+#else
+  // 其他编译器定义为空
+  #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION)
+#endif
 
   // Messages in a common style.
   //
@@ -1079,6 +1087,7 @@ private:
   //
   void verbose (int level, const char *, ...)
       CADICAL_ATTRIBUTE_FORMAT (3, 4);
+
 
   // Factoring out common code to both 'read_dimacs' functions above.
   //

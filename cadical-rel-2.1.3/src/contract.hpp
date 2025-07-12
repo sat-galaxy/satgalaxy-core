@@ -11,6 +11,11 @@
 // better to allow the user to provide a call back function, which then can
 // for instance throw a C++ exception or execute a 'longjmp' in 'C' etc.
 
+#if defined(_MSC_VER) && !defined(__PRETTY_FUNCTION__)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
+
 #define CONTRACT_VIOLATED(...) \
   do { \
     fatal_message_start (); \
