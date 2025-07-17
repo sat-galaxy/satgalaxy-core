@@ -3,6 +3,11 @@
 #include "minisat/simp/SimpSolver.h"
 #include "minisat/utils/Options.h"
 
+struct MiniSATSolver
+{
+  int last_error;
+  Minisat::SimpSolver *solver;
+};
 Minisat::Lit make_lit(Minisat::SimpSolver *solver, int val)
 {
     int value = abs(val) - 1;
@@ -12,29 +17,31 @@ Minisat::Lit make_lit(Minisat::SimpSolver *solver, int val)
     }
     return Minisat::mkLit(value, val < 0);
 }
-void *minisat_new_solver()
+MiniSATSolver *minisat_new_solver()
 {
-    return new Minisat::SimpSolver();
+    MiniSATSolver *solver = new MiniSATSolver();
+    solver->solver = new Minisat::SimpSolver();
+    return solver;
 }
-void minisat_destroy(const void *s)
+void minisat_destroy(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver = s->solver;
     delete solver;
 }
-int minisat_new_var(const void *s)
+int minisat_new_var(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->newVar();
 }
-void minisat_release_var(const void *s, int l)
+void minisat_release_var(MiniSATSolver* s, int l)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     solver->releaseVar(make_lit(solver, l));
 }
 
-int minisat_add_clause(const void *s, const int ps[], unsigned long length)
+int minisat_add_clause(MiniSATSolver* s, const int ps[], unsigned long length)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
     for (unsigned long i = 0; i < length; i++)
     {
@@ -42,15 +49,15 @@ int minisat_add_clause(const void *s, const int ps[], unsigned long length)
     }
     return solver->addClause(lits);
 }
-int minisat_add_empty_clause(const void *s)
+int minisat_add_empty_clause(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->addEmptyClause();
 }
 
-int minisat_solve_assumps(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_assumps(MiniSATSolver* s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
     for (unsigned long i = 0; i < length; i++)
     {
@@ -58,9 +65,9 @@ int minisat_solve_assumps(const void *s, const int ps[], unsigned long length, i
     }
     return solver->solve(lits, (int)do_simp, (int)turn_off_simp);
 }
-int minisat_solve_limited(const void *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_limited(MiniSATSolver* s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
     for (unsigned long i = 0; i < length; i++)
     {
@@ -68,68 +75,68 @@ int minisat_solve_limited(const void *s, const int ps[], unsigned long length, i
     }
     return (Minisat::toInt(solver->solveLimited(lits, (int)do_simp, (int)turn_off_simp)) + 1) * 10;
 }
-int minisat_solve(const void *s, int do_simp, int turn_off_simp)
+int minisat_solve(MiniSATSolver* s, int do_simp, int turn_off_simp)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->solve((int)do_simp, (int)turn_off_simp);
 }
 
-int minisat_eliminate(const void *s, int turn_off_elim)
+int minisat_eliminate(MiniSATSolver* s, int turn_off_elim)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->eliminate(turn_off_elim);
 }
 
-int minisat_nassigns(const void *s)
+int minisat_nassigns(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->nAssigns();
 }
-int minisat_nclauses(const void *s)
+int minisat_nclauses(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->nClauses();
 }
-int minisat_nlearnts(const void *s)
+int minisat_nlearnts(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->nLearnts();
 }
-int minisat_nvars(const void *s)
+int minisat_nvars(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->nVars();
 }
-int minisat_nfree_vars(const void *s)
+int minisat_nfree_vars(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return solver->nFreeVars();
 }
-int minisat_value(const void *s, int val)
+int minisat_value(MiniSATSolver* s, int val)
 {
     int abs_val = abs(val);
 
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     if (abs_val == 0 || abs_val > solver->nVars())
     {
         return 0;
     }
     return ((val < 0) ^ (solver->value(abs_val - 1) == Minisat::l_True));
 }
-int minisat_model_value(const void *s, int val)
+int minisat_model_value(MiniSATSolver* s, int val)
 {
     int abs_val = abs(val);
 
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     if (abs_val == 0 || abs_val > solver->nVars())
     {
         return 0;
     }
     return (int)(((val < 0) ^ solver->model[abs_val - 1] == Minisat::l_True));
 }
-int minisat_okay(const void *s)
+int minisat_okay(MiniSATSolver* s)
 {
-    Minisat::SimpSolver *solver = (Minisat::SimpSolver *)s;
+    Minisat::SimpSolver *solver =  s->solver;
     return (int)solver->okay();
 }
 

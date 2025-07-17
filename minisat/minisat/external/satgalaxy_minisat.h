@@ -7,6 +7,8 @@
 extern "C"
 {
 #endif
+typedef struct MiniSATSolver MiniSATSolver;
+
     /// @brief get error message by error code
     /// @param code error code
     /// @return message
@@ -112,32 +114,32 @@ extern "C"
     /// @return error code, 0 for success, others for invalid parameter
     int minisat_set_opt_verbosity(int verb);
 
-    void *minisat_new_solver();
+    MiniSATSolver *minisat_new_solver();
     /// @brief  Add a new variable to the solver.
     /// @param solver 
     /// @return variable id
-    int minisat_new_var(const void *solver);
-    void minisat_release_var(const void *solver, int l);
+    int minisat_new_var(MiniSATSolver* solver);
+    void minisat_release_var(MiniSATSolver* solver, int l);
     /// @brief  Add a clause to the solver.
     /// @param solver 
     /// @param ps  array of literals
     /// @param length  length of the array
     /// @return boolean value
-    int minisat_add_clause(const void *solver, const int ps[], unsigned long length);
+    int minisat_add_clause(MiniSATSolver* solver, const int ps[], unsigned long length);
     /// @brief  Add the empty clause to the solver.
     /// @param solver 
     /// @return boolean value
-    int minisat_add_empty_clause(const void *solver);
+    int minisat_add_empty_clause(MiniSATSolver* solver);
     /// @brief  Get the value of a literal.
     /// @param solver 
     /// @param x  literal
     /// @return 0 if false, 1 if true, 2 if undefined
-    int minisat_value(const void *solver, int x);
+    int minisat_value(MiniSATSolver* solver, int x);
       /// @brief  Get the value of a literal in the model.
     /// @param solver 
     /// @param x  literal
     /// @return 0 if false, 1 if true, 2 if undefined
-    int minisat_model_value(const void *solver, int x);
+    int minisat_model_value(MiniSATSolver* solver, int x);
 
     /// @brief  Solve the problem with assumptions.
     /// @param solver 
@@ -146,7 +148,7 @@ extern "C"
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
     /// @param turn_off_simp  boolean value, recommand false (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
-    int minisat_solve_assumps(const void *solver, const int assumps[],
+    int minisat_solve_assumps(MiniSATSolver* solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
      /// @brief  Solve the problem with limited.
@@ -156,7 +158,7 @@ extern "C"
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
-    int minisat_solve_limited(const void *solver, const int assumps[],
+    int minisat_solve_limited(MiniSATSolver* solver, const int assumps[],
                               unsigned long length, int do_simp,
                               int turn_off_simp);
    /// @brief  Solve the problem.
@@ -164,29 +166,29 @@ extern "C"
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
-    int minisat_solve(const void *solver, int do_simp, int turn_off_simp);
+    int minisat_solve(MiniSATSolver* solver, int do_simp, int turn_off_simp);
     /// @brief   Perform variable elimination based simplification.
     /// @param solver 
     /// @param assumps  array of assumptions
     /// @param length  length of the array
     /// @param turn_off_elim  boolean value, recommand false  (1=true, 0=false)
     int minisat_eliminate(
-        const void *solver,
+        MiniSATSolver* solver,
         int turn_off_elim);
     /// The current number of assigned literals.
-    int minisat_nassigns(const void *solver);
+    int minisat_nassigns(MiniSATSolver* solver);
     /// The current number of original clauses.
-    int minisat_nclauses(const void *solver);
+    int minisat_nclauses(MiniSATSolver* solver);
     /// The current number of learnt clauses.
-    int minisat_nlearnts(const void *solver);
+    int minisat_nlearnts(MiniSATSolver* solver);
     /// The current number of variables.
-    int minisat_nvars(const void *solver);
-    int minisat_nfree_vars(const void *solver);
-    void minisat_destroy(const void *solver);
+    int minisat_nvars(MiniSATSolver* solver);
+    int minisat_nfree_vars(MiniSATSolver* solver);
+    void minisat_destroy(MiniSATSolver* solver);
     /// @brief  Check if the solver is okay.
     /// @param solver 
     /// @return boolean value
-    int minisat_okay(const void *solver);
+    int minisat_okay(MiniSATSolver* solver);
 #ifdef __cplusplus
 }
 #endif
