@@ -5,7 +5,7 @@ include(../cmake/config.cmake)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
-add_definitions(-DGALAXY_CORE)
+add_definitions(-DGALAXY_CORE -DERRORJMP)
 
 
 set(LIB_SOURCES

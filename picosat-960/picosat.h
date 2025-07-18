@@ -23,11 +23,70 @@ IN THE SOFTWARE.
 #ifndef picosat_h_INCLUDED
 #define picosat_h_INCLUDED
 
+#ifdef ERRORJMP
+#include <setjmp.h>
+#endif
 /*------------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef ERRORJMP
+enum PicoSATErrorCodes {
+  ERR_OUT_OF_MEMORY_NEW = 100,
+  ERR_OUT_OF_MEMORY_RESIZE = 101,
+  ERR_MISSING_SET_NEW = 102,
+  ERR_MISSING_SET_RESIZE = 103,
+  ERR_MISSING_SET_DELETE = 104,
+  ERR_ALLOC_PICOSAT_FAILED = 105,
+  ERR_INVALID_PS = 106,
+  ERR_ADO_LENGTH_MISMATCH = 107,
+  ERR_VAR_IN_MULTIPLE_ADOS = 108,
+  ERR_NULL_U = 109,
+  ERR_ADOTAB_EXISTS = 110,
+  ERR_INT_MIN_LITERAL = 111,
+  ERR_INVALID_LITERAL = 112,
+  ERR_UNINITIALIZED = 113,
+  ERR_NOT_SAT_STATE = 114,
+  ERR_NOT_UNSAT_STATE = 115,
+  ERR_INVALID_STATE = 116,
+  ERR_TRACING_DISABLED = 117,
+  ERR_ZERO_MALLOC = 118,
+  ERR_ZERO_REALLOC = 119,
+  ERR_ZERO_FREE = 120,
+  ERR_INVALID_MAX_VAR = 121,
+  ERR_TOO_MANY_POP = 122,
+  ERR_INCOMPLETE_CLAUSE = 123,
+  ERR_ADDED_CLAUSES = 124,
+  ERR_TOO_MANY_CLAUSES = 125,
+  ERR_ADDING_TO_ADO = 126,
+  ERR_ADO_HEAD_MISMATCH = 127,
+  ERR_ZERO_DEREF = 128,
+  ERR_DEREF_AFTER_MTCLS = 129,
+  ERR_ZERO_CORE_LITERAL = 130,
+  ERR_NEGATIVE_OCLS = 131,
+  ERR_OCLS_EXCEEDED = 132,
+  ERR_ZERO_ASSUMPTION = 133,
+  ERR_ZERO_CONTEXT = 134,
+  ERR_INVALID_CONTEXT = 135,
+  ERR_MTCLS = 136,
+  ERR_ZERO_LITERAL_USE = 137,
+  ERR_INVALID_PHASE_NEG = 138,
+  ERR_INVALID_PHASE_HIGH = 139,
+  ERR_VAR_IMPORTANCE_CONFLICT = 140,
+  ERR_SAVE_ORIG_TOO_LATE = 141,
+  ERR_ZERO_PARTIAL_DEREF = 142,
+  ERR_DEREF_PARTIAL_MTCLS = 143,
+  ERR_SAVE_ORIG_MISSING = 144,
+  ERR_ADO_NOT_IMPLEMENTED = 145,
+  ERR_INVALID_LITERAL_IMPORT = 146,
+  ERR_INVALID_CONTEXT_IMPORT = 147,
+  ERR_NO_TRACE_SUPPORT = 148,
+  ERR_NO_ADO_SUPPORT = 149,
+  ERR_INCOMPLETE_ADO = 150,
+  ERR_INCOMPLETE_CLAUSE_ABORT = 151
+};
+#endif
 /*------------------------------------------------------------------------*/
 /* The following macros allows for users to distiguish between different
  * versions of the API.  The first 'PICOSAT_REENTRANT_API' is defined for
@@ -646,4 +705,9 @@ void picosat_write_rup_trace (PicoSAT *, FILE * trace_file);
 
 int picosat_usedlit (PicoSAT *, int lit);
 /*------------------------------------------------------------------------*/
+
+#ifdef ERRORJMP
+jmp_buf picosat_jmp_buf (PicoSAT *);
+const char* picosat_error_message(int errcode);
+#endif
 #endif
