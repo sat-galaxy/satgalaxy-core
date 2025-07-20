@@ -72,14 +72,14 @@ const char *picosat_version (void){
 
 
 
-PicoSATSolver *Picosat_init(void) {
+PicoSATSolver *picosat_s_init(void) {
   PicoSATSolver *solver = malloc(sizeof(PicoSATSolver));
   solver->solver = (PicoSAT *)picosat_init();
   solver->error = 0;
   return solver;
 }
 
-PicoSATSolver *Picosat_minit(void *state,
+PicoSATSolver *picosat_s_minit(void *state,
                                        picosat_s_malloc m,
                                        picosat_s_realloc r,
                                        picosat_s_free f) {
@@ -240,9 +240,16 @@ int picosat_s_add_arg(PicoSATSolver *solver, ...) {
   va_list args;
   CALL_PICOSAT_RETURN(solver,0,picosat_add_arg,args);
 }
+int _picosat_s_add_lits(PicoSAT *solver,const int *lits, size_t len) {
+  int i;
+  for (i = 0; i < len; i++) {
+    picosat_add(solver, lits[i]);
+  }
+  return picosat_add(solver, 0); // Add a zero terminator to the clause
+}
+int picosat_s_add_lits(PicoSATSolver *solver,const int *lits, size_t len) {
 
-int picosat_s_add_lits(PicoSATSolver *solver,const int *lits) {
-  CALL_PICOSAT_RETURN(solver,0,picosat_add_lits,lits);
+  CALL_PICOSAT_RETURN(solver,0,_picosat_s_add_lits,lits,len);
 }
 
 void picosat_s_print(PicoSATSolver *solver, FILE *file) {

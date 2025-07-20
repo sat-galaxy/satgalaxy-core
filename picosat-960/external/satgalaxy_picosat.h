@@ -255,7 +255,7 @@ extern "C"
     /// @param lits Array of literals terminated by zero (picosat_s_add_lits).
     /// @note Adding a literal resets the previous assignment.
     /// @return The original clause index (starting at 0) for the added literal or clause.
-    int picosat_s_add_lits(PicoSATSolver *solver, const int *lits);
+    int picosat_s_add_lits(PicoSATSolver *solver, const int *lits, size_t len);
 
     /// @brief Prints the CNF to a file in DIMACS format.
     /// @param solver Pointer to the PicoSATSolver.
