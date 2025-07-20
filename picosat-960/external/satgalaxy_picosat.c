@@ -6,6 +6,56 @@
 #include "picosat.h"
 #include <stdarg.h>
 
+#define CALL_PICOSAT(s,func, ...) \
+  do { \
+    jmp_buf *buf=picosat_jmp_buf(s->solver);\
+    int code =  setjmp(*buf); \
+    s->error=code; \
+    if (code) { \
+      return; \
+    }else{ \
+      func(s->solver,__VA_ARGS__);\
+    }\
+  } while (0)
+
+  #define CALL_PICOSAT_ZORE(s,func) \
+  do { \
+    jmp_buf *buf=picosat_jmp_buf(s->solver);\
+    int code =  setjmp(*buf); \
+    s->error=code; \
+    if (code) { \
+      return; \
+    }else{ \
+      func(s->solver);\
+    }\
+  } while (0)
+
+#define CALL_PICOSAT_RETURN(s,rv,func, ...) \
+  do { \
+    jmp_buf *buf=picosat_jmp_buf(s->solver);\
+    int code =  setjmp(*buf); \
+    s->error=code; \
+    if (code) { \
+      return rv; \
+    }else{ \
+      func(s->solver,__VA_ARGS__);\
+    }\
+  } while (0)
+
+  #define CALL_PICOSAT_ZERO_RETURN(s,rv,func) \
+  do { \
+    jmp_buf *buf=picosat_jmp_buf(s->solver);\
+    int code =  setjmp(*buf); \
+    s->error=code; \
+    if (code) { \
+      return rv; \
+    }else{ \
+      return func(s->solver);\
+    }\
+  } while (0)
+
+extern void picosat_enter (PicoSAT *);
+extern void picosat_leave (PicoSAT *);
 
 struct PicoSATSolver
 {
@@ -18,6 +68,10 @@ struct PicoSATSolver
 const char *picosat_version (void){
   return "PICOSAT_VERSION";
 }
+
+
+
+
 PicoSATSolver *Picosat_init(void) {
   PicoSATSolver *solver = malloc(sizeof(PicoSATSolver));
   solver->solver = (PicoSAT *)picosat_init();
@@ -26,263 +80,277 @@ PicoSATSolver *Picosat_init(void) {
 }
 
 PicoSATSolver *Picosat_minit(void *state,
-                                       Picosat_malloc m,
-                                       Picosat_realloc r,
-                                       Picosat_free f) {
-  return (PicoSATSolver *)picosat_minit(state, m, r, f);
+                                       picosat_s_malloc m,
+                                       picosat_s_realloc r,
+                                       picosat_s_free f) {
+  PicoSATSolver *solver = malloc(sizeof(PicoSATSolver));
+  solver->solver = (PicoSAT *)picosat_minit(state, m, r, f);
+  solver->error = 0;
+  return solver;
 }
 
-void Picosat_reset(PicoSATSolver *solver) {
-  picosat_reset(solver->solver);
+void picosat_s_reset(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_reset);
 }
-void Picosat_set_output(PicoSATSolver *solver, FILE *file) {
-  picosat_set_output(solver->solver, file);
-}
-
-void Picosat_measure_all_calls(PicoSATSolver *solver) {
-  picosat_measure_all_calls(solver->solver);
+void picosat_s_set_output(PicoSATSolver *solver, FILE *file) {
+  CALL_PICOSAT(solver,picosat_set_output, file);
 }
 
-void Picosat_set_prefix(PicoSATSolver *solver, const char *prefix) {
-  picosat_set_prefix(solver->solver, prefix);
+void picosat_s_enter (PicoSATSolver *solver){
+  CALL_PICOSAT_ZORE(solver,picosat_enter);
+}
+void picosat_s_leave (PicoSATSolver *solver){
+  CALL_PICOSAT_ZORE(solver,picosat_leave);
 }
 
-void Picosat_set_verbosity(PicoSATSolver *solver, int new_verbosity_level) {
-  picosat_set_verbosity(solver->solver, new_verbosity_level);
+void picosat_s_measure_all_calls(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_measure_all_calls);
 }
 
-void Picosat_set_plain(PicoSATSolver *solver, int new_plain_value) {
-  picosat_set_plain(solver->solver, new_plain_value);
+void picosat_s_set_prefix(PicoSATSolver *solver, const char *prefix) {
+  CALL_PICOSAT(solver,picosat_set_prefix,prefix);
 }
 
-void Picosat_set_global_default_phase(PicoSATSolver *solver, int phase) {
-  picosat_set_global_default_phase(solver->solver, phase);
+void picosat_s_set_verbosity(PicoSATSolver *solver, int new_verbosity_level) {
+  CALL_PICOSAT(solver,picosat_set_verbosity,new_verbosity_level);
 }
 
-void Picosat_set_default_phase_lit(PicoSATSolver *solver, int lit, int phase) {
-  picosat_set_default_phase_lit(solver->solver, lit, phase);
+void picosat_s_set_plain(PicoSATSolver *solver, int new_plain_value) {
+  CALL_PICOSAT(solver,picosat_set_plain,new_plain_value);
 }
 
-void Picosat_reset_phases(PicoSATSolver *solver) {
-  picosat_reset_phases(solver->solver);
+void picosat_s_set_global_default_phase(PicoSATSolver *solver, int phase) {
+  CALL_PICOSAT(solver,picosat_set_global_default_phase,phase);
 }
 
-void Picosat_reset_scores(PicoSATSolver *solver) {
-  picosat_reset_scores(solver->solver);
+void picosat_s_set_default_phase_lit(PicoSATSolver *solver, int lit, int phase) {
+  CALL_PICOSAT(solver,picosat_set_default_phase_lit,lit,phase);
 }
 
-void Picosat_remove_learned(PicoSATSolver *solver, unsigned percentage) {
-  picosat_remove_learned(solver->solver, percentage);
+void picosat_s_reset_phases(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_reset_phases);
 }
 
-void Picosat_set_more_important_lit(PicoSATSolver *solver, int lit) {
-  picosat_set_more_important_lit(solver->solver, lit);
+void picosat_s_reset_scores(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_reset_scores);
 }
 
-void Picosat_set_less_important_lit(PicoSATSolver *solver, int lit) {
-  picosat_set_less_important_lit(solver->solver, lit);
+void picosat_s_remove_learned(PicoSATSolver *solver, unsigned percentage) {
+  CALL_PICOSAT(solver,picosat_remove_learned,percentage);
 }
 
-void Picosat_message(PicoSATSolver *solver, int verbosity_level, const char *fmt, ...) {
+void picosat_s_set_more_important_lit(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT(solver,picosat_set_more_important_lit,lit);
+}
+
+void picosat_s_set_less_important_lit(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT(solver,picosat_set_less_important_lit,lit);
+}
+
+void picosat_s_message(PicoSATSolver *solver, int verbosity_level, const char *fmt, ...) {
   va_list args;
-  va_start(args, fmt);
-  picosat_message(solver->solver, verbosity_level, fmt, args);
-  va_end(args);
+  CALL_PICOSAT(solver,picosat_message,verbosity_level,fmt,args);
 }
 
-void Picosat_set_seed(PicoSATSolver *solver, unsigned random_number_generator_seed) {
-  picosat_set_seed(solver->solver, random_number_generator_seed);
+void picosat_s_set_seed(PicoSATSolver *solver, unsigned random_number_generator_seed) {
+  CALL_PICOSAT(solver,picosat_set_seed,random_number_generator_seed);
 }
 
-int Picosat_enable_trace_generation(PicoSATSolver *solver) {
-  return picosat_enable_trace_generation(solver->solver);
+int picosat_s_enable_trace_generation(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_enable_trace_generation);
 }
 
-void Picosat_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n) {
-  picosat_set_incremental_rup_file(solver->solver, file, m, n);
+void picosat_s_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n) {
+  CALL_PICOSAT(solver,picosat_set_incremental_rup_file,file,m,n);
 }
 
-void Picosat_save_original_clauses(PicoSATSolver *solver) {
-  picosat_save_original_clauses(solver->solver);
+void picosat_s_save_original_clauses(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_save_original_clauses);
 }
 
-int Picosat_inc_max_var(PicoSATSolver *solver) {
-  return picosat_inc_max_var(solver->solver);
+int picosat_s_inc_max_var(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_inc_max_var);
 }
 
-int Picosat_push(PicoSATSolver *solver) {
-  return picosat_push(solver->solver);
+int picosat_s_push(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_push);
 }
 
-int Picosat_failed_context(PicoSATSolver *solver, int lit) {
-  return picosat_failed_context(solver->solver, lit);
+int picosat_s_failed_context(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_failed_context,lit);
 }
 
-int Picosat_context(PicoSATSolver *solver) {
-  return picosat_context(solver->solver);
+int picosat_s_context(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_context);
 }
 
-int Picosat_pop(PicoSATSolver *solver) {
-  return picosat_pop(solver->solver);
+int picosat_s_pop(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_pop);
 }
 
-void Picosat_simplify(PicoSATSolver *solver) {
-  picosat_simplify(solver->solver);
+void picosat_s_simplify(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_simplify);
 }
 
-void Picosat_adjust(PicoSATSolver *solver, int max_idx) {
-  picosat_adjust(solver->solver, max_idx);
+void picosat_s_adjust(PicoSATSolver *solver, int max_idx) {
+  CALL_PICOSAT(solver,picosat_adjust,max_idx);
 }
 
-int Picosat_variables(PicoSATSolver *solver) {
-  return picosat_variables(solver->solver);
+int picosat_s_variables(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_variables);
 }
 
-int Picosat_added_original_clauses(PicoSATSolver *solver) {
-  return picosat_added_original_clauses(solver->solver);
+int picosat_s_added_original_clauses(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_added_original_clauses);
 }
 
-size_t Picosat_max_bytes_allocated(PicoSATSolver *solver) {
-  return picosat_max_bytes_allocated(solver->solver);
+size_t picosat_s_max_bytes_allocated(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_max_bytes_allocated);
 }
 
-double Picosat_time_stamp(void) {
-  return picosat_time_stamp();
+double picosat_s_time_stamp(void) {
+  return picosat_s_time_stamp();
 }
 
-void Picosat_stats(PicoSATSolver *solver) {
-  picosat_stats(solver->solver);
+void picosat_s_stats(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZORE(solver,picosat_stats);
 }
 
-unsigned long long Picosat_propagations(PicoSATSolver *solver) {
-  return picosat_propagations(solver->solver);
+unsigned long long picosat_s_propagations(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_propagations);
 }
 
-unsigned long long Picosat_decisions(PicoSATSolver *solver) {
-  return picosat_decisions(solver->solver);
+unsigned long long picosat_s_decisions(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_decisions);
 }
 
-unsigned long long Picosat_visits(PicoSATSolver *solver) {
-  return picosat_visits(solver->solver);
+unsigned long long picosat_s_visits(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_visits);
 }
 
-double Picosat_seconds(PicoSATSolver *solver) {
-  return picosat_seconds(solver->solver);
+double picosat_s_seconds(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_seconds);
 }
 
-int Picosat_add(PicoSATSolver *solver, int lit) {
-  return picosat_add(solver->solver, lit);
+int picosat_s_add(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_add,lit);
 }
 
-int Picosat_add_arg(PicoSATSolver *solver, ...) {
+int picosat_s_add_arg(PicoSATSolver *solver, ...) {
   va_list args;
-  int res = picosat_add_arg(solver->solver, args);
-  return res;
+  CALL_PICOSAT_RETURN(solver,0,picosat_add_arg,args);
 }
 
-int Picosat_add_lits(PicoSATSolver *solver, int *lits) {
-  return picosat_add_lits(solver->solver, lits);
+int picosat_s_add_lits(PicoSATSolver *solver,const int *lits) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_add_lits,lits);
 }
 
-void Picosat_print(PicoSATSolver *solver, FILE *file) {
-  picosat_print(solver->solver, file);
+void picosat_s_print(PicoSATSolver *solver, FILE *file) {
+  CALL_PICOSAT(solver,picosat_print,file);
 }
 
-void Picosat_assume(PicoSATSolver *solver, int lit) {
-  picosat_assume(solver->solver, lit);
+void picosat_s_assume(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT(solver,picosat_assume,lit);
 }
 
-void Picosat_add_ado_lit(PicoSATSolver *solver, int lit) {
-  picosat_add_ado_lit(solver->solver, lit);
+void picosat_s_add_ado_lit(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT(solver,picosat_add_ado_lit,lit);
 }
 
-int Picosat_sat(PicoSATSolver *solver, int decision_limit) {
-  return picosat_sat(solver->solver, decision_limit);
+int picosat_s_sat(PicoSATSolver *solver, int decision_limit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_sat,decision_limit);
 }
 
-void Picosat_set_propagation_limit(PicoSATSolver *solver, unsigned long long limit) {
-  picosat_set_propagation_limit(solver->solver, limit);
+void picosat_s_set_propagation_limit(PicoSATSolver *solver, unsigned long long limit) {
+  CALL_PICOSAT(solver,picosat_set_propagation_limit,limit);
 }
 
-int Picosat_res(PicoSATSolver *solver) {
-  return picosat_res(solver->solver);
+int picosat_s_res(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_res);
 }
 
-int Picosat_deref(PicoSATSolver *solver, int lit) {
-  return picosat_deref(solver->solver, lit);
+int picosat_s_deref(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_deref,lit);
 }
 
-int Picosat_deref_toplevel(PicoSATSolver *solver, int lit) {
-  return picosat_deref_toplevel(solver->solver, lit);
+int picosat_s_deref_toplevel(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_deref_toplevel,lit);
 }
 
-int Picosat_deref_partial(PicoSATSolver *solver, int lit) {
-  return picosat_deref_partial(solver->solver, lit);
+int picosat_s_deref_partial(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_deref_partial,lit);
 }
 
-int Picosat_inconsistent(PicoSATSolver *solver) {
-  return picosat_inconsistent(solver->solver);
+int picosat_s_inconsistent(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_inconsistent);
 }
 
-int Picosat_failed_assumption(PicoSATSolver *solver, int lit) {
-  return picosat_failed_assumption(solver->solver, lit);
+int picosat_s_failed_assumption(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_failed_assumption,lit);
 }
 
-const int *Picosat_failed_assumptions(PicoSATSolver *solver) {
-  return picosat_failed_assumptions(solver->solver);
+const int *picosat_s_failed_assumptions(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_failed_assumptions);
 }
 
-const int *Picosat_mus_assumptions(PicoSATSolver *solver, void *state,
+const int *picosat_s_mus_assumptions(PicoSATSolver *solver, void *state,
                                              void (*callback)(void *, const int *), int fix) {
-  return picosat_mus_assumptions(solver->solver, state, callback, fix);
+  CALL_PICOSAT_RETURN(solver,0,picosat_mus_assumptions,state,callback,fix);
 }
 
-const int *Picosat_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver) {
-  return picosat_maximal_satisfiable_subset_of_assumptions(solver->solver);
+const int *picosat_s_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_maximal_satisfiable_subset_of_assumptions);
 }
 
-const int *Picosat_next_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver) {
-  return picosat_next_maximal_satisfiable_subset_of_assumptions(solver->solver);
+const int *picosat_s_next_maximal_satisfiable_subset_of_assumptions(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_next_maximal_satisfiable_subset_of_assumptions);
 }
 
-const int *Picosat_next_minimal_correcting_subset_of_assumptions(PicoSATSolver *solver) {
-  return picosat_next_minimal_correcting_subset_of_assumptions(solver->solver);
+const int *picosat_s_next_minimal_correcting_subset_of_assumptions(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_next_minimal_correcting_subset_of_assumptions);
 }
 
-const int *Picosat_humus(PicoSATSolver *solver,
+const int *picosat_s_humus(PicoSATSolver *solver,
                                    void (*callback)(void *, int nmcs, int nhumus),
                                    void *state) {
-  return picosat_humus(solver->solver, callback, state);
+  CALL_PICOSAT_RETURN(solver,0,picosat_humus,callback,state);
 }
 
-int Picosat_changed(PicoSATSolver *solver) {
-  return picosat_changed(solver->solver);
+int picosat_s_changed(PicoSATSolver *solver) {
+  CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_changed);
 }
 
-int Picosat_coreclause(PicoSATSolver *solver, int i) {
-  return picosat_coreclause(solver->solver, i);
+int picosat_s_coreclause(PicoSATSolver *solver, int i) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_coreclause,i);
 }
 
-int Picosat_corelit(PicoSATSolver *solver, int lit) {
-  return picosat_corelit(solver->solver, lit);
+int picosat_s_corelit(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_corelit,lit);
 }
 
-void Picosat_write_clausal_core(PicoSATSolver *solver, FILE *core_file) {
-  picosat_write_clausal_core(solver->solver, core_file);
+void picosat_s_write_clausal_core(PicoSATSolver *solver, FILE *core_file) {
+  CALL_PICOSAT(solver,picosat_write_clausal_core,core_file);
 }
 
-void Picosat_write_compact_trace(PicoSATSolver *solver, FILE *trace_file) {
-  picosat_write_compact_trace(solver->solver, trace_file);
+void picosat_s_write_compact_trace(PicoSATSolver *solver, FILE *trace_file) {
+  CALL_PICOSAT(solver,picosat_write_compact_trace,trace_file);
 }
 
-void Picosat_write_extended_trace(PicoSATSolver *solver, FILE *trace_file) {
-  picosat_write_extended_trace(solver->solver, trace_file);
+void picosat_s_write_extended_trace(PicoSATSolver *solver, FILE *trace_file) {
+  CALL_PICOSAT(solver,picosat_write_extended_trace,trace_file);
 }
 
-void Picosat_write_rup_trace(PicoSATSolver *solver, FILE *trace_file) {
-  picosat_write_rup_trace(solver->solver, trace_file);
+void picosat_s_write_rup_trace(PicoSATSolver *solver, FILE *trace_file) {
+  CALL_PICOSAT(solver,picosat_write_rup_trace,trace_file);
 }
 
-int Picosat_usedlit(PicoSATSolver *solver, int lit) {
-  return picosat_usedlit(solver->solver, lit);
+int picosat_s_usedlit(PicoSATSolver *solver, int lit) {
+  CALL_PICOSAT_RETURN(solver,0,picosat_usedlit,lit);
+}
+
+int picosat_s_error(PicoSATSolver *solver){
+  return solver->error;
+}
+const char* picosat_s_errmsg(int code){
+  return picosat_error_message(code);
 }

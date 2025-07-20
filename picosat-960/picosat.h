@@ -707,7 +707,9 @@ int picosat_usedlit (PicoSAT *, int lit);
 /*------------------------------------------------------------------------*/
 
 #ifdef ERRORJMP
-jmp_buf picosat_jmp_buf (PicoSAT *);
+jmp_buf* picosat_jmp_buf (PicoSAT *);
 const char* picosat_error_message(int errcode);
 #endif
-#endif
+
+#endif /* Picosat_H */
+

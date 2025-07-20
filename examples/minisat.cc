@@ -2,7 +2,7 @@
 #include "satgalaxy/satgalaxy_minisat.h" // Assuming this is your Minisat C interface header
 
 int main() {
-    void * solver = minisat_new_solver();
+    MiniSATSolver  * solver = minisat_new_solver();
 
     // Add some variables
     minisat_new_var(solver); // Variable 1

@@ -6683,15 +6683,9 @@ picosat_minit (void * pmgr,
 	       picosat_realloc presize,
 	       picosat_free pfree)
 {
-#ifdef ERRORJMP
-  ABORTIF(ps, !pnew, "API usage: zero 'picosat_malloc' argument", ERR_ZERO_MALLOC);
-  ABORTIF(ps, !presize, "API usage: zero 'picosat_realloc' argument", ERR_ZERO_REALLOC);
-  ABORTIF(ps, !pfree, "API usage: zero 'picosat_free' argument", ERR_ZERO_FREE);
-#else
-  ABORTIF (!pnew, "API usage: zero 'picosat_malloc' argument");
-  ABORTIF (!presize, "API usage: zero 'picosat_realloc' argument");
-  ABORTIF (!pfree, "API usage: zero 'picosat_free' argument");
-#endif
+  // ABORTIF (!pnew, "API usage: zero 'picosat_malloc' argument");
+  // ABORTIF (!presize, "API usage: zero 'picosat_realloc' argument");
+  // ABORTIF (!pfree, "API usage: zero 'picosat_free' argument");
   return init (pmgr, pnew, presize, pfree);
 }
 
@@ -8644,8 +8638,8 @@ picosat_deref_partial (PS * ps, int int_lit)
 }
 
 #ifdef ERRORJMP
-jmp_buf picosat_jmp_buf (PS * ps){
-  return ps->jmp_env;
+jmp_buf* picosat_jmp_buf (PS * ps){
+  return &ps->jmp_env;
 }
 const char* picosat_error_message(int errcode){
   switch (errcode) {
@@ -8755,5 +8749,6 @@ const char* picosat_error_message(int errcode){
       return "API usage: incomplete clause";
     default:
       return "Unknown error";
+  }
 }
 #endif

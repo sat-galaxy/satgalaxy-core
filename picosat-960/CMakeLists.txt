@@ -2,8 +2,23 @@ cmake_minimum_required(VERSION 3.10)
 
 project(picosat)
 include(../cmake/config.cmake)
+option(USE_LOG "Add low level logging code" OFF)
+option(USE_STATS "Enable expensive stats" OFF)
+option(USE_TRACE "Enable trace generation" OFF)
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
+
+if(USE_LOG)
+    add_definitions(-DLOGGING)
+endif()
+
+if(USE_STATS)
+    add_definitions(-DSTATS)
+endif()
+
+if(USE_TRACE)
+    add_definitions(-DTRACE)
+endif()
+
 
 add_definitions(-DGALAXY_CORE -DERRORJMP)
 
