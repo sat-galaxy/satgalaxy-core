@@ -30,9 +30,15 @@
 
 ## ✨ Supported Solvers
 
-* **Minisat**: A widely popular and robust SAT solver, known for its concise code and good performance.
-* **Glucose**: An acclaimed improvement over Minisat, consistently performing well in SAT competitions, especially when dealing with complex and unsatisfiable (UNSAT) instances.
+Currently, the following SAT solvers are supported：
 
+- Minisat([GitHub](https://github.com/niklasso/minisat))
+- Glucose([4.2.1](http://www.labri.fr/perso/lsimon/glucose/))
+- CaDiCaL([rel-2.1.3](https://github.com/arminbiere/cadical))
+- PicoSAT([960](https://fmv.jku.at/picosat/))
+
+Currently, the following MUS solver are supported：
+- PicoSAT([960](https://fmv.jku.at/picosat/))
 ---
 
 ## 📦 How to Use
