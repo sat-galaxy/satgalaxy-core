@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <vector>
-
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 namespace CaDiCaL {
 
 /*========================================================================*/
@@ -502,12 +504,12 @@ public:
 
   // Return the current state of the solver as defined above.
   //
-  const State &state () const { return _state; }
+  const State &state () { return _state; }
 
   // Similar to 'state ()' but using the standard competition exit codes of
   // '10' for 'SATISFIABLE', '20' for 'UNSATISFIABLE' and '0' otherwise.
   //
-  int status () const {
+  int status () {
     if (_state == SATISFIED)
       return 10;
     else if (_state == UNSATISFIED)
@@ -534,7 +536,7 @@ public:
   //   other.require (CONFIGURING)
   //   other.ensure (CONFIGURING | STEADY )
   //
-  void copy (Solver &other) const;
+  void copy (Solver &other);
 
   /*----------------------------------------------------------------------*/
   // Variables are usually added and initialized implicitly whenever a
@@ -682,9 +684,9 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  int active () const;          // Number of active variables.
-  int64_t redundant () const;   // Number of active redundant clauses.
-  int64_t irredundant () const; // Number of active irredundant clauses.
+  int active ();          // Number of active variables.
+  int64_t redundant ();   // Number of active redundant clauses.
+  int64_t irredundant (); // Number of active irredundant clauses.
 
   //------------------------------------------------------------------------
   // This function executes the given number of preprocessing rounds. It is
@@ -739,7 +741,7 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  bool frozen (int lit) const;
+  bool frozen (int lit);
   void freeze (int lit);
   void melt (int lit); // Also needs 'require (frozen (lit))'.
 
@@ -752,7 +754,7 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  int fixed (int lit) const;
+  int fixed (int lit);
 
   //------------------------------------------------------------------------
   // Force the default decision phase of a variable to a certain value.
@@ -878,9 +880,9 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  bool traverse_clauses (ClauseIterator &) const;
-  bool traverse_witnesses_backward (WitnessIterator &) const;
-  bool traverse_witnesses_forward (WitnessIterator &) const;
+  bool traverse_clauses (ClauseIterator &);
+  bool traverse_witnesses_backward (WitnessIterator &);
+  bool traverse_witnesses_forward (WitnessIterator &);
 
   //------------------------------------------------------------------------
   // Files with explicit path argument support compressed input and output
@@ -939,7 +941,9 @@ public:
   // is '<stdout>' or '<stderr>' then terminal color codes might be used.
   //
   static void build (FILE *file, const char *prefix = "c ");
-
+#ifdef ERRORJUMP
+jmp_buf* jmp_env;
+#endif
 private:
   //==== start of state ====================================================
 
@@ -1009,10 +1013,10 @@ private:
 
   //===== end of state ====================================================
 
-  void trace_api_call (const char *) const;
-  void trace_api_call (const char *, int) const;
-  void trace_api_call (const char *, const char *) const;
-  void trace_api_call (const char *, const char *, int) const;
+  void trace_api_call (const char *);
+  void trace_api_call (const char *, int);
+  void trace_api_call (const char *, const char *);
+  void trace_api_call (const char *, const char *, int);
 #endif
 
   void transition_to_steady_state ();
@@ -1055,15 +1059,12 @@ private:
   // TODO: support for other compilers (beside 'gcc' and 'clang').
 
 #if defined(__GNUC__) || defined(__clang__)
-  // GCC 和 Clang 编译器使用原属性
   #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION) \
     __attribute__ ((format (printf, FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION)))
 #elif defined(_MSC_VER)
-  // MSVC 编译器使用 SAL 注解
   #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION) \
     _Printf_format_string_
 #else
-  // 其他编译器定义为空
   #define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION)
 #endif
 

@@ -1,5 +1,7 @@
 #include "internal.hpp"
-
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 namespace CaDiCaL {
 
 /*------------------------------------------------------------------------*/
@@ -197,16 +199,20 @@ void fatal_message_end () {
   fputc ('\n', stderr);
   fflush (stderr);
   abort ();
+
 }
 
-void fatal (const char *fmt, ...) {
+void fatal (
+#ifdef ERRORJUMP
+    jmp_buf *jmp_env, int code,
+#endif
+    const char *fmt, ...) {
   fatal_message_start ();
   va_list ap;
   va_start (ap, fmt);
   vfprintf (stderr, fmt, ap);
   va_end (ap);
   fatal_message_end ();
-  abort ();
 }
 
 } // namespace CaDiCaL

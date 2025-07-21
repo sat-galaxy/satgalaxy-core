@@ -3,10 +3,18 @@
 
 namespace CaDiCaL {
 
-External::External (Internal *i)
+External::External (Internal *i
+#ifdef ERRORJUMP
+,jmp_buf* jmp_env
+#endif
+)
     : internal (i), max_var (0), vsize (0), extended (false),
       concluded (false), terminator (0), learner (0), fixed_listener (0),
-      propagator (0), solution (0), vars (max_var) {
+      propagator (0), solution (0), vars (max_var)
+#ifdef ERRORJUMP
+      ,jmp_env (jmp_env)
+#endif
+{
   assert (internal);
   assert (!internal->external);
   internal->external = this;
@@ -129,7 +137,7 @@ int External::internalize (int elit) {
     if (internal->opts.checkfrozen) {
       assert (eidx < (int64_t) moltentab.size ());
       if (moltentab[eidx])
-        FATAL ("can not reuse molten literal %d", eidx);
+        FATAL(400, "can not reuse molten literal %d", eidx);
     }
     Flags &f = internal->flags (ilit);
     if (f.status == Flags::UNUSED)
@@ -674,7 +682,7 @@ void External::check_assignment (int (External::*a) (int) const) {
   //
   for (auto idx : vars) {
     if (!(this->*a) (idx))
-      FATAL ("unassigned variable: %d", idx);
+      FATAL(401, "unassigned variable: %d", idx);
     int value_idx = (this->*a) (idx);
     int value_neg_idx = (this->*a) (-idx);
     if (value_idx == idx)
@@ -684,7 +692,7 @@ void External::check_assignment (int (External::*a) (int) const) {
       assert (value_neg_idx == -idx);
     }
     if (value_idx != value_neg_idx)
-      FATAL ("inconsistently assigned literals %d and %d", idx, -idx);
+      FATAL(402, "inconsistently assigned literals %d and %d", idx, -idx);
   }
 
   // Then check that all (saved) original clauses are satisfied.
@@ -769,9 +777,9 @@ void External::check_assumptions_satisfied () {
     // Not 'signed char' !!!!
     const int tmp = ival (lit);
     if (tmp != lit)
-      FATAL ("assumption %d falsified", lit);
+      FATAL(403, "assumption %d falsified", lit);
     if (!tmp)
-      FATAL ("assumption %d unassigned", lit);
+      FATAL(404, "assumption %d unassigned", lit);
   }
   VERBOSE (1, "checked that %zd assumptions are satisfied",
            assumptions.size ());
@@ -784,7 +792,7 @@ void External::check_constraint_satisfied () {
       return;
     }
   }
-  FATAL ("constraint not satisfied");
+  FATAL (405,"constraint not satisfied");
 }
 
 void External::check_failing () {
@@ -831,7 +839,7 @@ void External::check_failing () {
 
   int res = checker->solve ();
   if (res != 20)
-    FATAL ("failed assumptions do not form a core");
+    FATAL (406,"failed assumptions do not form a core");
   delete_checker.free ();
   VERBOSE (1, "checked that %zd failing assumptions form a core",
            assumptions.size ());

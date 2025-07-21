@@ -5,8 +5,11 @@ namespace CaDiCaL {
 /*------------------------------------------------------------------------*/
 static Clause external_reason_clause;
 
-Internal::Internal ()
-    : mode (SEARCH), unsat (false), iterating (false),
+Internal::Internal (
+  #ifdef ERRORJUMP
+jmp_buf *jmp_env
+#endif
+)   : mode (SEARCH), unsat (false), iterating (false),
       localsearching (false), lookingahead (false), preprocessing (false),
       protected_reasons (false), force_saved_phase (false),
       searching_lucky_phases (false), stable (false), reported (false),
@@ -25,6 +28,9 @@ Internal::Internal ()
       proof (0), lratbuilder (0), opts (this),
 #ifndef QUIET
       profiles (this), force_phase_messages (false),
+#endif
+#ifdef ERRORJUMP
+jmp_env (jmp_env),
 #endif
       arena (this), prefix ("c "), internal (this), external (0),
       termination_forced (false), vars (this->max_var),

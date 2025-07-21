@@ -6,13 +6,11 @@ include(../cmake/config.cmake)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
-add_definitions(-DGALAXY_CORE -DVERSION="2.1.3" -DNBUILD)
+add_definitions(-DGALAXY_CORE -DVERSION="2.1.3" -DERRORJUMP)
 
 include(CheckSymbolExists)
 
-# set(CMAKE_REQUIRED_FLAGS "-D_GNU_SOURCE")
 check_symbol_exists(putc_unlocked "stdio.h" HAVE_PUTC_UNLOCKED)
-unset(CMAKE_REQUIRED_FLAGS)
 
 if(NOT HAVE_PUTC_UNLOCKED)
     add_definitions(-DNUNLOCKED)
@@ -25,6 +23,9 @@ list(REMOVE_ITEM LIB_SOURCES
     "src/cadical.cpp" 
     "src/mobical.cpp"
     "src/signal.cpp"
+)
+list(APPEND LIB_SOURCES
+    "external/satgalaxy_cadical.cc"
 )
 
 

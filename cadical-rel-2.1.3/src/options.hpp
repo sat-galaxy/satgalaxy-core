@@ -1,6 +1,9 @@
 #ifndef _options_hpp_INCLUDED
 #define _options_hpp_INCLUDED
 
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 /*------------------------------------------------------------------------*/
 
 // In order to add a new option, simply add a new line below. Make sure that
@@ -259,7 +262,9 @@ static const size_t number_of_options =
 class Options {
 
   Internal *internal;
-
+#ifdef ERRORJUMP
+  jmp_buf *jmp_env; // For error handling.
+#endif
   void set (Option *, int val); // Force to [lo,hi] interval.
 
   friend struct Option;

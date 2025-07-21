@@ -102,6 +102,9 @@ void Options::initialize_from_environment (int &val, const char *name,
 // Initialize all the options to their default value 'V'.
 
 Options::Options (Internal *s) : internal (s) {
+#ifdef ERRORJUMP
+  jmp_env=s->jmp_env; // For error handling.
+#endif
   assert (number_of_options == sizeof Options::table / sizeof (Option));
 
   // First initialize them according to defaults in 'options.hpp'.
@@ -111,13 +114,13 @@ Options::Options (Internal *s) : internal (s) {
 #define OPTION(N, V, L, H, O, P, R, D) \
   do { \
     if ((L) > (V)) \
-      FATAL ("'" #N "' default '" #V "' " \
+      FATAL (407,"'" #N "' default '" #V "' " \
              "lower minimum '" #L "' in 'options.hpp'"); \
     if ((H) < (V)) \
-      FATAL ("'" #N "' default '" #V "' " \
+      FATAL (408,"'" #N "' default '" #V "' " \
              "larger maximum '" #H "' in 'options.hpp'"); \
     if (strcmp (prev, #N) > 0) \
-      FATAL ("'%s' ordered before '" #N "' in 'options.hpp'", prev); \
+      FATAL (409,"'%s' ordered before '" #N "' in 'options.hpp'", prev); \
     N = (int) (V); \
     assert (&val (i) == &N); \
     /* The order of initializing static data is undefined and thus */ \

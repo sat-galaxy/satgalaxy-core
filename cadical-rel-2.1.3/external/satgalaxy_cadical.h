@@ -1,6 +1,7 @@
 #ifndef SATGALAXY_CADICAL_H
 #define SATGALAXY_CADICAL_H
 #include <stdint.h>
+#include <stdlib.h>
 //=================================================================================================
 
 #ifdef __cplusplus
@@ -14,7 +15,7 @@ int cadical_vars (CaDiCaLSolver *s);
 const char *cadical_error_message(int code);
 int cadical_error(CaDiCaLSolver *solver);
 void cadical_add_clause (CaDiCaLSolver *solver, const int ps[],
-                         unsigned long length);
+                         size_t length);
 void cadical_add_empty_clause (CaDiCaLSolver *solver);
 // This function can be used to check if the formula is already
 // inconsistent (contains the empty clause or was proven to be

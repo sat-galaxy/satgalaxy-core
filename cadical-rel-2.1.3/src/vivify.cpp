@@ -1,6 +1,7 @@
 #include "internal.hpp"
 
 #include "cover.hpp"
+#include <csetjmp>
 
 namespace CaDiCaL {
 
@@ -194,9 +195,16 @@ bool Internal::vivify_propagate () {
 
 struct vivify_more_noccs {
 
+#ifdef ERRORJUMP
+  jmp_buf *jmp_env;
+#endif
   Internal *internal;
 
-  vivify_more_noccs (Internal *i) : internal (i) {}
+  vivify_more_noccs (Internal *i) : internal (i) {
+#ifdef ERRORJUMP
+    jmp_env = i->jmp_env;
+#endif
+  }
 
   bool operator() (int a, int b) {
     int64_t n = internal->noccs (a);
@@ -266,13 +274,25 @@ static bool same_clause (Clause *a, Clause *b) {
 struct vivify_clause_later {
 
   Internal *internal;
-
-  vivify_clause_later (Internal *i) : internal (i) {}
+#ifdef ERRORJUMP
+  jmp_buf *jmp_env;
+#endif
+  vivify_clause_later (Internal *i) : internal (i) {
+#ifdef ERRORJUMP
+    jmp_env = i->jmp_env;
+#endif
+  }
 
   bool operator() (Clause *a, Clause *b) const {
 
     if (a == b)
       return false;
+#ifdef ERRORJUMP
+if (!same_clause (a, b))
+{
+  longjmp (*internal->jmp_env, 500); // CONTRACT_VIOLATED
+}
+#endif
 
     COVER (same_clause (a, b));
 
@@ -310,7 +330,12 @@ struct vivify_clause_later {
     for (; i != eoa && j != eob; i++, j++)
       if (*i != *j)
         return vivify_more_noccs (internal) (*j, *i);
+#ifdef ERRORJUMP
+    if (!(i == eoa && j == eob)) {
+      longjmp (*internal->jmp_env, 500); // CONTRACT_VIOLATED
+    }
 
+#endif
     COVER (i == eoa && j == eob);
 
     return j == eob; // Prefer shorter clauses to be vivified first.

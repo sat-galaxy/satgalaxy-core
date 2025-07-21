@@ -1,6 +1,8 @@
 #ifndef _contract_hpp_INCLUDED
 #define _contract_hpp_INCLUDED
-
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 /*------------------------------------------------------------------------*/
 #ifndef NCONTRACTS
 /*------------------------------------------------------------------------*/
@@ -15,8 +17,14 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
+#ifdef ERRORJUMP
 
-#define CONTRACT_VIOLATED(...) \
+#define CONTRACT_VIOLATED(code ,...) \
+  do { \
+    longjmp(*this->jmp_env, code);\
+  } while (0)
+#else
+#define CONTRACT_VIOLATED(code,...) \
   do { \
     fatal_message_start (); \
     fprintf (stderr, \
@@ -27,7 +35,7 @@
     fflush (stderr); \
     abort (); \
   } while (0)
-
+#endif
 /*------------------------------------------------------------------------*/
 
 namespace CaDiCaL {
@@ -60,50 +68,50 @@ void require_solver_pointer_to_be_non_zero (const void *ptr,
 
 // These are common shortcuts for 'Solver' API contracts (requirements).
 
-#define REQUIRE(COND, ...) \
+#define REQUIRE(CODE,COND, ...) \
   do { \
     if ((COND)) \
       break; \
-    CONTRACT_VIOLATED (__VA_ARGS__); \
+    CONTRACT_VIOLATED (CODE, __VA_ARGS__); \
   } while (0)
 
 #define REQUIRE_INITIALIZED() \
   do { \
     REQUIRE_NON_ZERO_THIS (); \
-    REQUIRE (external, "external solver not initialized"); \
-    REQUIRE (internal, "internal solver not initialized"); \
+    REQUIRE (101,external, "external solver not initialized"); \
+    REQUIRE (102,internal, "internal solver not initialized"); \
   } while (0)
 
-#define REQUIRE_VALID_STATE() \
+#define REQUIRE_VALID_STATE(CODE) \
   do { \
     REQUIRE_INITIALIZED (); \
-    REQUIRE (this->state () & VALID, "solver in invalid state"); \
+    REQUIRE (103,this->state () & VALID, "solver in invalid state"); \
   } while (0)
 
 #define REQUIRE_READY_STATE() \
   do { \
     REQUIRE_VALID_STATE (); \
-    REQUIRE (state () != ADDING, \
+    REQUIRE (104,state () != ADDING, \
              "clause incomplete (terminating zero not added)"); \
   } while (0)
 
 #define REQUIRE_VALID_OR_SOLVING_STATE() \
   do { \
     REQUIRE_INITIALIZED (); \
-    REQUIRE (this->state () & (VALID | SOLVING), \
+    REQUIRE (105,this->state () & (VALID | SOLVING), \
              "solver neither in valid nor solving state"); \
   } while (0)
 
 #define REQUIRE_VALID_LIT(LIT) \
   do { \
-    REQUIRE ((int) (LIT) && ((int) (LIT)) != INT_MIN, \
+    REQUIRE (106,(int) (LIT) && ((int) (LIT)) != INT_MIN, \
              "invalid literal '%d'", (int) (LIT)); \
   } while (0)
 
 #define REQUIRE_STEADY_STATE() \
   do { \
     REQUIRE_INITIALIZED (); \
-    REQUIRE (this->state () & STEADY, "solver is not in steady state"); \
+    REQUIRE (107,this->state () & STEADY, "solver is not in steady state"); \
   } while (0)
 
 /*------------------------------------------------------------------------*/

@@ -37,14 +37,14 @@ void External::check_solution_on_shrunken_clause (Clause *c) {
 
 void External::check_no_solution_after_learning_empty_clause () {
   assert (solution);
-  FATAL ("learned empty clause but got solution");
+  FATAL (410,"learned empty clause but got solution");
 }
 
 void External::check_solution_on_learned_unit_clause (int unit) {
   assert (solution);
   if (sol (internal->externalize (unit)) == unit)
     return;
-  FATAL ("learned unit %d contradicts solution", unit);
+  FATAL (411,"learned unit %d contradicts solution", unit);
 }
 
 } // namespace CaDiCaL

@@ -1,6 +1,8 @@
 #ifndef _cover_hpp_INCLUDED
 #define _cover_hpp_INCLUDED
-
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 /*------------------------------------------------------------------------*/
 
 // This header only provides the 'COVER' macro for testing.  It is unrelated
@@ -18,6 +20,8 @@
 // There seems to be no problem overloading the name 'COVER' of this macro
 // with the constant 'COVER' of 'Internal::Mode' (surprisingly).
 
+
+
 #define COVER(COND) \
   do { \
     if (!(COND)) \
@@ -30,5 +34,5 @@
     fflush (stderr); \
     abort (); \
   } while (0)
-
 #endif
+

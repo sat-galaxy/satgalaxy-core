@@ -6,7 +6,9 @@
 #include "range.hpp"
 #include <unordered_map>
 #include <vector>
-
+#ifdef ERRORJUMP
+#include <setjmp.h>
+#endif
 /*------------------------------------------------------------------------*/
 
 namespace CaDiCaL {
@@ -93,7 +95,9 @@ struct External {
   // If there is a learner export learned clauses.
 
   Learner *learner;
-
+#ifdef ERRORJUMP
+  jmp_buf *jmp_env; // used to jump out of 'Internal::solve'
+#endif
   void export_learned_empty_clause ();
   void export_learned_unit_clause (int ilit);
   void export_learned_large_clause (const vector<int> &);
@@ -253,7 +257,11 @@ struct External {
 
   /*----------------------------------------------------------------------*/
 
-  External (Internal *);
+  External (Internal *
+#ifdef ERRORJUMP
+            , jmp_buf *
+#endif
+  );
   ~External ();
 
   void enlarge (int new_max_var); // Enlarge allocated 'vsize'.

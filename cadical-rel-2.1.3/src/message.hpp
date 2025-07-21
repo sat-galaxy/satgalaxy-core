@@ -57,7 +57,11 @@
 
 #endif
 
-#define FATAL fatal
+#ifdef ERRORJUMP
+#define FATAL(CODE,...) fatal(jmp_env, CODE, __VA_ARGS__)
+#else
+#define FATAL(CODE,...)  fatal(__VA_ARGS__)
+#endif
 #define WARNING(...) internal->warning (__VA_ARGS__)
 
 /*------------------------------------------------------------------------*/
