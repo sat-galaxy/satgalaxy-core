@@ -3,6 +3,28 @@
 #include "minisat/simp/SimpSolver.h"
 #include "minisat/utils/Options.h"
 
+#define MINISAT_OPT(NAME,TY,COND,CODE) \
+int minisat_global_set_opt_##NAME(TY value)\
+{\
+    if (COND)\
+    {\
+        return CODE;\
+    }\
+    Minisat::set_opt_##NAME(value);\
+    return 0;\
+}\
+\
+int minisat_set_opt_##NAME(MiniSATSolver *solver, TY value)\
+{\
+    if (COND)\
+    {\
+        return CODE;\
+    }\
+    solver->solver->NAME==value;\
+    return 0;\
+}\
+
+
 struct MiniSATSolver
 {
   int last_error;
@@ -39,11 +61,11 @@ void minisat_release_var(MiniSATSolver* s, int l)
     solver->releaseVar(make_lit(solver, l));
 }
 
-int minisat_add_clause(MiniSATSolver* s, const int ps[], unsigned long length)
+int minisat_add_clause(MiniSATSolver* s, const int ps[], size_t length)
 {
     Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
-    for (unsigned long i = 0; i < length; i++)
+    for (size_t i = 0; i < length; i++)
     {
         lits.push(make_lit(solver, ps[i]));
     }
@@ -55,21 +77,21 @@ int minisat_add_empty_clause(MiniSATSolver* s)
     return solver->addEmptyClause();
 }
 
-int minisat_solve_assumps(MiniSATSolver* s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_assumps(MiniSATSolver* s, const int ps[], size_t length, int do_simp, int turn_off_simp)
 {
     Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
-    for (unsigned long i = 0; i < length; i++)
+    for (size_t i = 0; i < length; i++)
     {
         lits.push(make_lit(solver, ps[i]));
     }
     return solver->solve(lits, (int)do_simp, (int)turn_off_simp);
 }
-int minisat_solve_limited(MiniSATSolver* s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int minisat_solve_limited(MiniSATSolver* s, const int ps[], size_t length, int do_simp, int turn_off_simp)
 {
     Minisat::SimpSolver *solver =  s->solver;
     Minisat::vec<Minisat::Lit> lits;
-    for (unsigned long i = 0; i < length; i++)
+    for (size_t i = 0; i < length; i++)
     {
         lits.push(make_lit(solver, ps[i]));
     }
@@ -140,171 +162,26 @@ int minisat_okay(MiniSATSolver* s)
     return (int)solver->okay();
 }
 
-int minisat_set_opt_var_decay(double decay)
-{
-    if (decay <= 0 || decay >= 1)
-    {
-        return 100;
-    }
-    Minisat::set_opt_var_decay(decay);
-    return 0;
-}
-
-int minisat_set_opt_clause_decay(double decay)
-{
-    if (decay <= 0 || decay >= 1)
-    {
-        return 101;
-    }
-    Minisat::set_opt_clause_decay(decay);
-    return 0;
-}
-int minisat_set_opt_random_var_freq(double freq)
-{
-    if (freq < 0 || freq > 1)
-    {
-        return 102;
-    }
-    Minisat::set_opt_random_var_freq(freq);
-    return 0;
-}
-int minisat_set_opt_random_seed(double seed)
-{
-    if (seed >= 0)
-    {
-        return 103;
-    }
-    Minisat::set_opt_random_seed(seed);
-    return 0;
-}
-int minisat_set_opt_ccmin_mode(int mode)
-{
-    if (mode != 0 && mode != 1 && mode != 2)
-    {
-        return 104;
-    }
-    Minisat::set_opt_ccmin_mode(mode);
-    return 0;
-}
-int minisat_set_opt_phase_saving(int mode)
-{
-    if (mode < 0 || mode > 2)
-    {
-        return 105;
-    }
-    Minisat::set_opt_phase_saving(mode);
-    return 0;
-}
-int minisat_set_opt_rnd_init_act(int flag)
-{
-    Minisat::set_opt_rnd_init_act(flag);
-    return 0;
-}
-int minisat_set_opt_luby_restart(int flag)
-{
-    Minisat::set_opt_luby_restart(flag);
-    return 0;
-}
-int minisat_set_opt_restart_first(int restart_first)
-{
-    Minisat::set_opt_restart_first(restart_first);
-    return 108;
-}
-int minisat_set_opt_restart_inc(double restart_inc)
-{
-    if (restart_inc < 1.0)
-    {
-        return 109;
-    }
-    Minisat::set_opt_restart_inc(restart_inc);
-    return 0;
-}
-int minisat_set_opt_garbage_frac(double garbage_frac)
-{
-    if (garbage_frac <= 0)
-    {
-        return 110;
-    }
-
-    Minisat::set_opt_garbage_frac(garbage_frac);
-    return 0;
-}
-int minisat_set_opt_min_learnts_lim(int min_learnts_lim)
-{
-    if (min_learnts_lim < 0)
-    {
-        return 111;
-    }
-    Minisat::set_opt_min_learnts_lim(min_learnts_lim);
-    return 0;
-}
-int minisat_set_opt_use_asymm(int opt_use_asymm)
-{
-    Minisat::set_opt_use_asymm(opt_use_asymm);
-    return 0;
-}
-int minisat_set_opt_use_rcheck(int opt_use_rcheck)
-{
-    Minisat::set_opt_use_rcheck(opt_use_rcheck);
-    return 0;
-}
-int minisat_set_opt_use_elim(int opt_use_elim)
-{
-    Minisat::set_opt_use_elim(opt_use_elim);
-    return 0;
-}
-int minisat_set_opt_grow(int opt_grow)
-{
-    if (opt_grow < 0)
-    {
-        return 112;
-    }
-
-    Minisat::set_opt_grow(opt_grow);
-    return 0;
-}
-
-int minisat_set_opt_clause_lim(int opt_clause_lim)
-{
-    if (opt_clause_lim < -1)
-    {
-        return 113;
-    }
-
-    Minisat::set_opt_clause_lim(opt_clause_lim);
-    return 0;
-}
-int minisat_set_opt_subsumption_lim(int opt_subsumption_lim)
-{
-    if (opt_subsumption_lim < -1)
-    {
-        return 114;
-    }
-    Minisat::set_opt_subsumption_lim(opt_subsumption_lim);
-    return 0;
-}
-
-int minisat_set_opt_simp_garbage_frac(double opt_simp_garbage_frac)
-{
-    if (opt_simp_garbage_frac <= 0)
-    {
-        return 115;
-    }
-    Minisat::set_opt_simp_garbage_frac(opt_simp_garbage_frac);
-    return 0;
-}
-
-int minisat_set_opt_verbosity(int verb)
-{
-    if (verb < 0 || verb > 3)
-    {
-        return 116;
-    }
-
-    Minisat::set_opt_verbosity(verb);
-    return 0;
-}
-
+MINISAT_OPT(var_decay, double, value <= 0 || value >= 1, 100)
+MINISAT_OPT(clause_decay, double, value <= 0 || value >= 1, 101)
+MINISAT_OPT(random_var_freq, double, value < 0 || value > 1, 102)
+MINISAT_OPT(random_seed, double, value >= 0, 103)
+MINISAT_OPT(ccmin_mode, int, value != 0 && value != 1 && value != 2, 104)
+MINISAT_OPT(phase_saving, int, value < 0 || value > 2, 105)
+MINISAT_OPT(rnd_init_act, int, false, 0)
+MINISAT_OPT(luby_restart, int, false, 0)
+MINISAT_OPT(restart_first, int, true, 108)
+MINISAT_OPT(restart_inc, double, value < 1.0, 109)
+MINISAT_OPT(garbage_frac, double, value <= 0, 110)
+MINISAT_OPT(min_learnts_lim, int, value < 0, 111)
+MINISAT_OPT(use_asymm, int, false, 0)
+MINISAT_OPT(use_rcheck, int, false, 0)
+MINISAT_OPT(use_elim, int, false, 0)
+MINISAT_OPT(grow, int, value < 0, 112)
+MINISAT_OPT(clause_lim, int, value < -1, 113)
+MINISAT_OPT(subsumption_lim, int, value < -1, 114)
+MINISAT_OPT(simp_garbage_frac, double, value <= 0, 115)
+MINISAT_OPT(verbosity, int, value < 0 || value > 3, 116)
 const char *minisat_error_msg(int code)
 {
     switch (code)

@@ -1,6 +1,6 @@
 #ifndef SATGALAXY_MINISAT_H
 #define SATGALAXY_MINISAT_H
-
+#include <stdlib.h>
 //=================================================================================================
 
 #ifdef __cplusplus
@@ -17,102 +17,203 @@ typedef struct MiniSATSolver MiniSATSolver;
     /// @brief The variable activity decay factor
     /// @param value must be in (0, 1)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_var_decay(double decay);
+    int minisat_set_opt_var_decay(MiniSATSolver*, double);
+
 
     /// @brief The clause activity decay factor
-    /// @param value must be in (0, 1)
+    /// @param value must be in (MiniSATSolver*,0, 1)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_clause_decay(double decay);
+    int minisat_set_opt_clause_decay(MiniSATSolver*,double decay);
 
     /// @brief The frequency with which the decision heuristic tries to choose a random variable
     /// @param value must be in [0,1]
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_random_var_freq(double freq);
+    int minisat_set_opt_random_var_freq(MiniSATSolver*,double freq);
 
     /// @brief Used by the random variable selection
     /// @param value must be positive
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_random_seed(double seed);
+    int minisat_set_opt_random_seed(MiniSATSolver*,double seed);
 
     /// @brief Controls conflict clause minimization
-    /// @param value must be 0, 1, or 2 (0=none, 1=basic, 2=deep)
+    /// @param value must be 0, 1, or 2 (MiniSATSolver*,0=none, 1=basic, 2=deep)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_ccmin_mode(int mode);
+    int minisat_set_opt_ccmin_mode(MiniSATSolver*,int mode);
 
     /// @brief Controls the level of phase saving
-    /// @param value must be 0, 1, or 2 (0=none, 1=limited, 2=full)
+    /// @param value must be 0, 1, or 2 (MiniSATSolver*,0=none, 1=limited, 2=full)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_phase_saving(int mode);
+    int minisat_set_opt_phase_saving(MiniSATSolver*,int mode);
 
     /// @brief Randomize the initial activity
-    /// @param value boolean value (0=false, others=true)
+    /// @param value boolean value (MiniSATSolver*,0=false, others=true)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_rnd_init_act(int flag);
+    int minisat_set_opt_rnd_init_act(MiniSATSolver*,int flag);
 
     /// @brief Use the Luby restart sequence
-    /// @param value boolean value (0=false, others=true)
+    /// @param value boolean value (MiniSATSolver*,0=false, others=true)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_luby_restart(int flag);
+    int minisat_set_opt_luby_restart(MiniSATSolver*,int flag);
 
     /// @brief The base restart interval
     /// @param value must be a positive integer
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_restart_first(int restart_first);
+    int minisat_set_opt_restart_first(MiniSATSolver*,int restart_first);
 
     /// @brief Restart interval increase factor
     /// @param value must be at least 1.0
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_restart_inc(double restart_inc);
+    int minisat_set_opt_restart_inc(MiniSATSolver*,double restart_inc);
 
     /// @brief The fraction of wasted memory allowed before a garbage collection is triggered
     /// @param value must be positive
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_garbage_frac(double garbage_frac);
+    int minisat_set_opt_garbage_frac(MiniSATSolver*,double garbage_frac);
 
     /// @brief Minimum learnt clause limit
     /// @param value must be at least 0
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_min_learnts_lim(int min_learnts_lim);
+    int minisat_set_opt_min_learnts_lim(MiniSATSolver*,int min_learnts_lim);
 
     /// @brief Shrink clauses by asymmetric branching
-    /// @param value boolean value (0=false, others=true)
+    /// @param value boolean value (MiniSATSolver*,0=false, others=true)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_use_asymm(int opt_use_asymm);
+    int minisat_set_opt_use_asymm(MiniSATSolver*,int opt_use_asymm);
 
-    /// @brief Check if a clause is already implied (costly)
-    /// @param value boolean value (0=false, others=true)
+    /// @brief Check if a clause is already implied (MiniSATSolver*,costly)
+    /// @param value boolean value (MiniSATSolver*,0=false, others=true)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_use_rcheck(int opt_use_rcheck);
+    int minisat_set_opt_use_rcheck(MiniSATSolver*,int opt_use_rcheck);
 
     /// @brief Perform variable elimination
-    /// @param value boolean value (0=false, others=true)
+    /// @param value boolean value (MiniSATSolver*,0=false, others=true)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_use_elim(int opt_use_elim);
+    int minisat_set_opt_use_elim(MiniSATSolver*,int opt_use_elim);
 
     /// @brief Allow a variable elimination step to grow by a number of clauses
     /// @param value must be at least 0
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_grow(int opt_grow);
+    int minisat_set_opt_grow(MiniSATSolver*,int opt_grow);
 
     /// @brief Variables are not eliminated if it produces a resolvent with a length above this limit
-    /// @param value must be at least -1 (-1 means no limit)
+    /// @param value must be at least -1 (MiniSATSolver*,-1 means no limit)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_clause_lim(int opt_clause_lim);
+    int minisat_set_opt_clause_lim(MiniSATSolver*,int opt_clause_lim);
 
     /// @brief Do not check if subsumption against a clause larger than this
-    /// @param value must be at least -1 (-1 means no limit)
+    /// @param value must be at least -1 (MiniSATSolver*,-1 means no limit)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_subsumption_lim(int opt_subsumption_lim);
+    int minisat_set_opt_subsumption_lim(MiniSATSolver*,int opt_subsumption_lim);
 
     /// @brief The fraction of wasted memory allowed before a garbage collection is triggered during simplification
     /// @param value must be positive
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_simp_garbage_frac(double opt_simp_garbage_frac);
+    int minisat_set_opt_simp_garbage_frac(MiniSATSolver*,double opt_simp_garbage_frac);
+
+    /// @brief Verbosity level
+    /// @param value must be 0, 1, or 2 (MiniSATSolver*,0=silent, 1=some, 2=more)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_opt_verbosity(MiniSATSolver*,int verb);
+
+    /// @brief The variable activity decay factor
+    /// @param value must be in (0, 1)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_var_decay(double);
+
+   /// @brief The clause activity decay factor
+    /// @param value must be in (0, 1)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_clause_decay(double decay);
+
+    /// @brief The frequency with which the decision heuristic tries to choose a random variable
+    /// @param value must be in [0,1]
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_random_var_freq(double freq);
+
+    /// @brief Used by the random variable selection
+    /// @param value must be positive
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_random_seed(double seed);
+
+    /// @brief Controls conflict clause minimization
+    /// @param value must be 0, 1, or 2 (0=none, 1=basic, 2=deep)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_ccmin_mode(int mode);
+
+    /// @brief Controls the level of phase saving
+    /// @param value must be 0, 1, or 2 (0=none, 1=limited, 2=full)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_phase_saving(int mode);
+
+    /// @brief Randomize the initial activity
+    /// @param value boolean value (0=false, others=true)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_rnd_init_act(int flag);
+
+    /// @brief Use the Luby restart sequence
+    /// @param value boolean value (0=false, others=true)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_luby_restart(int flag);
+
+    /// @brief The base restart interval
+    /// @param value must be a positive integer
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_restart_first(int restart_first);
+
+    /// @brief Restart interval increase factor
+    /// @param value must be at least 1.0
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_restart_inc(double restart_inc);
+
+    /// @brief The fraction of wasted memory allowed before a garbage collection is triggered
+    /// @param value must be positive
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_garbage_frac(double garbage_frac);
+
+    /// @brief Minimum learnt clause limit
+    /// @param value must be at least 0
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_min_learnts_lim(int min_learnts_lim);
+
+    /// @brief Shrink clauses by asymmetric branching
+    /// @param value boolean value (0=false, others=true)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_use_asymm(int opt_use_asymm);
+
+    /// @brief Check if a clause is already implied (costly)
+    /// @param value boolean value (0=false, others=true)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_use_rcheck(int opt_use_rcheck);
+
+    /// @brief Perform variable elimination
+    /// @param value boolean value (0=false, others=true)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_use_elim(int opt_use_elim);
+
+    /// @brief Allow a variable elimination step to grow by a number of clauses
+    /// @param value must be at least 0
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_grow(int opt_grow);
+
+    /// @brief Variables are not eliminated if it produces a resolvent with a length above this limit
+    /// @param value must be at least -1 (-1 means no limit)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_clause_lim(int opt_clause_lim);
+
+    /// @brief Do not check if subsumption against a clause larger than this
+    /// @param value must be at least -1 (-1 means no limit)
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_subsumption_lim(int opt_subsumption_lim);
+
+    /// @brief The fraction of wasted memory allowed before a garbage collection is triggered during simplification
+    /// @param value must be positive
+    /// @return error code, 0 for success, others for invalid parameter
+    int minisat_set_global_opt_simp_garbage_frac(double opt_simp_garbage_frac);
 
     /// @brief Verbosity level
     /// @param value must be 0, 1, or 2 (0=silent, 1=some, 2=more)
     /// @return error code, 0 for success, others for invalid parameter
-    int minisat_set_opt_verbosity(int verb);
+    int minisat_set_global_opt_verbosity(int verb);
 
     MiniSATSolver *minisat_new_solver();
     /// @brief  Add a new variable to the solver.
@@ -125,7 +226,7 @@ typedef struct MiniSATSolver MiniSATSolver;
     /// @param ps  array of literals
     /// @param length  length of the array
     /// @return boolean value
-    int minisat_add_clause(MiniSATSolver* solver, const int ps[], unsigned long length);
+    int minisat_add_clause(MiniSATSolver* solver, const int ps[], size_t length);
     /// @brief  Add the empty clause to the solver.
     /// @param solver 
     /// @return boolean value
@@ -149,7 +250,7 @@ typedef struct MiniSATSolver MiniSATSolver;
     /// @param turn_off_simp  boolean value, recommand false (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
     int minisat_solve_assumps(MiniSATSolver* solver, const int assumps[],
-                              unsigned long length, int do_simp,
+                              size_t length, int do_simp,
                               int turn_off_simp);
      /// @brief  Solve the problem with limited.
     /// @param solver 
@@ -159,7 +260,7 @@ typedef struct MiniSATSolver MiniSATSolver;
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
     int minisat_solve_limited(MiniSATSolver* solver, const int assumps[],
-                              unsigned long length, int do_simp,
+                              size_t length, int do_simp,
                               int turn_off_simp);
    /// @brief  Solve the problem.
     /// @param solver 

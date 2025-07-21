@@ -58,7 +58,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "core/Constants.h"
 #include "mtl/Clone.h"
 #include "core/SolverStats.h"
-
+#ifdef ERRORJUMP
+#include<csetjmp>
+#endif
 
 namespace Glucose {
 // Core stats 
@@ -277,7 +279,9 @@ public:
 protected:
 
     long curRestart;
-
+#ifdef ERRORJUMP
+jmp_buf jmp_env; // Used to jump out of the solver in case of an error
+#endif
     // Alpha variables
     bool glureduce;
     uint32_t restart_inc;
