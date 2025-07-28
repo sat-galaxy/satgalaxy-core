@@ -20,7 +20,7 @@ endif()
 aux_source_directory(src LIB_SOURCES)
 
 list(REMOVE_ITEM LIB_SOURCES
-    "src/cadical.cpp" 
+    "src/cadical.cpp"
     "src/mobical.cpp"
     "src/signal.cpp"
 )

@@ -4,7 +4,7 @@
 #include "minisat/utils/Options.h"
 
 #define MINISAT_OPT(NAME,TY,COND,CODE) \
-int minisat_global_set_opt_##NAME(TY value)\
+int minisat_set_global_opt_##NAME(TY value)\
 {\
     if (COND)\
     {\

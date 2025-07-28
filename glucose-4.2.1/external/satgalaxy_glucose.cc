@@ -4,7 +4,7 @@
 #include "utils/Options.h"
 
 #define GLUCOSE_G_OPT(NAME, TY, COND, CODE)     \
-    int glucose_global_set_opt_##NAME(TY value) \
+    int glucose_set_global_opt_##NAME(TY value) \
     {                                           \
         if (COND)                               \
         {                                       \
