@@ -1,5 +1,8 @@
 #include "internal.hpp"
-#include "unistd.h"
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 namespace CaDiCaL {
 
 Terminal::Terminal (FILE *f) : file (f), reset_on_exit (false) {

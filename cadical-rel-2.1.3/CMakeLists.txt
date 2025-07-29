@@ -23,7 +23,9 @@ endif()
 if(NOT HAVE_CLOSEFROM)
     add_definitions(-DNCLOSEFROM)
 endif()
-
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wno-error=date-time)
+endif()
 
 aux_source_directory(src LIB_SOURCES)
 

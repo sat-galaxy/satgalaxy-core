@@ -8270,9 +8270,9 @@ picosat_stats (PS * ps)
 }
 
 #ifndef NGETRUSAGE
-#include <sys/time.h>
+#include <time.h>
 #include <sys/resource.h>
-#include <sys/unistd.h>
+#include <unistd.h>
 #endif
 
 double

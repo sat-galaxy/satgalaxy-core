@@ -5,7 +5,12 @@ include(../cmake/config.cmake)
 option(USE_LOG "Add low level logging code" OFF)
 option(USE_STATS "Enable expensive stats" OFF)
 option(USE_TRACE "Enable trace generation" OFF)
+include(CheckSymbolExists)
+check_symbol_exists(getrusage "sys/resource.h" HAVE_GETRUSAGE)
 
+if(NOT HAVE_GETRUSAGE)
+    add_definitions(-DNGETRUSAGE)
+endif()
 
 if(USE_LOG)
     add_definitions(-DLOGGING)
@@ -30,9 +35,6 @@ set(LIB_SOURCES
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(WIN32)
-    add_definitions(-DNGETRUSAGE -DNALLSIGNALS)
-endif(WIN32)
 
 
 # base library
