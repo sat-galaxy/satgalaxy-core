@@ -1,12 +1,12 @@
 #include "internal.hpp"
-
+#include "unistd.h"
 namespace CaDiCaL {
 
 Terminal::Terminal (FILE *f) : file (f), reset_on_exit (false) {
   assert (file);
   int fd = fileno (f);
   assert (fd == 1 || fd == 2);
-  #ifdef _WIN32
+  #ifdef NISATTY
   use_colors = connected = false;
   #else
   use_colors = connected = isatty (fd);

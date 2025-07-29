@@ -11,9 +11,17 @@ add_definitions(-DGALAXY_CORE -DVERSION="2.1.3" -DERRORJUMP)
 include(CheckSymbolExists)
 
 check_symbol_exists(putc_unlocked "stdio.h" HAVE_PUTC_UNLOCKED)
+check_symbol_exists(isatty "unistd.h" HAVE_ISATTY)
+check_symbol_exists(closefrom "unistd.h" HAVE_CLOSEFROM)
 
 if(NOT HAVE_PUTC_UNLOCKED)
     add_definitions(-DNUNLOCKED)
+endif()
+if(NOT HAVE_ISATTY)
+    add_definitions(-DNISATTY)
+endif()
+if(NOT HAVE_CLOSEFROM)
+    add_definitions(-DNCLOSEFROM)
 endif()
 
 
