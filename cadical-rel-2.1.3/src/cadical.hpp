@@ -762,51 +762,8 @@ public:
   void phase (int lit);
   void unphase (int lit);
 
-  //------------------------------------------------------------------------
 
-  // Enables clausal proof tracing in DRAT format and returns 'true' if
-  // successfully opened for writing.  Writing proofs has to be enabled
-  // before calling 'solve', 'add' and 'dimacs', that is in state
-  // 'CONFIGURING'.  Otherwise only partial proofs would be written.
-  //
-  //   require (CONFIGURING)
-  //   ensure (CONFIGURING)
-  //
-  bool trace_proof (FILE *file, const char *name); // Write DRAT proof.
-  bool trace_proof (const char *path);             // Open & write proof.
 
-  // Flushing the proof trace file eventually calls 'fflush' on the actual
-  // file or pipe and thus if this function returns all the proof steps
-  // should have been written (with the same guarantees as 'fflush').
-  //
-  // The additional optional argument forces to print the number of addition
-  // and deletion steps in the proof even if the verbosity level is zero but
-  // not if quiet is set as well.  The default for the stand-alone solver is
-  // to print this information (in the 'closing proof' section) but for API
-  // usage of the library we want to stay silent unless explicitly requested
-  // or verbosity is non-zero (and as explained quiet is not set).
-  //
-  // This function can be called multiple times.
-  //
-  //   require (VALID)
-  //   ensure (VALID)
-  //
-  void flush_proof_trace (bool print = false);
-
-  // Close proof trace early.  Similar to 'flush' we allow the user to
-  // control with 'print' in a more fine-grained way whether statistics
-  // about the size of the written proof file and if compressed on-the-fly
-  // the number of actual bytes written (including deflation percentage) are
-  // printed.  Before actually closing (or detaching in case of writing to
-  // '<stdout>') we check whether 'flush_proof_trace' was called since the
-  // last time a proof step (addition or deletion) was traced.  If this is
-  // not the case we would call 'flush_proof_trace' with the same 'print'
-  // argument.
-  //
-  //   require (VALID)
-  //   ensure (VALID)
-  //
-  void close_proof_trace (bool print = false);
 
   // Enables clausal proof tracing with or without antecedents using
   // the Tracer interface defined in 'tracer.hpp'
@@ -822,8 +779,7 @@ public:
                              bool finalize_clauses = false);
   void connect_proof_tracer (StatTracer *tracer, bool antecedents,
                              bool finalize_clauses = false);
-  void connect_proof_tracer (FileTracer *tracer, bool antecedents,
-                             bool finalize_clauses = false);
+
 
   // Triggers the conclusion of incremental proofs.
   // if the solver is SATISFIED it will trigger extend ()
@@ -851,7 +807,6 @@ public:
   //
   bool disconnect_proof_tracer (Tracer *tracer);
   bool disconnect_proof_tracer (StatTracer *tracer);
-  bool disconnect_proof_tracer (FileTracer *tracer);
 
   //------------------------------------------------------------------------
 
@@ -863,7 +818,6 @@ public:
   //   ensure (!DELETING)
   //
   void statistics (); // print statistics
-  void resources ();  // print resource usage (time and memory)
 
   //   require (VALID)
   //   ensure (VALID)

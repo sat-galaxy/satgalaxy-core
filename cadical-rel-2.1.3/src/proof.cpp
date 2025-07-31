@@ -76,18 +76,7 @@ void Internal::connect_proof_tracer (StatTracer *tracer, bool antecedents,
   stat_tracers.push_back (tracer);
 }
 
-void Internal::connect_proof_tracer (FileTracer *tracer, bool antecedents,
-                                     bool finalize_clauses) {
-  new_proof_on_demand ();
-  if (antecedents)
-    force_lrat ();
-  if (finalize_clauses)
-    frat = true;
-  resize_unit_clauses_idx ();
-  tracer->connect_internal (this);
-  proof->connect (tracer);
-  file_tracers.push_back (tracer);
-}
+
 
 bool Internal::disconnect_proof_tracer (Tracer *tracer) {
   auto it = std::find (tracers.begin (), tracers.end (), tracer);
@@ -111,16 +100,7 @@ bool Internal::disconnect_proof_tracer (StatTracer *tracer) {
   return false;
 }
 
-bool Internal::disconnect_proof_tracer (FileTracer *tracer) {
-  auto it = std::find (file_tracers.begin (), file_tracers.end (), tracer);
-  if (it != file_tracers.end ()) {
-    file_tracers.erase (it);
-    assert (proof);
-    proof->disconnect (tracer);
-    return true;
-  }
-  return false;
-}
+
 
 void Proof::disconnect (Tracer *t) {
   tracers.erase (std::remove (tracers.begin (), tracers.end (), t),
@@ -129,39 +109,6 @@ void Proof::disconnect (Tracer *t) {
 
 // Enable proof tracing.
 
-void Internal::trace (File *file) {
-  if (opts.veripb) {
-    LOG ("PROOF connecting VeriPB tracer");
-    bool antecedents = opts.veripb == 1 || opts.veripb == 2;
-    bool deletions = opts.veripb == 2 || opts.veripb == 4;
-    FileTracer *ft =
-        new VeripbTracer (this, file, opts.binary, antecedents, deletions);
-    connect_proof_tracer (ft, antecedents);
-  } else if (opts.frat) {
-    LOG ("PROOF connecting FRAT tracer");
-    bool antecedents = opts.frat == 1;
-    resize_unit_clauses_idx ();
-    FileTracer *ft =
-        new FratTracer (this, file, opts.binary, opts.frat == 1);
-    connect_proof_tracer (ft, antecedents, true);
-  } else if (opts.lrat) {
-    LOG ("PROOF connecting LRAT tracer");
-    FileTracer *ft = new LratTracer (this, file, opts.binary);
-    connect_proof_tracer (ft, true);
-  } else if (opts.idrup) {
-    LOG ("PROOF connecting IDRUP tracer");
-    FileTracer *ft = new IdrupTracer (this, file, opts.binary);
-    connect_proof_tracer (ft, true);
-  } else if (opts.lidrup) {
-    LOG ("PROOF connecting LIDRUP tracer");
-    FileTracer *ft = new LidrupTracer (this, file, opts.binary);
-    connect_proof_tracer (ft, true);
-  } else {
-    LOG ("PROOF connecting DRAT tracer");
-    FileTracer *ft = new DratTracer (this, file, opts.binary);
-    connect_proof_tracer (ft, false);
-  }
-}
 
 // Enable proof checking.
 
@@ -187,20 +134,6 @@ void Internal::check () {
     stat_tracers.push_back (checker);
     delete_checker.release ();
   }
-}
-
-// We want to close a proof trace and stop checking as soon we are done.
-
-void Internal::close_trace (bool print) {
-  for (auto &tracer : file_tracers)
-    tracer->close (print);
-}
-
-// We can flush a proof trace file before actually closing it.
-
-void Internal::flush_trace (bool print) {
-  for (auto &tracer : file_tracers)
-    tracer->flush (print);
 }
 
 /*------------------------------------------------------------------------*/

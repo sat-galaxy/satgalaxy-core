@@ -166,10 +166,6 @@ void Internal::report (char type, int verbose) {
   if (!reported) {
     assert (!lim.report);
     reported = true;
-    MSG ("%stime measured in %s time %s%s", tout.magenta_code (),
-         internal->opts.realtime ? "real" : "process",
-         internal->opts.reportsolve ? "in solving" : "since initialization",
-         tout.normal_code ());
   }
   Report reports[num_reports];
   int n = 0;
@@ -199,9 +195,7 @@ void Internal::report (char type, int verbose) {
         ;
       line[i] = 0;
       print_prefix ();
-      tout.yellow ();
       fputs (line, stdout);
-      tout.normal ();
       fputc ('\n', stdout);
     }
     print_prefix ();
@@ -214,7 +208,6 @@ void Internal::report (char type, int verbose) {
   switch (type) {
   case '[':
   case ']':
-    tout.magenta (true);
     break;
   case 's':
   case 'v':
@@ -222,57 +215,42 @@ void Internal::report (char type, int verbose) {
   case 't':
   case 'b':
   case 'c':
-    tout.green (false);
     break;
   case 'e':
-    tout.green (true);
-    break;
+        break;
   case 'p':
   case '2':
   case '3':
-    tout.blue (false);
-    break;
+        break;
   case 'd':
-    tout.blue (true);
-    break;
+        break;
   case 'z':
   case 'f':
-    tout.cyan (true);
-    break;
+        break;
   case '-':
-    tout.normal ();
-    break;
+        break;
   case '/':
-    tout.yellow (true);
-    break;
+        break;
   case 'a':
   case 'n':
-    tout.red (false);
-    break;
+        break;
   case '0':
   case '1':
   case '?':
   case 'i':
-    tout.bold ();
-    break;
+        break;
   case 'L':
   case 'P':
-    tout.bold ();
-    tout.underline ();
-    break;
+            break;
   }
   fputc (type, stdout);
-  if (stable || type == ']')
-    tout.magenta ();
-  else if (type != 'L' && type != 'P')
-    tout.normal ();
-  for (int i = 0; i < n; i++) {
+ if (type != 'L' && type != 'P')
+      for (int i = 0; i < n; i++) {
     fputc (' ', stdout);
     fputs (reports[i].buffer, stdout);
   }
   if (stable || type == 'L' || type == 'P' || type == ']')
-    tout.normal ();
-  fputc ('\n', stdout);
+      fputc ('\n', stdout);
   fflush (stdout);
 }
 

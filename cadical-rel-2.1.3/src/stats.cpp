@@ -8,8 +8,6 @@ namespace CaDiCaL {
 
 Stats::Stats () {
   memset (this, 0, sizeof *this);
-  time.real = absolute_real_time ();
-  time.process = absolute_process_time ();
   walk.minimum = LONG_MAX;
 }
 
@@ -548,18 +546,7 @@ void Stats::print (Internal *internal) {
 #endif // ifndef QUIET
 }
 
-void Internal::print_resource_usage () {
-#ifndef QUIET
-  SECTION ("resources");
-  uint64_t m = maximum_resident_set_size ();
-  MSG ("total process time since initialization: %12.2f    seconds",
-       internal->process_time ());
-  MSG ("total real time since initialization:    %12.2f    seconds",
-       internal->real_time ());
-  MSG ("maximum resident set size of process:    %12.2f    MB",
-       m / (double) (1l << 20));
-#endif
-}
+
 
 /*------------------------------------------------------------------------*/
 

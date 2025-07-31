@@ -1834,7 +1834,7 @@ static Var mapVar(Var x, vec<Var> &map, Var &max)
     return map[x];
 }
 
-#ifndef GALAXY_CORE
+#ifdef 0
 void Solver::toDimacs(FILE *f, Clause &c, vec<Var> &map, Var &max)
 {
     if (satisfied(c))

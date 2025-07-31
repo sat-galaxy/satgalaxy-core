@@ -3,40 +3,84 @@ cmake_minimum_required(VERSION 3.10)
 project(cadical)
 include(../cmake/config.cmake)
 
+set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
 
-add_definitions(-DGALAXY_CORE -DVERSION="2.1.3" -DERRORJUMP)
+add_definitions(-DVERSION="2.1.3" -DERRORJUMP -DQUIET)
 
-include(CheckSymbolExists)
 
-check_symbol_exists(putc_unlocked "stdio.h" HAVE_PUTC_UNLOCKED)
-check_symbol_exists(isatty "unistd.h" HAVE_ISATTY)
-check_symbol_exists(closefrom "unistd.h" HAVE_CLOSEFROM)
-
-if(NOT HAVE_PUTC_UNLOCKED)
-    add_definitions(-DNUNLOCKED)
-endif()
-if(NOT HAVE_ISATTY)
-    add_definitions(-DNISATTY)
-endif()
-if(NOT HAVE_CLOSEFROM)
-    add_definitions(-DNCLOSEFROM)
-endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wno-error=date-time)
 endif()
 
-aux_source_directory(src LIB_SOURCES)
-
-list(REMOVE_ITEM LIB_SOURCES
-    "src/cadical.cpp"
-    "src/mobical.cpp"
-    "src/signal.cpp"
-)
-list(APPEND LIB_SOURCES
+set(LIB_SOURCES
     "external/satgalaxy_cadical.cc"
+    "src/solver.cpp"
+    "src/internal.cpp"
+    "src/external.cpp"
+    "src/message.cpp"
+    "src/report.cpp"
+    "src/lookahead.cpp"
+    "src/decompose.cpp"
+    "src/clause.cpp"
+    "src/collect.cpp"
+    "src/propagate.cpp"
+    "src/decide.cpp"
+    "src/var.cpp"
+    "src/proof.cpp"
+    "src/arena.cpp"
+    "src/analyze.cpp"
+    "src/flags.cpp"
+    "src/extend.cpp"
+    "src/external_propagate.cpp"
+    "src/minimize.cpp"
+    "src/shrink.cpp"
+    "src/reap.cpp"
+    "src/solution.cpp"
+    "src/ema.cpp"
+    "src/probe.cpp"
+    "src/deduplicate.cpp"
+    "src/ternary.cpp"
+    "src/watch.cpp"
+    "src/config.cpp"
+    "src/contract.cpp"
+    "src/options.cpp"
+    "src/version.cpp"
+    "src/limit.cpp"
+    "src/assume.cpp"
+    "src/constrain.cpp"
+    "src/lratbuilder.cpp"
+    "src/stats.cpp"
+    "src/queue.cpp"
+    "src/score.cpp"
+    "src/backtrack.cpp"
+    "src/restart.cpp"
+    "src/elim.cpp"
+    "src/subsume.cpp"
+    "src/instantiate.cpp"
+    "src/flip.cpp"
+    "src/rephase.cpp"
+    "src/backward.cpp"
+    "src/condition.cpp"
+    "src/averages.cpp"
+    "src/gates.cpp"
+    "src/block.cpp"
+    "src/phases.cpp"
+    "src/reduce.cpp"
+    "src/compact.cpp"
+    "src/walk.cpp"
+    "src/lucky.cpp"
+    "src/util.cpp"
+    "src/restore.cpp"
+    "src/checker.cpp"
+    "src/occs.cpp"
+    "src/cover.cpp"
+    "src/bins.cpp"
+    "src/vivify.cpp"
+    "src/transred.cpp"
+    "src/lratchecker.cpp"
 )
+
 
 
 include_directories(

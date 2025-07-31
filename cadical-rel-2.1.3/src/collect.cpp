@@ -485,19 +485,15 @@ void Internal::remove_garbage_binaries () {
         Watch w = *i;
         *j++ = w;
         Clause *c = w.clause;
-                  #ifdef ERRORJUMP
+          #ifdef ERRORJUMP
          if (!w.binary () && c->size == 2)
          {
           longjmp (*this->jmp_env, 500); // CONTRACT_VIOLATED
          }
           #endif
-        COVER (
-          !w.binary () && c->size == 2);
         if (!w.binary ())
           continue;
         if (c->reason && c->garbage) {
-          COVER (
-          true);
           assert (c->size == 2);
           backtrack_level =
               min (backtrack_level, var (c->literals[0]).level);

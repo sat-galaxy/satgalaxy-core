@@ -24,13 +24,6 @@
 
 // Less common 'C' header.
 
-extern "C" {
-// #ifdef _WIN32
-// #include <windows.h>
-// #else
-// #include <unistd.h>
-// #endif
-}
 
 /*------------------------------------------------------------------------*/
 
@@ -67,7 +60,6 @@ extern "C" {
 #include "elim.hpp"
 #include "ema.hpp"
 #include "external.hpp"
-#include "file.hpp"
 #include "flags.hpp"
 #include "format.hpp"
 #include "frattracer.hpp"
@@ -95,10 +87,8 @@ extern "C" {
 #include "range.hpp"
 #include "reap.hpp"
 #include "reluctant.hpp"
-#include "resources.hpp"
 #include "score.hpp"
 #include "stats.hpp"
-#include "terminal.hpp"
 #include "tracer.hpp"
 #include "util.hpp"
 #include "var.hpp"
@@ -117,7 +107,6 @@ struct Coveror;
 struct External;
 struct Walker;
 class Tracer;
-class FileTracer;
 class StatTracer;
 
 struct CubesWithStatus {
@@ -270,8 +259,6 @@ struct Internal {
   LratBuilder *lratbuilder; // special proof tracer
   vector<Tracer *>
       tracers; // proof tracing objects (ie interpolant calculator)
-  vector<FileTracer *>
-      file_tracers; // file proof tracers (ie DRAT, LRAT...)
   vector<StatTracer *> stat_tracers; // checkers
 
   Options opts; // run-time options
@@ -1362,11 +1349,7 @@ struct Internal {
            frozentab[vidx (lit)] > 0;
   }
 
-  // Parsing functions in 'parse.cpp'.
-  //
-  const char *parse_dimacs (FILE *);
-  const char *parse_dimacs (const char *);
-  const char *parse_solution (const char *);
+
 
   // Enable and disable proof logging and checking.
   //
@@ -1374,9 +1357,6 @@ struct Internal {
   void setup_lrat_builder ();            // if opts.externallrat=true
   void force_lrat ();                    // sets lrat=true
   void resize_unit_clauses_idx ();       // resizes unit_clauses_idx
-  void close_trace (bool stats = false); // Stop proof tracing.
-  void flush_trace (bool stats = false); // Flush proof trace file.
-  void trace (File *);                   // Start write proof file.
   void check ();                         // Enable online proof checking.
 
   void connect_proof_tracer (Tracer *tracer, bool antecedents,
@@ -1385,11 +1365,9 @@ struct Internal {
                              bool finalize_clauses = false);
   void connect_proof_tracer (StatTracer *tracer, bool antecedents,
                              bool finalize_clauses = false);
-  void connect_proof_tracer (FileTracer *tracer, bool antecedents,
-                             bool finalize_clauses = false);
+
   bool disconnect_proof_tracer (Tracer *tracer);
   bool disconnect_proof_tracer (StatTracer *tracer);
-  bool disconnect_proof_tracer (FileTracer *tracer);
   void conclude_unsat ();
   void reset_concluded ();
 
@@ -1421,7 +1399,6 @@ struct Internal {
   void report_solving (int);
 
   void print_statistics ();
-  void print_resource_usage ();
 
   /*----------------------------------------------------------------------*/
 

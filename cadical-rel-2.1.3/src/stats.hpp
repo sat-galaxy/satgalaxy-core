@@ -69,9 +69,6 @@ struct Stats {
     int64_t irredundant;
   } current, added; // Clauses.
 
-  struct {
-    double process, real;
-  } time;
 
   struct {
     int64_t count;      // number of covered clause elimination rounds

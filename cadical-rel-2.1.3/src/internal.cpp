@@ -71,8 +71,6 @@ Internal::~Internal () {
     delete lratbuilder;
   for (auto &tracer : tracers)
     delete tracer;
-  for (auto &filetracer : file_tracers)
-    delete filetracer;
   for (auto &stattracer : stat_tracers)
     delete stattracer;
   if (vals) {

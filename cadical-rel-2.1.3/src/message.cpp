@@ -83,15 +83,11 @@ void Internal::section (const char *title) {
   if (stats.sections++)
     MSG ();
   print_prefix ();
-  tout.blue ();
   fputs ("--- [ ", stdout);
-  tout.blue (true);
   fputs (title, stdout);
-  tout.blue ();
   fputs (" ] ", stdout);
   for (int i = strlen (title) + strlen (prefix.c_str ()) + 9; i < 78; i++)
     fputc ('-', stdout);
-  tout.normal ();
   fputc ('\n', stdout);
   MSG ();
 }
@@ -137,11 +133,8 @@ void Internal::phase (const char *phase, int64_t count, const char *fmt,
 
 void Internal::warning (const char *fmt, ...) {
   fflush (stdout);
-  terr.bold ();
   fputs ("cadical: ", stderr);
-  terr.red (1);
   fputs ("warning:", stderr);
-  terr.normal ();
   fputc (' ', stderr);
   va_list ap;
   va_start (ap, fmt);
@@ -155,11 +148,8 @@ void Internal::warning (const char *fmt, ...) {
 
 void Internal::error_message_start () {
   fflush (stdout);
-  terr.bold ();
   fputs ("cadical: ", stderr);
-  terr.red (1);
   fputs ("error:", stderr);
-  terr.normal ();
   fputc (' ', stderr);
 }
 
@@ -187,11 +177,8 @@ void Internal::error (const char *fmt, ...) {
 
 void fatal_message_start () {
   fflush (stdout);
-  terr.bold ();
   fputs ("cadical: ", stderr);
-  terr.red (1);
   fputs ("fatal error:", stderr);
-  terr.normal ();
   fputc (' ', stderr);
 }
 

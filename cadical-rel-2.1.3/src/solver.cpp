@@ -376,7 +376,6 @@ Solver::Solver () {
     // these settings if neeed be.
     set ("lidrup", 1);
     set ("binary", 0);
-    trace_proof (lidrup_path);
     tracing_nb_lidrup_env_var_method = true;
   } else {
     tracing_nb_lidrup_env_var_method = false;
@@ -707,8 +706,6 @@ int Solver::propagate () {
   REQUIRE_VALID_STATE ();
   transition_to_steady_state ();
   const int res = external->propagate_assumptions ();
-  if (tracing_nb_lidrup_env_var_method)
-    flush_proof_trace (true);
   LOG_API_CALL_RETURNS ("propagate_assumptions", res);
   if (res == 10)
     STATE (SATISFIED);
@@ -724,8 +721,6 @@ void Solver::get_entrailed_literals (std::vector<int> &entrailed) {
   REQUIRE_STEADY_STATE ();
   external->conclude_unknown ();
   external->get_entrailed_literals (entrailed);
-  if (tracing_nb_lidrup_env_var_method)
-    flush_proof_trace (true);
   LOG_API_CALL_RETURNS ("get_entrailed_literals", (int) entrailed.size ());
 }
 
@@ -779,8 +774,6 @@ int Solver::solve () {
   REQUIRE_READY_STATE ();
   const int res = call_external_solve_and_check_results (false);
   LOG_API_CALL_RETURNS ("solve", res);
-  if (tracing_nb_lidrup_env_var_method)
-    flush_proof_trace (true);
   return res;
 }
 
@@ -1110,55 +1103,9 @@ bool Solver::frozen (int lit) {
   return res;
 }
 
-/*------------------------------------------------------------------------*/
 
-bool Solver::trace_proof (FILE *external_file, const char *name) {
-  TRACE ("trace_proof", name);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (125,
-      state () == CONFIGURING,
-      "can only start proof tracing to '%s' right after initialization",
-      name);
-  File *internal_file = File::write (internal, external_file, name);
-  assert (internal_file);
-  internal->trace (internal_file);
-  LOG_API_CALL_RETURNS ("trace_proof", name, true);
-  return true;
-}
 
-bool Solver::trace_proof (const char *path) {
-  TRACE ("trace_proof", path);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (125,
-      state () == CONFIGURING,
-      "can only start proof tracing to '%s' right after initialization",
-      path);
-  File *internal_file = File::write (internal, path);
-  bool res = (internal_file != 0);
-  internal->trace (internal_file);
-  LOG_API_CALL_RETURNS ("trace_proof", path, res);
-  return res;
-}
 
-void Solver::flush_proof_trace (bool print_statistics_unless_quiet) {
-  TRACE ("flush_proof_trace");
-  REQUIRE_VALID_STATE ();
-  REQUIRE (126,!internal->file_tracers.empty (), "proof is not traced");
-  REQUIRE (127,!internal->file_tracers.back ()->closed (),
-           "proof trace already closed");
-  internal->flush_trace (print_statistics_unless_quiet);
-  LOG_API_CALL_END ("flush_proof_trace");
-}
-
-void Solver::close_proof_trace (bool print_statistics_unless_quiet) {
-  TRACE ("close_proof_trace");
-  REQUIRE_VALID_STATE ();
-  REQUIRE (126,!internal->file_tracers.empty (), "proof is not traced");
-  REQUIRE (127,!internal->file_tracers.back ()->closed (),
-           "proof trace already closed");
-  internal->close_trace (print_statistics_unless_quiet);
-  LOG_API_CALL_END ("close_proof_trace");
-}
 
 /*------------------------------------------------------------------------*/
 
@@ -1195,16 +1142,7 @@ void Solver::connect_proof_tracer (StatTracer *tracer, bool antecedents,
   LOG_API_CALL_END ("connect proof tracer with stats");
 }
 
-void Solver::connect_proof_tracer (FileTracer *tracer, bool antecedents,
-                                   bool finalize_clauses) {
-  LOG_API_CALL_BEGIN ("connect proof tracer with file");
-  REQUIRE_VALID_STATE ();
-  REQUIRE (128,state () == CONFIGURING,
-           "can only start proof tracing right after initialization");
-  REQUIRE (129,tracer, "can not connect zero tracer");
-  internal->connect_proof_tracer (tracer, antecedents, finalize_clauses);
-  LOG_API_CALL_END ("connect proof tracer with file");
-}
+
 
 bool Solver::disconnect_proof_tracer (Tracer *tracer) {
   LOG_API_CALL_BEGIN ("disconnect proof tracer");
@@ -1224,14 +1162,7 @@ bool Solver::disconnect_proof_tracer (StatTracer *tracer) {
   return res;
 }
 
-bool Solver::disconnect_proof_tracer (FileTracer *tracer) {
-  LOG_API_CALL_BEGIN ("disconnect proof tracer");
-  REQUIRE_VALID_STATE ();
-  REQUIRE (130,tracer, "can not disconnect zero tracer");
-  bool res = internal->disconnect_proof_tracer (tracer);
-  LOG_API_CALL_RETURNS ("disconnect proof tracer", res);
-  return res;
-}
+
 
 /*------------------------------------------------------------------------*/
 
@@ -1253,71 +1184,6 @@ void Solver::conclude () {
 }
 
 /*------------------------------------------------------------------------*/
-
-void Solver::build (FILE *file, const char *prefix) {
-
-  assert (file == stdout || file == stderr);
-
-  Terminal *terminal;
-
-  if (file == stdout)
-    terminal = &tout;
-  else if (file == stderr)
-    terminal = &terr;
-  else
-    terminal = 0;
-
-  const char *v = CaDiCaL::version ();
-  const char *i = identifier ();
-  const char *c = compiler ();
-  const char *b = date ();
-  const char *f = flags ();
-
-  assert (v);
-
-  fputs (prefix, file);
-  if (terminal)
-    terminal->magenta ();
-  fputs ("Version ", file);
-  if (terminal)
-    terminal->normal ();
-  fputs (v, file);
-  if (i) {
-    if (terminal)
-      terminal->magenta ();
-    fputc (' ', file);
-    fputs (i, file);
-    if (terminal)
-      terminal->normal ();
-  }
-  fputc ('\n', file);
-
-  if (c) {
-    fputs (prefix, file);
-    if (terminal)
-      terminal->magenta ();
-    fputs (c, file);
-    if (f) {
-      fputc (' ', file);
-      fputs (f, file);
-    }
-    if (terminal)
-      terminal->normal ();
-    fputc ('\n', file);
-  }
-
-  if (b) {
-    fputs (prefix, file);
-    if (terminal)
-      terminal->magenta ();
-    fputs (b, file);
-    if (terminal)
-      terminal->normal ();
-    fputc ('\n', file);
-  }
-
-  fflush (file);
-}
 
 const char *Solver::version () { return CaDiCaL::version (); }
 
@@ -1341,104 +1207,12 @@ void Solver::statistics () {
   LOG_API_CALL_END ("stats");
 }
 
-void Solver::resources () {
-  if (state () == DELETING)
-    return;
-  TRACE ("resources");
-  REQUIRE_VALID_OR_SOLVING_STATE ();
-  internal->print_resource_usage ();
-  LOG_API_CALL_END ("resources");
-}
 
-/*------------------------------------------------------------------------*/
 
-const char *Solver::read_dimacs (File *file, int &vars, int strict,
-                                 bool *incremental, vector<int> *cubes) {
-  REQUIRE_VALID_STATE ();
-  REQUIRE (132,state () == CONFIGURING,
-           "can only read DIMACS file right after initialization");
-  Parser *parser = new Parser (this, file, incremental, cubes);
-  const char *err = parser->parse_dimacs (vars, strict);
-  delete parser;
-  return err;
-}
 
-const char *Solver::read_dimacs (FILE *external_file, const char *name,
-                                 int &vars, int strict) {
-  LOG_API_CALL_BEGIN ("read_dimacs", name);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (132,state () == CONFIGURING,
-           "can only read DIMACS file right after initialization");
-  File *file = File::read (internal, external_file, name);
-  assert (file);
-  const char *err = read_dimacs (file, vars, strict);
-  delete file;
-  LOG_API_CALL_RETURNS ("read_dimacs", name, err);
-  return err;
-}
 
-const char *Solver::read_dimacs (const char *path, int &vars, int strict) {
-  LOG_API_CALL_BEGIN ("read_dimacs", path);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (132,state () == CONFIGURING,
-           "can only read DIMACS file right after initialization");
-  File *file = File::read (internal, path);
-  if (!file)
-    return internal->error_message.init ("failed to read DIMACS file '%s'",
-                                         path);
-  const char *err = read_dimacs (file, vars, strict);
-  delete file;
-  LOG_API_CALL_RETURNS ("read_dimacs", path, err);
-  return err;
-}
 
-const char *Solver::read_dimacs (FILE *external_file, const char *name,
-                                 int &vars, int strict, bool &incremental,
-                                 vector<int> &cubes) {
-  LOG_API_CALL_BEGIN ("read_dimacs", name);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (132,state () == CONFIGURING,
-           "can only read DIMACS file right after initialization");
-  File *file = File::read (internal, external_file, name);
-  assert (file);
-  const char *err = read_dimacs (file, vars, strict, &incremental, &cubes);
-  delete file;
-  LOG_API_CALL_RETURNS ("read_dimacs", name, err);
-  return err;
-}
 
-const char *Solver::read_dimacs (const char *path, int &vars, int strict,
-                                 bool &incremental, vector<int> &cubes) {
-  LOG_API_CALL_BEGIN ("read_dimacs", path);
-  REQUIRE_VALID_STATE ();
-  REQUIRE (132,state () == CONFIGURING,
-           "can only read DIMACS file right after initialization");
-  File *file = File::read (internal, path);
-  if (!file)
-    return internal->error_message.init ("failed to read DIMACS file '%s'",
-                                         path);
-  const char *err = read_dimacs (file, vars, strict, &incremental, &cubes);
-  delete file;
-  LOG_API_CALL_RETURNS ("read_dimacs", path, err);
-  return err;
-}
-
-const char *Solver::read_solution (const char *path) {
-  LOG_API_CALL_BEGIN ("solution", path);
-  REQUIRE_VALID_STATE ();
-  File *file = File::read (internal, path);
-  if (!file)
-    return internal->error_message.init (
-        "failed to read solution file '%s'", path);
-  Parser *parser = new Parser (this, file, 0, 0);
-  const char *err = parser->parse_solution ();
-  delete parser;
-  delete file;
-  if (!err)
-    external->check_assignment (&External::sol);
-  LOG_API_CALL_RETURNS ("read_solution", path, err);
-  return err;
-}
 
 /*------------------------------------------------------------------------*/
 
@@ -1537,123 +1311,9 @@ public:
   }
 };
 
-class ClauseWriter : public ClauseIterator {
-  File *file;
 
-public:
-  ClauseWriter (File *f) : file (f) {}
-  bool clause (const vector<int> &c) {
-    for (const auto &lit : c) {
-      if (!file->put (lit))
-        return false;
-      if (!file->put (' '))
-        return false;
-    }
-    return file->put ("0\n");
-  }
-};
 
-const char *Solver::write_dimacs (const char *path, int min_max_var) {
-  LOG_API_CALL_BEGIN ("write_dimacs", path, min_max_var);
-  REQUIRE_VALID_STATE ();
-#ifndef QUIET
-  const double start = internal->time ();
-#endif
-  internal->restore_clauses ();
-  ClauseCounter counter;
-  (void) traverse_clauses (counter);
-  LOG ("found maximal variable %d and %" PRId64 " clauses", counter.vars,
-       counter.clauses);
-  File *file = File::write (internal, path);
-  const char *res = 0;
-  if (file) {
-    int actual_max_vars = max (min_max_var, counter.vars);
-    MSG ("writing %s'p cnf %d %" PRId64 "'%s header", tout.green_code (),
-         actual_max_vars, counter.clauses, tout.normal_code ());
-    file->put ("p cnf ");
-    file->put (actual_max_vars);
-    file->put (' ');
-    file->put (counter.clauses);
-    file->put ('\n');
-    ClauseWriter writer (file);
-    if (!traverse_clauses (writer))
-      res = internal->error_message.init (
-          "writing to DIMACS file '%s' failed", path);
-    delete file;
-  } else
-    res = internal->error_message.init (
-        "failed to open DIMACS file '%s' for writing", path);
-#ifndef QUIET
-  if (!res) {
-    const double end = internal->time ();
-    MSG ("wrote %" PRId64 " clauses in %.2f seconds %s time",
-         counter.clauses, end - start,
-         internal->opts.realtime ? "real" : "process");
-  }
-#endif
-  LOG_API_CALL_RETURNS ("write_dimacs", path, min_max_var, res);
-  return res;
-}
 
-/*------------------------------------------------------------------------*/
-
-struct WitnessWriter : public WitnessIterator {
-  File *file;
-  int64_t witnesses;
-  WitnessWriter (File *f) : file (f), witnesses (0) {}
-  bool write (const vector<int> &a) {
-    for (const auto &lit : a) {
-      if (!file->put (lit))
-        return false;
-      if (!file->put (' '))
-        return false;
-    }
-    return file->put ('0');
-  }
-  bool witness (const vector<int> &c, const vector<int> &w, uint64_t) {
-    if (!write (c))
-      return false;
-    if (!file->put (' '))
-      return false;
-    if (!write (w))
-      return false;
-    if (!file->put ('\n'))
-      return false;
-    witnesses++;
-    return true;
-  }
-};
-
-const char *Solver::write_extension (const char *path) {
-  LOG_API_CALL_BEGIN ("write_extension", path);
-  REQUIRE_VALID_STATE ();
-  const char *res = 0;
-#ifndef QUIET
-  const double start = internal->time ();
-#endif
-  File *file = File::write (internal, path);
-  WitnessWriter writer (file);
-  if (file) {
-    if (!traverse_witnesses_backward (writer))
-      res = internal->error_message.init (
-          "writing to DIMACS file '%s' failed", path);
-    delete file;
-  } else
-    res = internal->error_message.init (
-        "failed to open extension file '%s' for writing", path);
-#ifndef QUIET
-  if (!res) {
-    const double end = internal->time ();
-    MSG ("wrote %" PRId64 " witnesses in %.2f seconds %s time",
-         writer.witnesses, end - start,
-         internal->opts.realtime ? "real" : "process");
-  }
-#endif
-  LOG_API_CALL_RETURNS ("write_extension", path, res);
-  return res;
-}
-
-/*------------------------------------------------------------------------*/
 
 struct ClauseCopier : public ClauseIterator {
   Solver &dst;

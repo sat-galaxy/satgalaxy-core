@@ -294,7 +294,6 @@ if (!same_clause (a, b))
 }
 #endif
 
-    COVER (same_clause (a, b));
 
     // First focus on clauses scheduled in the last vivify round but not
     // checked yet since then.
@@ -336,7 +335,7 @@ if (!same_clause (a, b))
     }
 
 #endif
-    COVER (i == eoa && j == eob);
+
 
     return j == eob; // Prefer shorter clauses to be vivified first.
   }

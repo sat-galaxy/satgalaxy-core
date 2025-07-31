@@ -139,7 +139,7 @@ public:
     bool    solve        (Lit p, Lit q);            // Search for a model that respects two assumptions.
     bool    solve        (Lit p, Lit q, Lit r);     // Search for a model that respects three assumptions.
     bool    okay         () const;                  // FALSE means solver is in a conflicting state
-#ifndef GALAXY_CORE
+#ifdef 0
        // Convenience versions of 'toDimacs()':
     void    toDimacs     (FILE* f, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
     void    toDimacs     (const char *file, const vec<Lit>& assumps);
@@ -241,13 +241,10 @@ public:
 
     // Certified UNSAT ( Thanks to Marijn Heule
     // New in 2016 : proof in DRAT format, possibility to use binary output
-    FILE*               certifiedOutput;
     bool                certifiedUNSAT;
     bool                vbyte;
 
-    void write_char (unsigned char c);
-    void write_lit (int n);
-    template <typename T> void addToDrat(T & lits, bool add);
+    // template <typename T> void addToDrat(T & lits, bool add);
 
     // Panic mode.
     // Save memory
@@ -496,7 +493,7 @@ public:
     int performLCM;
 
     //// test
-    #ifndef GALAXY_CORE
+    #ifdef 0
     vec<int> valueDup;
     void compareValue();
     void wholeCompareValue();
@@ -599,7 +596,7 @@ inline bool     Solver::solve         (Lit p, Lit q, Lit r) { budgetOff(); assum
 inline bool     Solver::solve         (const vec<Lit>& assumps){ budgetOff(); assumps.copyTo(assumptions); return solve_() == l_True; }
 inline lbool    Solver::solveLimited  (const vec<Lit>& assumps){ assumps.copyTo(assumptions); return solve_(); }
 inline bool     Solver::okay          ()      const   { return ok; }
-#ifndef GALAXY_CORE
+#ifdef 0
 inline void     Solver::toDimacs     (const char* file){ vec<Lit> as; toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p){ vec<Lit> as; as.push(p); toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> as; as.push(p); as.push(q); toDimacs(file, as); }
@@ -647,7 +644,7 @@ template <typename T>inline unsigned int Solver::computeLBD(const T &lits, int e
 //=================================================================================================
 // Debug etc:
 
-#ifndef GALAXY_CORE
+#ifdef 0
 inline void Solver::printLit(Lit l)
 {
     printf("%s%d:%c", sign(l) ? "-" : "", var(l)+1, value(l) == l_True ? '1' : (value(l) == l_False ? '0' : 'X'));

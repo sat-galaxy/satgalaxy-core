@@ -25,7 +25,7 @@ if(USE_TRACE)
 endif()
 
 
-add_definitions(-DGALAXY_CORE -DERRORJMP)
+add_definitions(-DERRORJMP)
 
 
 set(LIB_SOURCES

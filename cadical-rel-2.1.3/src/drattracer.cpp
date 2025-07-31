@@ -16,7 +16,6 @@ DratTracer::DratTracer (Internal *i, File *f, bool b)
 
 void DratTracer::connect_internal (Internal *i) {
   internal = i;
-  file->connect_internal (internal);
   LOG ("DRAT TRACER connected to internal");
 }
 
@@ -29,13 +28,11 @@ DratTracer::~DratTracer () {
 
 inline void DratTracer::put_binary_zero () {
   assert (binary);
-  assert (file);
   file->put ((unsigned char) 0);
 }
 
 inline void DratTracer::put_binary_lit (int lit) {
   assert (binary);
-  assert (file);
   assert (lit != INT_MIN);
   unsigned idx = abs (lit);
   assert (idx < (1u << 31));

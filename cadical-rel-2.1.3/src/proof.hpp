@@ -27,7 +27,6 @@ class Proof {
 
   // the 'tracers'
   vector<Tracer *> tracers;          // tracers (ie checker)
-  vector<FileTracer *> file_tracers; // file tracers (ie LRAT tracer)
   LratBuilder *lratbuilder;          // special tracer
 
   void add_literal (int internal_lit); // add to 'clause'
