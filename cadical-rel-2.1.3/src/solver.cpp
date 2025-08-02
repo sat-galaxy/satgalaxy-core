@@ -317,7 +317,7 @@ static bool tracing_nb_lidrup_env_var_method = false;
 
 Solver::Solver () {
 
-#ifndef NTRACING
+#ifdef 0
   const char *path = getenv ("CADICAL_API_TRACE");
   if (!path)
     path = getenv ("CADICALAPITRACE");
@@ -358,7 +358,7 @@ Solver::Solver () {
   );
   DeferDeletePtr<External> delete_external (external);
   STATE (CONFIGURING);
-#ifndef NTRACING
+#ifdef 0
   if (tracing_api_calls_through_environment_variable_method)
     message ("tracing API calls to '%s'", path);
 #endif
@@ -1206,7 +1206,6 @@ void Solver::statistics () {
   internal->print_statistics ();
   LOG_API_CALL_END ("stats");
 }
-
 
 
 
