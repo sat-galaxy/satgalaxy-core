@@ -20,7 +20,7 @@ int minisat_set_opt_##NAME(MiniSATSolver *solver, TY value)\
     {\
         return CODE;\
     }\
-    solver->solver->NAME==value;\
+    solver->solver->NAME = value;\
     return 0;\
 }\
 

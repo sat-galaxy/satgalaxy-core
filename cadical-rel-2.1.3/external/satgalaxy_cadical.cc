@@ -6,7 +6,6 @@
 #include <cstring>
 #include <limits.h>
 #include <vector>
-#ifdef ERRORJUMP
 #include <csetjmp>
 #define CALL_FN(rv, func, ...) \
   do { \
@@ -18,9 +17,7 @@
       return func (__VA_ARGS__); \
     } \
   } while (0)
-#else
-#define CALL_FN(rv, func, ...) return func (__VA_ARGS__)
-#endif
+
 
 struct SatgalaxyTerminator : CaDiCaL::Terminator {
   void *state;
@@ -405,18 +402,14 @@ void cadical_assume (CaDiCaLSolver *s, int lit) {
   CALL_FN (, s->solver->assume, lit);
 }
 int cadical_solve (CaDiCaLSolver *s) {
-#ifdef ERRORJUMP
   int code = setjmp (*s->solver->jmp_env);
   s->last_error = code;
   if (code) {
     return 30;
   } else {
-#endif
     int ret = s->solver->solve ();
     return ret ? ret : 30;
-#ifdef ERRORJUMP
   }
-#endif
 }
 int cadical_val (CaDiCaLSolver *s, int lit) {
   CALL_FN (0, s->solver->val, lit);
@@ -428,13 +421,11 @@ int cadical_failed (CaDiCaLSolver *s, int lit) {
 void cadical_set_terminate (CaDiCaLSolver *s, void *state,
                             int (*terminate) (void *state)) {
   CaDiCaL::Solver *solver = s->solver;
-#ifdef ERRORJUMP
   int code = setjmp (*s->solver->jmp_env);
   s->last_error = code;
   if (code) {
     return;
   } else {
-#endif
     if (terminate) {
       s->terminator->function = terminate;
       s->terminator->state = state;
@@ -442,21 +433,18 @@ void cadical_set_terminate (CaDiCaLSolver *s, void *state,
     } else {
       solver->disconnect_terminator ();
     }
-#ifdef ERRORJUMP
   }
-#endif
+
 }
 
 void cadical_set_learn (CaDiCaLSolver *s, void *state, int max_length,
                         void (*learn) (void *state, int *clause)) {
   CaDiCaL::Solver *solver = s->solver;
-#ifdef ERRORJUMP
   int code = setjmp (*s->solver->jmp_env);
   s->last_error = code;
   if (code) {
     return;
   } else {
-#endif
     SatgalaxyLearner *learner = s->learner;
     learner->state = state;
     learner->max_length = max_length;
@@ -465,9 +453,7 @@ void cadical_set_learn (CaDiCaLSolver *s, void *state, int max_length,
       solver->connect_learner (learner);
     else
       solver->disconnect_learner ();
-#ifdef ERRORJUMP
   }
-#endif
 }
 
 /*------------------------------------------------------------------------*/

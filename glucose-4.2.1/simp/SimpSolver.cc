@@ -268,17 +268,7 @@ bool SimpSolver::strengthenClause(CRef cr, Lit l)
     subsumption_queue.insert(cr);
 
     if (certifiedUNSAT) {
-        if (vbyte) {
-            write_char('a');
-            for (int i = 0; i < c.size(); i++)
-                if (c[i] != l) write_lit(2*(var(c[i])+1) + sign(c[i]));
-            write_lit(0);
-        }
-        else {
-            for (int i = 0; i < c.size(); i++)
-                if (c[i] != l) fprintf(certifiedOutput, "%i " , (var(c[i]) + 1) * (-2 * sign(c[i]) + 1) );
-            fprintf(certifiedOutput, "0\n");
-        }
+
     }
 
     if (c.size() == 2){

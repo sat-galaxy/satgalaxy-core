@@ -23,16 +23,15 @@
         {                                                       \
             return CODE;                                        \
         }                                                       \
-        solver->solver->FD == value;                            \
+        solver->solver->FD = value;                            \
         return 0;                                               \
     }
 
-#ifdef ERRORJUMP
 #include <csetjmp>
 #define CALL_FN(rv, func, ...)                   \
     do                                           \
     {                                            \
-        int code = setjmp(*s->solver->jmp_env);  \
+        int code = setjmp(s->solver->jmp_env);  \
         s->last_error = code;                    \
         if (code)                                \
         {                                        \
@@ -43,9 +42,9 @@
             return s->solver->func(__VA_ARGS__); \
         }                                        \
     } while (0)
-#else
-#define CALL_FN(rv, func, ...) return s->solver->func(__VA_ARGS__)
-#endif
+
+// #define CALL_FN(rv, func, ...) return s->solver->func(__VA_ARGS__)
+
 
 struct GlucoseSolver
 {
@@ -106,8 +105,7 @@ int glucose_solve_assumps(GlucoseSolver *s, const int ps[], unsigned long length
 int glucose_solve_limited(GlucoseSolver *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
 {
 
-#ifdef ERRORJUMP
-    int code = setjmp(*s->solver->jmp_env);
+    int code = setjmp(s->solver->jmp_env);
     s->last_error = code;
     if (code)
     {
@@ -115,16 +113,13 @@ int glucose_solve_limited(GlucoseSolver *s, const int ps[], unsigned long length
     }
     else
     {
-#endif
         Glucose::vec<Glucose::Lit> lits;
         for (unsigned long i = 0; i < length; i++)
         {
             lits.push(make_lit(s->solver, ps[i]));
         }
         return (Glucose::toInt(s->solver->solveLimited(lits, (bool)do_simp, (bool)turn_off_simp)) + 1) * 10;
-#ifdef ERRORJUMP
     }
-#endif
 }
 
 int glucose_solve(GlucoseSolver *s, int do_simp, int turn_off_simp)
@@ -159,8 +154,7 @@ int glucose_nfree_vars(GlucoseSolver *s)
 }
 int glucose_value(GlucoseSolver *s, int val)
 {
-#ifdef ERRORJUMP
-    int code = setjmp(*s->solver->jmp_env);
+    int code = setjmp(s->solver->jmp_env);
     s->last_error = code;
     if (code)
     {
@@ -168,7 +162,6 @@ int glucose_value(GlucoseSolver *s, int val)
     }
     else
     {
-#endif
         int abs_val = abs(val);
         Glucose::SimpSolver *solver = s->solver;
         if (abs_val == 0 || abs_val > solver->nVars())
@@ -176,14 +169,11 @@ int glucose_value(GlucoseSolver *s, int val)
             return 0;
         }
         return ((val < 0) ^ (solver->value(abs_val - 1) == l_True));
-#ifdef ERRORJUMP
     }
-#endif
 }
 int glucose_model_value(GlucoseSolver *s, int val)
 {
-#ifdef ERRORJUMP
-    int code = setjmp(*s->solver->jmp_env);
+    int code = setjmp(s->solver->jmp_env);
     s->last_error = code;
     if (code)
     {
@@ -191,7 +181,6 @@ int glucose_model_value(GlucoseSolver *s, int val)
     }
     else
     {
-#endif
         int abs_val = abs(val);
 
         Glucose::SimpSolver *solver = s->solver;
@@ -200,9 +189,8 @@ int glucose_model_value(GlucoseSolver *s, int val)
             return 0;
         }
         return (int)(((val < 0) ^ solver->model[abs_val - 1] == l_True));
-#ifdef ERRORJUMP
     }
-#endif
+
 }
 int glucose_okay(GlucoseSolver *s)
 {

@@ -102,9 +102,7 @@ void Options::initialize_from_environment (int &val, const char *name,
 // Initialize all the options to their default value 'V'.
 
 Options::Options (Internal *s) : internal (s) {
-#ifdef ERRORJUMP
   jmp_env=s->jmp_env; // For error handling.
-#endif
   assert (number_of_options == sizeof Options::table / sizeof (Option));
 
   // First initialize them according to defaults in 'options.hpp'.
@@ -208,20 +206,8 @@ void Options::print () {
     if ((L) == 0 && (H) == 1) { \
       snprintf (buffer, sizeof buffer, "--" #N "=%s", \
                 (N ? "true" : "false")); \
-      MSG ("  %s%-30s%s (%s default %s'%s'%s)", \
-           ((N == (V)) ? "" : tout.bright_yellow_code ()), buffer, \
-           ((N == (V)) ? "" : tout.normal_code ()), \
-           ((N == (V)) ? "same as" : "different from"), \
-           ((N == (V)) ? tout.green_code () : tout.yellow_code ()), \
-           (bool) (V) ? "true" : "false", tout.normal_code ()); \
     } else { \
       snprintf (buffer, sizeof buffer, "--" #N "=%d", N); \
-      MSG ("  %s%-30s%s (%s default %s'" #V "'%s)", \
-           ((N == (V)) ? "" : tout.bright_yellow_code ()), buffer, \
-           ((N == (V)) ? "" : tout.normal_code ()), \
-           ((N == (V)) ? "same as" : "different from"), \
-           ((N == (V)) ? tout.green_code () : tout.yellow_code ()), \
-           tout.normal_code ()); \
     } \
   }
   OPTIONS

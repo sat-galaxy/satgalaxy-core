@@ -1,8 +1,5 @@
 #ifndef _cover_hpp_INCLUDED
 #define _cover_hpp_INCLUDED
-#ifdef ERRORJUMP
-#include <setjmp.h>
-#endif
 /*------------------------------------------------------------------------*/
 
 // This header only provides the 'COVER' macro for testing.  It is unrelated

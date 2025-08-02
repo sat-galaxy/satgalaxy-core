@@ -70,7 +70,7 @@ Solver::Solver() :
 
                    // Parameters (user settable):
                    //
-                   verbosity(opt_verbosity), showModel(0), K(opt_K), R(opt_R), sizeLBDQueue(opt_size_lbd_queue), sizeTrailQueue(opt_size_trail_queue), firstReduceDB(opt_first_reduce_db), incReduceDB(opt_chanseok_hack ? 0 : opt_inc_reduce_db), specialIncReduceDB(opt_chanseok_hack ? 0 : opt_spec_inc_reduce_db), lbLBDFrozenClause(opt_lb_lbd_frozen_clause), chanseokStrategy(opt_chanseok_hack), coLBDBound(opt_chanseok_limit), lbSizeMinimizingClause(opt_lb_size_minimzing_clause), lbLBDMinimizingClause(opt_lb_lbd_minimzing_clause), useLCM(opt_lcm), LCMUpdateLBD(opt_lcm_update_lbd), var_decay(opt_var_decay), max_var_decay(opt_max_var_decay), clause_decay(opt_clause_decay), random_var_freq(opt_random_var_freq), random_seed(opt_random_seed), ccmin_mode(opt_ccmin_mode), phase_saving(opt_phase_saving), rnd_pol(false), rnd_init_act(opt_rnd_init_act), randomizeFirstDescent(false), garbage_frac(opt_garbage_frac), certifiedOutput(NULL), certifiedUNSAT(false) // Not in the first parallel version
+                   verbosity(opt_verbosity), showModel(0), K(opt_K), R(opt_R), sizeLBDQueue(opt_size_lbd_queue), sizeTrailQueue(opt_size_trail_queue), firstReduceDB(opt_first_reduce_db), incReduceDB(opt_chanseok_hack ? 0 : opt_inc_reduce_db), specialIncReduceDB(opt_chanseok_hack ? 0 : opt_spec_inc_reduce_db), lbLBDFrozenClause(opt_lb_lbd_frozen_clause), chanseokStrategy(opt_chanseok_hack), coLBDBound(opt_chanseok_limit), lbSizeMinimizingClause(opt_lb_size_minimzing_clause), lbLBDMinimizingClause(opt_lb_lbd_minimzing_clause), useLCM(opt_lcm), LCMUpdateLBD(opt_lcm_update_lbd), var_decay(opt_var_decay), max_var_decay(opt_max_var_decay), clause_decay(opt_clause_decay), random_var_freq(opt_random_var_freq), random_seed(opt_random_seed), ccmin_mode(opt_ccmin_mode), phase_saving(opt_phase_saving), rnd_pol(false), rnd_init_act(opt_rnd_init_act), randomizeFirstDescent(false), garbage_frac(opt_garbage_frac), certifiedUNSAT(false) // Not in the first parallel version
                    ,
                    vbyte(false), panicModeLastRemoved(0), panicModeLastRemovedShared(0), useUnaryWatched(false), promoteOneWatchedClause(true), solves(0), starts(0), decisions(0), propagations(0), conflicts(0), conflictsRestarts(0), curRestart(1), glureduce(opt_glu_reduction), restart_inc(opt_restart_inc), luby_restart(opt_luby_restart), adaptStrategies(opt_adapt), luby_restart_factor(opt_luby_restart_factor), randomize_on_restarts(opt_randomize_phase_on_restarts), fixed_randomize_on_restarts(opt_fixed_randomize_phase_on_restarts), newDescent(0), randomDescentAssignments(0), forceUnsatOnNewDescent(opt_forceunsat)
 
@@ -98,7 +98,7 @@ Solver::Solver() :
 // Special constructor used for cloning solvers
 //-------------------------------------------------------
 
-Solver::Solver(const Solver &s) : verbosity(s.verbosity), showModel(s.showModel), K(s.K), R(s.R), sizeLBDQueue(s.sizeLBDQueue), sizeTrailQueue(s.sizeTrailQueue), firstReduceDB(s.firstReduceDB), incReduceDB(s.incReduceDB), specialIncReduceDB(s.specialIncReduceDB), lbLBDFrozenClause(s.lbLBDFrozenClause), chanseokStrategy(opt_chanseok_hack), coLBDBound(opt_chanseok_limit), lbSizeMinimizingClause(s.lbSizeMinimizingClause), lbLBDMinimizingClause(s.lbLBDMinimizingClause), useLCM(s.useLCM), LCMUpdateLBD(s.LCMUpdateLBD), var_decay(s.var_decay), max_var_decay(s.max_var_decay), clause_decay(s.clause_decay), random_var_freq(s.random_var_freq), random_seed(s.random_seed), ccmin_mode(s.ccmin_mode), phase_saving(s.phase_saving), rnd_pol(s.rnd_pol), rnd_init_act(s.rnd_init_act), randomizeFirstDescent(s.randomizeFirstDescent), garbage_frac(s.garbage_frac), certifiedOutput(NULL), certifiedUNSAT(false) // Not in the first parallel version
+Solver::Solver(const Solver &s) : verbosity(s.verbosity), showModel(s.showModel), K(s.K), R(s.R), sizeLBDQueue(s.sizeLBDQueue), sizeTrailQueue(s.sizeTrailQueue), firstReduceDB(s.firstReduceDB), incReduceDB(s.incReduceDB), specialIncReduceDB(s.specialIncReduceDB), lbLBDFrozenClause(s.lbLBDFrozenClause), chanseokStrategy(opt_chanseok_hack), coLBDBound(opt_chanseok_limit), lbSizeMinimizingClause(s.lbSizeMinimizingClause), lbLBDMinimizingClause(s.lbLBDMinimizingClause), useLCM(s.useLCM), LCMUpdateLBD(s.LCMUpdateLBD), var_decay(s.var_decay), max_var_decay(s.max_var_decay), clause_decay(s.clause_decay), random_var_freq(s.random_var_freq), random_seed(s.random_seed), ccmin_mode(s.ccmin_mode), phase_saving(s.phase_saving), rnd_pol(s.rnd_pol), rnd_init_act(s.rnd_init_act), randomizeFirstDescent(s.randomizeFirstDescent), garbage_frac(s.garbage_frac), certifiedUNSAT(false) // Not in the first parallel version
                                   ,
                                   panicModeLastRemoved(s.panicModeLastRemoved), panicModeLastRemovedShared(s.panicModeLastRemovedShared), useUnaryWatched(s.useUnaryWatched), promoteOneWatchedClause(s.promoteOneWatchedClause)
                                   // Statistics: (formerly in 'SolverStats')
@@ -156,26 +156,6 @@ Solver::~Solver()
  Certified UNSAT proof in binary format
 ****************************************************************/
 
-void Solver::write_char(unsigned char ch)
-{
-#if defined(_WIN32) || defined(_WIN64)
-    if (putc((int)ch, certifiedOutput) == EOF)
-#else
-    if (putc_unlocked((int)ch, certifiedOutput) == EOF)
-#endif
-#ifdef ERRORJUMP
-        longjmp(jmp_env, 200);
-#else
-        exit(1);
-#endif
-}
-
-void Solver::write_lit(int n)
-{
-    for (; n > 127; n >>= 7)
-        write_char(128 | (n & 127));
-    write_char(n);
-}
 
 /****************************************************************
  Set the incremental mode
@@ -189,12 +169,7 @@ void Solver::setIncrementalMode()
 #ifdef INCREMENTAL
     incremental = true;
 #else
-#ifdef ERRORJUMP
     longjmp(jmp_env, 201);
-#else
-    fprintf(stderr, "c Trying to set incremental mode, but not compiled properly for this.\n");
-    exit(1);
-#endif
 #endif
 }
 
@@ -1706,12 +1681,7 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
 
     if (incremental && certifiedUNSAT)
     {
-#ifdef ERRORJUMP
         longjmp(jmp_env, 202);
-#else
-        printf("Can not use incremental and certified unsat in the same time\n");
-        exit(-1);
-#endif
 
     }
 
@@ -1780,19 +1750,6 @@ lbool Solver::solve_(bool do_simp, bool turn_off_simp) // Parameters are useless
 
     if (certifiedUNSAT)
     { // Want certified output
-        if (status == l_False)
-        {
-            if (vbyte)
-            {
-                write_char('a');
-                write_lit(0);
-            }
-            else
-            {
-                fprintf(certifiedOutput, "0\n");
-            }
-        }
-        fclose(certifiedOutput);
     }
 
     if (status == l_True)
@@ -1834,7 +1791,7 @@ static Var mapVar(Var x, vec<Var> &map, Var &max)
     return map[x];
 }
 
-#ifdef 0
+#if 0
 void Solver::toDimacs(FILE *f, Clause &c, vec<Var> &map, Var &max)
 {
     if (satisfied(c))

@@ -317,7 +317,7 @@ static bool tracing_nb_lidrup_env_var_method = false;
 
 Solver::Solver () {
 
-#ifdef 0
+#if 0
   const char *path = getenv ("CADICAL_API_TRACE");
   if (!path)
     path = getenv ("CADICALAPITRACE");
@@ -337,28 +337,22 @@ Solver::Solver () {
     trace_api_file = 0;
   }
 #endif
-#ifdef ERRORJUMP
-      jmp_env=(jmp_buf*)malloc(sizeof(jmp_buf));
-#endif
+  jmp_env=(jmp_buf*)malloc(sizeof(jmp_buf));
+
   adding_clause = false;
   adding_constraint = false;
   _state = INITIALIZING;
   internal = new Internal (
-#ifdef ERRORJUMP
       jmp_env
-#endif
   );
   DeferDeletePtr<Internal> delete_internal (internal);
   TRACE ("init");
-  external = new External (internal
-#ifdef ERRORJUMP
-                           ,
+  external = new External (internal,
                            jmp_env
-#endif
   );
   DeferDeletePtr<External> delete_external (external);
   STATE (CONFIGURING);
-#ifdef 0
+#if 0
   if (tracing_api_calls_through_environment_variable_method)
     message ("tracing API calls to '%s'", path);
 #endif

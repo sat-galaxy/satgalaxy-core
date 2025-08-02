@@ -1,7 +1,6 @@
 #include "internal.hpp"
-#ifdef ERRORJUMP
 #include <setjmp.h>
-#endif
+
 namespace CaDiCaL {
 
 /*------------------------------------------------------------------------*/
@@ -190,9 +189,7 @@ void fatal_message_end () {
 }
 
 void fatal (
-#ifdef ERRORJUMP
     jmp_buf *jmp_env, int code,
-#endif
     const char *fmt, ...) {
   fatal_message_start ();
   va_list ap;

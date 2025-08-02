@@ -185,7 +185,6 @@ typedef unsigned long Wrd;
 
 #define AVERAGE(a,b) ((b) ? (((double)a) / (double)(b)) : 0.0)
 #define PERCENT(a,b) (100.0 * AVERAGE(a,b))
-#ifdef ERRORJMP
 // New logic with longjmp and error code
 #define ABORT(ps, msg, errcode) \
   do { \
@@ -197,20 +196,7 @@ typedef unsigned long Wrd;
     if (!(cond)) break; \
     ABORT(ps, msg, errcode); \
   } while (0)
-#else
-// Original logic with abort
-#define ABORT(msg) \
-  do { \
-    fputs ("*** picosat: " msg "\n", stderr); \
-    abort (); \
-  } while (0)
 
-#define ABORTIF(cond,msg) \
-  do { \
-    if (!(cond)) break; \
-    ABORT (msg); \
-  } while (0)
-#endif
 
 #define ZEROFLT		(0x00000000u)
 #define EPSFLT		(0x00000001u)
@@ -714,9 +700,8 @@ struct PicoSAT
 #ifdef VISCORES
   FILE * fviscores;
 #endif
-#ifdef ERRORJMP
+
 jmp_buf jmp_env;
-#endif
 };
 
 typedef PicoSAT PS;
@@ -966,11 +951,8 @@ new (PS * ps, size_t size)
     b = ps->enew (ps->emgr, bytes);
   else
     b = malloc (bytes);
-#ifdef ERRORJMP
   ABORTIF(ps, !b, "out of memory in 'new'", ERR_OUT_OF_MEMORY_NEW);
-#else
-  ABORTIF (!b, "out of memory in 'new'");
-#endif
+
 #ifndef NDEBUG
   b->header.size = size;
 #endif
@@ -1039,11 +1021,8 @@ resize (PS * ps, void *void_ptr, size_t old_size, size_t new_size)
       assert (!b);
       return 0;
     }
-#ifdef ERRORJMP
   ABORTIF(ps, !b, "out of memory in 'resize'", ERR_OUT_OF_MEMORY_RESIZE);
-#else
-  ABORTIF (!b, "out of memory in 'resize'");
-#endif
+
   
 #ifndef NDEBUG
   b->header.size = new_size;
@@ -1196,11 +1175,8 @@ init (void * pmgr,
 #endif
 
   ps = pnew ? pnew (pmgr, sizeof *ps) : malloc (sizeof *ps);
-#ifdef ERRORJMP
   ABORTIF(ps, !ps, "failed to allocate memory for PicoSAT manager", ERR_ALLOC_PICOSAT_FAILED);
-#else
-  ABORTIF (!ps, "failed to allocate memory for PicoSAT manager");
-#endif
+
   memset (ps, 0, sizeof *ps);
 
   ps->emgr = pmgr;
@@ -1490,12 +1466,8 @@ reset_ados (PS * ps)
 static void
 reset (PS * ps)
 {
-  #ifdef ERRORJMP
     ABORTIF(ps, !ps || ps->state == RESET, "API usage: reset without initialization", ERR_UNINITIALIZED);
-  #else
-  ABORTIF (!ps || 
-           ps->state == RESET, "API usage: reset without initialization");
-  #endif
+
 
 
   delete_clauses (ps);
@@ -2674,12 +2646,7 @@ add_ado (PS * ps)
 #ifdef TRACE
   assert (!ps->trace);
 #endif
-#ifdef ERRORJMP
   ABORTIF(ps, ps->ados < ps->hados && llength(ps->ados[0]) != len, "internal: non matching all different constraint object lengths", ERR_ADO_LENGTH_MISMATCH);
-#else
-  ABORTIF (ps->ados < ps->hados && llength (ps->ados[0]) != len,
-           "internal: non matching all different constraint object lengths");
-#endif
 
   if (ps->hados == ps->eados)
     ENLARGE (ps->ados, ps->hados, ps->eados);
@@ -2694,11 +2661,7 @@ add_ado (PS * ps)
     {
       lit = *p++;
       v = LIT2VAR (lit);
-#ifdef ERRORJMP
       ABORTIF(ps, v->inado, "internal: variable in multiple all different objects", ERR_VAR_IN_MULTIPLE_ADOS);
-#else
-      ABORTIF (v->inado, "internal: variable in multiple all different objects");
-#endif
       v->inado = ado;
       if (!u && !lit->val)
 	u = v;
@@ -2709,13 +2672,8 @@ add_ado (PS * ps)
   *q++ = 0;
 
   /* TODO simply do a conflict test as in propado */
-#ifdef ERRORJMP
   ABORTIF(ps, !u, "internal: adding fully instantiated all different object not implemented yet", ERR_ADO_NOT_IMPLEMENTED);
-#else
-  ABORTIF (!u,
-    "internal: "
-    "adding fully instantiated all different object not implemented yet");
-#endif
+
   assert (u);
   assert (u->inado == ado);
   assert (!u->ado);
@@ -4263,12 +4221,8 @@ enlarge_adotab (PS * ps)
 {
   /* TODO make this generic */
 
-  #ifdef ERRORJMP
   ABORTIF(ps, ps->szadotab, "all different object table already exists", ERR_ADOTAB_EXISTS);
-#else
-  ABORTIF (ps->szadotab, 
-           "internal: all different objects table needs larger initial size");
-#endif
+
   assert (!ps->nadotab);
   ps->szadotab = 10000;
   NEWN (ps->adotab, ps->szadotab);
@@ -6376,17 +6330,9 @@ import_lit (PS * ps, int lit, int nointernal)
   Lit * res;
   Var * v;
 
-#ifdef ERRORJMP
   ABORTIF(ps, lit == INT_MIN, "API usage: INT_MIN literal", ERR_INT_MIN_LITERAL);
-#else
-  ABORTIF (lit == INT_MIN, "API usage: INT_MIN literal");
-#endif
-#ifdef ERRORJMP
+
   ABORTIF(ps, abs(lit) > (int)ps->max_var && ps->CLS != ps->clshead, "API usage: invalid literal", ERR_INVALID_LITERAL);
-#else
-  ABORTIF (abs (lit) > (int) ps->max_var && ps->CLS != ps->clshead,
-           "API usage: new variable index after 'picosat_push'");
-#endif
 
 
   if (abs (lit) <= (int) ps->max_var)
@@ -6394,17 +6340,11 @@ import_lit (PS * ps, int lit, int nointernal)
       res = int2lit (ps, lit);
       v = LIT2VAR (res);
       if (nointernal && v->internal)
-  #ifdef ERRORJMP
+
     ABORT(ps, "API usage: trying to import invalid literal", ERR_INVALID_LITERAL_IMPORT);
-  #else
-	ABORT ("API usage: trying to import invalid literal");
-  #endif
     else if (!nointernal && !v->internal)
-#ifdef ERRORJMP
   ABORT(ps, "API usage: trying to import invalid context", ERR_INVALID_CONTEXT_IMPORT);
-#else
-	ABORT ("API usage: trying to import invalid context");
-#endif
+
     }
   else
     {
@@ -6461,43 +6401,28 @@ reset_assumptions (PS * ps)
 static void
 check_ready (PS * ps)
 {
-
-#ifdef ERRORJMP
   ABORTIF(ps, !ps || ps->state == RESET, "API usage: uninitialized", ERR_UNINITIALIZED);
-#else
-  ABORTIF (!ps || ps->state == RESET, "API usage: uninitialized");
-#endif
 }
 
 static void
 check_sat_state (PS * ps)
 {
-#ifdef ERRORJMP
   ABORTIF(ps, ps->state != SAT, "API usage: expected to be in SAT state", ERR_NOT_SAT_STATE);
-#else
-  ABORTIF (ps->state != SAT, "API usage: expected to be in SAT state");
-#endif
+
 }
 
 static void
 check_unsat_state (PS * ps)
 {
-#ifdef ERRORJMP
   ABORTIF(ps, ps->state != UNSAT, "API usage: expected to be in UNSAT state", ERR_NOT_UNSAT_STATE);
-#else
-  ABORTIF (ps->state != UNSAT, "API usage: expected to be in UNSAT state");
-#endif
+
 }
 
 static void
 check_sat_or_unsat_or_unknown_state (PS * ps)
 {
-#ifdef ERRORJMP
   ABORTIF(ps, ps->state != SAT && ps->state != UNSAT && ps->state != UNKNOWN, "API usage: invalid state", ERR_INVALID_STATE);
-#else
-  ABORTIF (ps->state != SAT && ps->state != UNSAT && ps->state != UNKNOWN,
-           "API usage: expected to be in SAT, UNSAT, or UNKNOWN state");
-#endif
+
 }
 
 static void
@@ -6589,11 +6514,9 @@ check_trace_support_and_execute (PS * ps,
   check_ready (ps);
   check_unsat_state (ps);
 #ifdef TRACE
-#ifdef ERRORJMP
+
   ABORTIF(ps, !ps->trace, "API usage: tracing disabled", ERR_TRACING_DISABLED);
-#else
-  ABORTIF (!ps->trace, "API usage: tracing disabled");
-#endif
+
   enter (ps);
   f (ps, file, fmt);
   leave (ps);
@@ -6601,11 +6524,7 @@ check_trace_support_and_execute (PS * ps,
   (void) file;
   (void) fmt;
   (void) f;
-#ifdef ERRORJMP
   ABORT(ps, "compiled without trace support", ERR_NO_TRACE_SUPPORT);
-#else
-  ABORT ("compiled without trace support");
-#endif
 #endif
 }
 
@@ -6694,12 +6613,9 @@ void
 picosat_adjust (PS * ps, int new_max_var)
 {
   unsigned new_size_vars;
-#ifdef ERRORJMP
+
   ABORTIF(ps, abs(new_max_var) > (int)ps->max_var && ps->CLS != ps->clshead, "API usage: adjusting variable index after 'picosat_push'", ERR_INVALID_MAX_VAR);
-#else
-  ABORTIF (abs (new_max_var) > (int) ps->max_var && ps->CLS != ps->clshead,
-           "API usage: adjusting variable index after 'picosat_push'");
-#endif
+
   enter (ps);
 
   new_max_var = abs (new_max_var);
@@ -6789,13 +6705,9 @@ picosat_pop (PS * ps)
 {
   Lit * lit;
   int res;
-#ifdef ERRORJMP
   ABORTIF(ps, ps->CLS == ps->clshead, "API usage: too many 'picosat_pop'", ERR_TOO_MANY_POP);
   ABORTIF(ps, ps->added != ps->ahead, "API usage: incomplete clause", ERR_INCOMPLETE_CLAUSE);
-#else
-  ABORTIF (ps->CLS == ps->clshead, "API usage: too many 'picosat_pop'");
-  ABORTIF (ps->added != ps->ahead, "API usage: incomplete clause");
-#endif
+
 
   if (ps->measurealltimeinlib)
     enter (ps);
@@ -6854,12 +6766,7 @@ picosat_enable_trace_generation (PS * ps)
   int res = 0;
   check_ready (ps);
 #ifdef TRACE
-#ifdef ERRORJMP
   ABORTIF(ps, ps->addedclauses, "API usage: trace generation enabled after adding clauses", ERR_ADDED_CLAUSES);
-#else
-  ABORTIF (ps->addedclauses, 
-           "API usage: trace generation enabled after adding clauses");
-#endif
   res = ps->trace = 1;
 #endif
   return res;
@@ -6920,19 +6827,12 @@ picosat_add (PS * ps, int int_lit)
     enter (ps);
   else
     check_ready (ps);
-#ifdef ERRORJMP
+
   ABORTIF(ps, ps->rup && ps->rupstarted && ps->oadded >= (unsigned)ps->rupclauses, "API usage: adding too many clauses after RUP header written", ERR_TOO_MANY_CLAUSES);
-#else
-  ABORTIF (ps->rup && ps->rupstarted && ps->oadded >= (unsigned)ps->rupclauses,
-           "API usage: adding too many clauses after RUP header written");
-#endif
+
 #ifndef NADC
-#ifdef ERRORJMP
   ABORTIF(ps, ps->addingtoado, "API usage: 'picosat_add' and 'picosat_add_ado_lit' mixed", ERR_ADDING_TO_ADO);
-#else
-  ABORTIF (ps->addingtoado, 
-           "API usage: 'picosat_add' and 'picosat_add_ado_lit' mixed");
-#endif
+
 #endif
   if (ps->state != READY)
     reset_incremental_usage (ps);
@@ -6994,12 +6894,8 @@ picosat_add_ado_lit (PS * ps, int external_lit)
 
   if (ps->state != READY)
     reset_incremental_usage (ps);
-#ifdef ERRORJMP
   ABORTIF(ps, !ps->addingtoado && ps->ahead > ps->added, "API usage: 'picosat_add' and 'picosat_add_ado_lit' mixed", ERR_ADO_HEAD_MISMATCH);
-#else
-  ABORTIF (!ps->addingtoado && ps->ahead > ps->added,
-           "API usage: 'picosat_add' and 'picosat_add_ado_lit' mixed");
-#endif
+
   if (external_lit)
     {
       ps->addingtoado = 1;
@@ -7016,11 +6912,8 @@ picosat_add_ado_lit (PS * ps, int external_lit)
 #else
   (void) ps;
   (void) external_lit;
-#ifdef ERRORJMP
   ABORT(ps, "compiled without all different constraint support", ERR_NO_ADO_SUPPORT);
-#else
-  ABORT ("compiled without all different constraint support");
-#endif
+
 #endif
 }
 
@@ -7218,18 +7111,12 @@ picosat_sat (PS * ps, int l)
     {
 #ifndef NADC
       if (ps->addingtoado)
-#ifdef ERRORJMP
   ABORT(ps, "API usage: incomplete all different constraint", ERR_INCOMPLETE_ADO);
-#else
-	ABORT ("API usage: incomplete all different constraint");
-#endif
+
       else
 #endif
-#ifdef ERRORJMP
   ABORT(ps, "API usage: incomplete clause", ERR_INCOMPLETE_CLAUSE_ABORT);
-#else
-	ABORT ("API usage: incomplete clause");
-#endif
+
     }
 
   if (ps->state != READY)
@@ -7284,13 +7171,9 @@ picosat_deref (PS * ps, int int_lit)
 
   check_ready (ps);
   check_sat_state (ps);
-#ifdef ERRORJMP
   ABORTIF(ps, !int_lit, "API usage: can not deref zero literal", ERR_ZERO_DEREF);
   ABORTIF(ps, ps->mtcls, "API usage: deref after empty clause generated", ERR_DEREF_AFTER_MTCLS);
-#else
-  ABORTIF (!int_lit, "API usage: can not deref zero literal");
-  ABORTIF (ps->mtcls, "API usage: deref after empty clause generated");
-#endif
+
 #ifdef STATS
   ps->derefs++;
 #endif
@@ -7313,11 +7196,9 @@ int
 picosat_deref_toplevel (PS * ps, int int_lit)
 {
   check_ready (ps);
-#ifdef ERRORJMP
+
   ABORTIF(ps, !int_lit, "API usage: zero literal can not be in core", ERR_ZERO_CORE_LITERAL);
-#else
-  ABORTIF (!int_lit, "API usage: can not deref zero literal");
-#endif
+
 #ifdef STATS
   ps->derefs++;
 #endif
@@ -7339,21 +7220,17 @@ picosat_corelit (PS * ps, int int_lit)
 {
   check_ready (ps);
   check_unsat_state (ps);
-#ifdef ERRORJMP
+
   ABORTIF(ps, !int_lit, "API usage: zero literal can not be in core", ERR_ZERO_CORE_LITERAL);
-#else
-  ABORTIF (!int_lit, "API usage: zero literal can not be in core");
-#endif
+
   assert (ps->mtcls || ps->failed_assumption);
 
 #ifdef TRACE
   {
     int res = 0;
-#ifdef ERRORJMP
+
     ABORTIF(ps, !ps->trace, "tracing disabled", ERR_TRACING_DISABLED);
-#else
-    ABORTIF (!ps->trace, "tracing disabled");
-#endif
+
     if (ps->measurealltimeinlib)
       enter (ps);
     core (ps);
@@ -7365,11 +7242,8 @@ picosat_corelit (PS * ps, int int_lit)
     return res;
   }
 #else
-#ifdef ERRORJMP
   ABORT(ps, "compiled without trace support", ERR_NO_TRACE_SUPPORT);
-#else
-  ABORT ("compiled without trace support");
-#endif
+
   return 0;
 #endif
 }
@@ -7379,24 +7253,18 @@ picosat_coreclause (PS * ps, int ocls)
 {
   check_ready (ps);
   check_unsat_state (ps);
-#ifdef ERRORJMP
+
   ABORTIF(ps, ocls < 0, "API usage: negative original clause index", ERR_NEGATIVE_OCLS);
   ABORTIF(ps, ocls >= (int)ps->oadded, "API usage: original clause index exceeded", ERR_OCLS_EXCEEDED);
-#else
-  ABORTIF (ocls < 0, "API usage: negative original clause index");
-  ABORTIF (ocls >= (int)ps->oadded, "API usage: original clause index exceeded");
-#endif
+
   assert (ps->mtcls || ps->failed_assumption);
 
 #ifdef TRACE
   {
     Cls ** clsptr, * c;
     int res  = 0;
-#ifdef ERRORJMP
     ABORTIF(ps, !ps->trace, "tracing disabled", ERR_TRACING_DISABLED);
-#else
-    ABORTIF (!ps->trace, "tracing disabled");
-#endif
+
     if (ps->measurealltimeinlib)
       enter (ps);
     core (ps);
@@ -7411,11 +7279,8 @@ picosat_coreclause (PS * ps, int ocls)
     return res;
   }
 #else
-#ifdef ERRORJMP
   ABORT(ps, "compiled without trace support", ERR_NO_TRACE_SUPPORT);
-#else
-  ABORT ("compiled without trace support");
-#endif
+
   return 0;
 #endif
 }
@@ -7425,11 +7290,8 @@ picosat_failed_assumption (PS * ps, int int_lit)
 {
   Lit * lit;
   Var * v;
-#ifdef ERRORJMP
   ABORTIF(ps, !int_lit, "API usage: zero literal as assumption", ERR_ZERO_ASSUMPTION);
-#else
-  ABORTIF (!int_lit, "API usage: zero literal as assumption");
-#endif
+
   check_ready (ps);
   check_unsat_state (ps);
   if (ps->mtcls)
@@ -7449,13 +7311,9 @@ picosat_failed_context (PS * ps, int int_lit)
 {
   Lit * lit;
   Var * v;
-#ifdef ERRORJMP
   ABORTIF(ps, !int_lit, "API usage: zero literal as context", ERR_ZERO_CONTEXT);
   ABORTIF(ps, abs(int_lit) > (int)ps->max_var, "API usage: invalid context", ERR_INVALID_CONTEXT);
-#else
-  ABORTIF (!int_lit, "API usage: zero literal as context");
-  ABORTIF (abs (int_lit) > (int) ps->max_var, "API usage: invalid context");
-#endif
+
   check_ready (ps);
   check_unsat_state (ps);
   assert (ps->failed_assumption);
@@ -7772,12 +7630,8 @@ picosat_maximal_satisfiable_subset_of_assumptions (PS * ps)
 {
   const int * res;
   int i, *a, size;
-#ifdef ERRORJMP
   ABORTIF(ps, ps->mtcls, "API usage: CNF inconsistent (use 'picosat_inconsistent')", ERR_MTCLS);
-#else
-  ABORTIF (ps->mtcls,
-           "API usage: CNF inconsistent (use 'picosat_inconsistent')");
-#endif
+
   enter (ps);
 
   size = ps->alshead - ps->als;
@@ -8039,11 +7893,9 @@ picosat_usedlit (PS * ps, int int_lit)
   int res;
   check_ready (ps);
   check_sat_or_unsat_or_unknown_state (ps);
-#ifdef ERRORJMP
+
   ABORTIF(ps, !int_lit, "API usage: zero literal can not be used", ERR_ZERO_LITERAL_USE);
-#else
-  ABORTIF (!int_lit, "API usage: zero literal can not be used");
-#endif
+
   int_lit = abs (int_lit);
   res = (int_lit <= (int) ps->max_var) ? ps->vars[int_lit].used : 0;
   return res;
@@ -8269,25 +8121,15 @@ picosat_stats (PS * ps)
 	    ps->prefix, picosat_max_bytes_allocated (ps) / (double) (1 << 20));
 }
 
-#ifndef NGETRUSAGE
+
 #include <time.h>
-#include <sys/resource.h>
-#include <unistd.h>
-#endif
 
 double
 picosat_time_stamp (void)
 {
   double res = -1;
-#ifndef NGETRUSAGE
-  struct rusage u;
-  res = 0;
-  if (!getrusage (RUSAGE_SELF, &u))
-    {
-      res += u.ru_utime.tv_sec + 1e-6 * u.ru_utime.tv_usec;
-      res += u.ru_stime.tv_sec + 1e-6 * u.ru_stime.tv_usec;
-    }
-#endif
+  time_t current_time = time(NULL);
+  res = (double)current_time;
   return res;
 }
 
@@ -8459,15 +8301,9 @@ void
 picosat_set_global_default_phase (PS * ps, int phase)
 {
   check_ready (ps);
-#ifdef ERRORJMP
   ABORTIF(ps, phase < 0, "API usage: 'picosat_set_global_default_phase' with negative argument", ERR_INVALID_PHASE_NEG);
   ABORTIF(ps, phase > 3, "API usage: 'picosat_set_global_default_phase' with argument > 3", ERR_INVALID_PHASE_HIGH);
-#else
-  ABORTIF (phase < 0, "API usage: 'picosat_set_global_default_phase' "
-                      "with negative argument");
-  ABORTIF (phase > 3, "API usage: 'picosat_set_global_default_phase' "
-                      "with argument > 3");
-#endif
+
   ps->defaultphase = phase;
 }
 
@@ -8507,11 +8343,8 @@ picosat_set_more_important_lit (PS * ps, int int_lit)
   lit = import_lit (ps, int_lit, 1);
   v = LIT2VAR (lit);
   r = VAR2RNK (v);
-#ifdef ERRORJMP
   ABORTIF(ps, r->lessimportant, "can not mark variable more and less important", ERR_VAR_IMPORTANCE_CONFLICT);
-#else
-  ABORTIF (r->lessimportant, "can not mark variable more and less important"); 
-#endif
+
   if (r->moreimportant)
     return;
 
@@ -8533,11 +8366,8 @@ picosat_set_less_important_lit (PS * ps, int int_lit)
   lit = import_lit (ps, int_lit, 1);
   v = LIT2VAR (lit);
   r = VAR2RNK (v);
-#ifdef ERRORJMP
   ABORTIF(ps, r->moreimportant, "can not mark variable more and less important", ERR_VAR_IMPORTANCE_CONFLICT);
-#else
-  ABORTIF (r->moreimportant, "can not mark variable more and less important"); 
-#endif
+
 
   if (r->lessimportant)
     return;
@@ -8605,11 +8435,8 @@ void
 picosat_save_original_clauses (PS * ps)
 {
   if (ps->saveorig) return;
-#ifdef ERRORJMP
   ABORTIF(ps, ps->oadded, "API usage: 'picosat_save_original_clauses' too late", ERR_SAVE_ORIG_TOO_LATE);
-#else
-  ABORTIF (ps->oadded, "API usage: 'picosat_save_original_clauses' too late");
-#endif
+
   ps->saveorig = 1;
 }
 
@@ -8618,15 +8445,10 @@ picosat_deref_partial (PS * ps, int int_lit)
 {
   check_ready (ps);
   check_sat_state (ps);
-#ifdef ERRORJMP
   ABORTIF(ps, !int_lit, "API usage: can not partial deref zero literal", ERR_ZERO_PARTIAL_DEREF);
   ABORTIF(ps, ps->mtcls, "API usage: deref partial after empty clause generated", ERR_DEREF_PARTIAL_MTCLS);
   ABORTIF(ps, !ps->saveorig, "API usage: 'picosat_save_original_clauses' missing", ERR_SAVE_ORIG_MISSING);
-#else
-  ABORTIF (!int_lit, "API usage: can not partial deref zero literal");
-  ABORTIF (ps->mtcls, "API usage: deref partial after empty clause generated");
-  ABORTIF (!ps->saveorig, "API usage: 'picosat_save_original_clauses' missing");
-#endif
+
 #ifdef STATS
   ps->derefs++;
 #endif
@@ -8637,7 +8459,7 @@ picosat_deref_partial (PS * ps, int int_lit)
   return pderef (ps, int_lit);
 }
 
-#ifdef ERRORJMP
+
 jmp_buf* picosat_jmp_buf (PS * ps){
   return &ps->jmp_env;
 }
@@ -8751,4 +8573,4 @@ const char* picosat_error_message(int errcode){
       return "Unknown error";
   }
 }
-#endif
+

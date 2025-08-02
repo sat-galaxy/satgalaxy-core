@@ -25,8 +25,6 @@ if(USE_TRACE)
 endif()
 
 
-add_definitions(-DERRORJMP)
-
 
 set(LIB_SOURCES
     external/satgalaxy_picosat.c

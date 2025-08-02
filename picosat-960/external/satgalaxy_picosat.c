@@ -1,8 +1,5 @@
 
 #include "satgalaxy_picosat.h"
-#ifndef ERRORJMP
-#define ERRORJMP
-#endif
 #include "picosat.h"
 #include <stdarg.h>
 

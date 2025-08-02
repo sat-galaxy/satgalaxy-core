@@ -23,15 +23,13 @@ IN THE SOFTWARE.
 #ifndef picosat_h_INCLUDED
 #define picosat_h_INCLUDED
 
-#ifdef ERRORJMP
 #include <setjmp.h>
-#endif
+
 /*------------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef ERRORJMP
 enum PicoSATErrorCodes {
   ERR_OUT_OF_MEMORY_NEW = 100,
   ERR_OUT_OF_MEMORY_RESIZE = 101,
@@ -86,7 +84,7 @@ enum PicoSATErrorCodes {
   ERR_INCOMPLETE_ADO = 150,
   ERR_INCOMPLETE_CLAUSE_ABORT = 151
 };
-#endif
+
 /*------------------------------------------------------------------------*/
 /* The following macros allows for users to distiguish between different
  * versions of the API.  The first 'PICOSAT_REENTRANT_API' is defined for
@@ -706,10 +704,9 @@ void picosat_write_rup_trace (PicoSAT *, FILE * trace_file);
 int picosat_usedlit (PicoSAT *, int lit);
 /*------------------------------------------------------------------------*/
 
-#ifdef ERRORJMP
 jmp_buf* picosat_jmp_buf (PicoSAT *);
 const char* picosat_error_message(int errcode);
-#endif
+
 
 #endif /* Picosat_H */
 

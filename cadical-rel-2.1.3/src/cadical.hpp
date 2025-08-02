@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <vector>
-#ifdef ERRORJUMP
 #include <setjmp.h>
-#endif
 namespace CaDiCaL {
 
 /*========================================================================*/
@@ -854,10 +852,10 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  const char *read_dimacs (FILE *file, const char *name, int &vars,
-                           int strict = 1);
+  // const char *read_dimacs (FILE *file, const char *name, int &vars,
+  //                          int strict = 1);
 
-  const char *read_dimacs (const char *path, int &vars, int strict = 1);
+  // const char *read_dimacs (const char *path, int &vars, int strict = 1);
 
   // The following routines work the same way but parse both DIMACS and
   // INCCNF files (with 'p inccnf' header and 'a <cube>' lines).  If the
@@ -865,12 +863,12 @@ public:
   // to true and the cubes are stored in the given vector (each cube
   // terminated by a zero).
 
-  const char *read_dimacs (FILE *file, const char *name, int &vars,
-                           int strict, bool &incremental,
-                           std::vector<int> &cubes);
+  // const char *read_dimacs (FILE *file, const char *name, int &vars,
+  //                          int strict, bool &incremental,
+  //                          std::vector<int> &cubes);
 
-  const char *read_dimacs (const char *path, int &vars, int strict,
-                           bool &incremental, std::vector<int> &cubes);
+  // const char *read_dimacs (const char *path, int &vars, int strict,
+  //                          bool &incremental, std::vector<int> &cubes);
 
   //------------------------------------------------------------------------
   // Write current irredundant clauses and all derived unit clauses
@@ -885,19 +883,18 @@ public:
   //   require (VALID)
   //   ensure (VALID)
   //
-  const char *write_dimacs (const char *path, int min_max_var = 0);
+  // const char *write_dimacs (const char *path, int min_max_var = 0);
 
   // The extension stack for reconstruction a solution can be written too.
   //
-  const char *write_extension (const char *path);
+  // const char *write_extension (const char *path);
 
   // Print build configuration to a file with prefix 'c '.  If the file
   // is '<stdout>' or '<stderr>' then terminal color codes might be used.
   //
-  static void build (FILE *file, const char *prefix = "c ");
-#ifdef ERRORJUMP
-jmp_buf* jmp_env;
-#endif
+  // static void build (FILE *file, const char *prefix = "c ");
+  jmp_buf* jmp_env;
+
 private:
   //==== start of state ====================================================
 

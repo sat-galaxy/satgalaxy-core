@@ -58,9 +58,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "core/Constants.h"
 #include "mtl/Clone.h"
 #include "core/SolverStats.h"
-#ifdef ERRORJUMP
 #include<csetjmp>
-#endif
 
 namespace Glucose {
 // Core stats 
@@ -139,7 +137,7 @@ public:
     bool    solve        (Lit p, Lit q);            // Search for a model that respects two assumptions.
     bool    solve        (Lit p, Lit q, Lit r);     // Search for a model that respects three assumptions.
     bool    okay         () const;                  // FALSE means solver is in a conflicting state
-#ifdef 0
+#if 0
        // Convenience versions of 'toDimacs()':
     void    toDimacs     (FILE* f, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
     void    toDimacs     (const char *file, const vec<Lit>& assumps);
@@ -272,13 +270,12 @@ public:
 
     // Important stats completely related to search. Keep here
     uint64_t solves,starts,decisions,propagations,conflicts,conflictsRestarts;
+    jmp_buf jmp_env; // Used to jump out of the solver in case of an error
 
 protected:
 
     long curRestart;
-#ifdef ERRORJUMP
-jmp_buf jmp_env; // Used to jump out of the solver in case of an error
-#endif
+  
     // Alpha variables
     bool glureduce;
     uint32_t restart_inc;
@@ -493,7 +490,7 @@ public:
     int performLCM;
 
     //// test
-    #ifdef 0
+    #if 0
     vec<int> valueDup;
     void compareValue();
     void wholeCompareValue();
@@ -596,7 +593,7 @@ inline bool     Solver::solve         (Lit p, Lit q, Lit r) { budgetOff(); assum
 inline bool     Solver::solve         (const vec<Lit>& assumps){ budgetOff(); assumps.copyTo(assumptions); return solve_() == l_True; }
 inline lbool    Solver::solveLimited  (const vec<Lit>& assumps){ assumps.copyTo(assumptions); return solve_(); }
 inline bool     Solver::okay          ()      const   { return ok; }
-#ifdef 0
+#if 0
 inline void     Solver::toDimacs     (const char* file){ vec<Lit> as; toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p){ vec<Lit> as; as.push(p); toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> as; as.push(p); as.push(q); toDimacs(file, as); }
@@ -644,7 +641,7 @@ template <typename T>inline unsigned int Solver::computeLBD(const T &lits, int e
 //=================================================================================================
 // Debug etc:
 
-#ifdef 0
+#if 0
 inline void Solver::printLit(Lit l)
 {
     printf("%s%d:%c", sign(l) ? "-" : "", var(l)+1, value(l) == l_True ? '1' : (value(l) == l_False ? '0' : 'X'));

@@ -1,8 +1,6 @@
 #ifndef _internal_hpp_INCLUDED
 #define _internal_hpp_INCLUDED
-#ifdef ERRORJUMP
 #include <setjmp.h>
-#endif
 /*------------------------------------------------------------------------*/
 
 // Wrapped build specific headers which should go first.
@@ -273,9 +271,8 @@ struct Internal {
 
   Internal *internal; // proxy to 'this' in macros
   External *external; // proxy to 'external' buddy in 'Solver'
-#ifdef ERRORJUMP
   jmp_buf *jmp_env; // used to jump out of 'Internal::solve'
-#endif
+
 
   /*----------------------------------------------------------------------*/
 
@@ -292,9 +289,7 @@ struct Internal {
   /*----------------------------------------------------------------------*/
 
   Internal (
-#ifdef ERRORJUMP
       jmp_buf *
-#endif
   );
   ~Internal ();
 
@@ -1468,11 +1463,9 @@ struct Internal {
 //
 void fatal_message_start ();
 void fatal_message_end ();
-#ifdef ERRORJUMP
 void fatal (jmp_buf *jmp_env, int code,const char *, ...);
-#else
-void fatal (const char *, ...) CADICAL_ATTRIBUTE_FORMAT (1, 2);
-#endif
+
+// void fatal (const char *, ...) CADICAL_ATTRIBUTE_FORMAT (1, 2);
 /*------------------------------------------------------------------------*/
 
 // Has to be put here, i.e., not into 'score.hpp', since we need the

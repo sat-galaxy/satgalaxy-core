@@ -1,8 +1,7 @@
 #ifndef _contract_hpp_INCLUDED
 #define _contract_hpp_INCLUDED
-#ifdef ERRORJUMP
 #include <setjmp.h>
-#endif
+
 /*------------------------------------------------------------------------*/
 #ifndef NCONTRACTS
 /*------------------------------------------------------------------------*/
@@ -17,25 +16,23 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
-#ifdef ERRORJUMP
 
 #define CONTRACT_VIOLATED(code ,...) \
   do { \
     longjmp(*this->jmp_env, code);\
   } while (0)
-#else
-#define CONTRACT_VIOLATED(code,...) \
-  do { \
-    fatal_message_start (); \
-    fprintf (stderr, \
-             "invalid API usage of '%s' in '%s': ", __PRETTY_FUNCTION__, \
-             __FILE__); \
-    fprintf (stderr, __VA_ARGS__); \
-    fputc ('\n', stderr); \
-    fflush (stderr); \
-    abort (); \
-  } while (0)
-#endif
+
+// #define CONTRACT_VIOLATED(code,...) \
+//   do { \
+//     fatal_message_start (); \
+//     fprintf (stderr, \
+//              "invalid API usage of '%s' in '%s': ", __PRETTY_FUNCTION__, \
+//              __FILE__); \
+//     fprintf (stderr, __VA_ARGS__); \
+//     fputc ('\n', stderr); \
+//     fflush (stderr); \
+//     abort (); \
+//   } while (0)
 /*------------------------------------------------------------------------*/
 
 namespace CaDiCaL {

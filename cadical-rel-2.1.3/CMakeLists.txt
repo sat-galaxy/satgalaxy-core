@@ -6,7 +6,7 @@ include(../cmake/config.cmake)
 set(CMAKE_CXX_STANDARD 11)
 
 
-add_definitions(-DVERSION="2.1.3" -DERRORJUMP -DQUIET)
+add_definitions(-DVERSION="2.1.3"  -DQUIET)
 
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
