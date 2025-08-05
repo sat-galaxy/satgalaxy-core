@@ -161,6 +161,9 @@ int minisat_okay(MiniSATSolver* s)
     Minisat::SimpSolver *solver =  s->solver;
     return (int)solver->okay();
 }
+int minisat_error(MiniSATSolver*s){
+    return s->last_error;
+}
 
 MINISAT_OPT(var_decay, double, value <= 0 || value >= 1, 100)
 MINISAT_OPT(clause_decay, double, value <= 0 || value >= 1, 101)

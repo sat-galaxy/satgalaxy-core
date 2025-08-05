@@ -2,8 +2,8 @@
 #define SATGALAXY_CADICAL_H
 #include <stdint.h>
 #include <stdlib.h>
-//=================================================================================================
 
+typedef int boolean;
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,9 +56,7 @@ void cadical_set_terminate (CaDiCaLSolver *, void *state,
 void cadical_set_learn (CaDiCaLSolver *, void *state, int max_length,
                          void (*learn) (void *state, int *clause));
 
-/*------------------------------------------------------------------------*/
 
-// Non-IPASIR conformant 'C' functions.
 
 
 /// @brief dds a literal to the constraint clause. Same functionality as 'add'
@@ -82,13 +80,13 @@ int cadical_constraint_failed (CaDiCaLSolver *);
 /// @param name Name of option
 /// @param val Value of option
 /// @return boolean value
-int cadical_set_option (CaDiCaLSolver *, const char *name, int val);
+boolean cadical_set_option (CaDiCaLSolver *, const char *name, int val);
 /// @brief Specify search limits. 
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param name  can be "conflicts", "decisions", "preprocessing", or "localsearch"
 /// @param limit Value of limit
 /// @return boolean value
-int cadical_limit (CaDiCaLSolver *, const char *name, int limit);
+boolean cadical_limit (CaDiCaLSolver *, const char *name, int limit);
 /// @brief Get the current value of the option 
 /// @param  
 /// @param name 
@@ -149,127 +147,127 @@ int cadical_simplify (CaDiCaLSolver *);
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param arena Boolean value
 /// @return boolean value
-int cadical_set_opt_arena(CaDiCaLSolver *s, int arena);
+boolean cadical_set_opt_arena(CaDiCaLSolver *s, boolean arena);
 
 /// @brief Keep clauses compact
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param arenacompact Boolean value
 /// @return boolean value
-int cadical_set_opt_arenacompact(CaDiCaLSolver *s, int arenacompact);
+boolean cadical_set_opt_arenacompact(CaDiCaLSolver *s, boolean arenacompact);
 
 /// @brief Sort clauses in arena
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param arenasort Boolean value
 /// @return boolean value
-int cadical_set_opt_arenasort(CaDiCaLSolver *s, int arenasort);
+boolean cadical_set_opt_arenasort(CaDiCaLSolver *s, boolean arenasort);
 
 /// @brief Set arena type (1=clause, 2=var, 3=queue)
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param arenatype Integer value (1 to 3)
 /// @return boolean value
-int cadical_set_opt_arenatype(CaDiCaLSolver *s, int arenatype);
+boolean cadical_set_opt_arenatype(CaDiCaLSolver *s, int arenatype);
 
 /// @brief Use binary proof format
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param binary Boolean value
 /// @return boolean value
-int cadical_set_opt_binary(CaDiCaLSolver *s, int binary);
+boolean cadical_set_opt_binary(CaDiCaLSolver *s, int binary);
 
 /// @brief Enable blocked clause elimination
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param block Boolean value
 /// @return boolean value
-int cadical_set_opt_block(CaDiCaLSolver *s, int block);
+boolean cadical_set_opt_block(CaDiCaLSolver *s, int block);
 
 /// @brief Set maximum clause size for blocked clause elimination
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param blockmaxclslim Integer value (1 to 2e9)
 /// @return boolean value
-int cadical_set_opt_blockmaxclslim(CaDiCaLSolver *s, int blockmaxclslim);
+boolean cadical_set_opt_blockmaxclslim(CaDiCaLSolver *s, int blockmaxclslim);
 
 /// @brief Set minimum clause size for blocked clause elimination
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param blockminclslim Integer value (2 to 2e9)
 /// @return boolean value
-int cadical_set_opt_blockminclslim(CaDiCaLSolver *s, int blockminclslim);
+boolean cadical_set_opt_blockminclslim(CaDiCaLSolver *s, int blockminclslim);
 
 /// @brief Set occurrence limit for blocked clause elimination
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param blockocclim Integer value (1 to 2e9)
 /// @return boolean value
-int cadical_set_opt_blockocclim(CaDiCaLSolver *s, int blockocclim);
+boolean cadical_set_opt_blockocclim(CaDiCaLSolver *s, int blockocclim);
 
 /// @brief Bump variables
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param bump Boolean value
 /// @return boolean value
-int cadical_set_opt_bump(CaDiCaLSolver *s, int bump);
+boolean cadical_set_opt_bump(CaDiCaLSolver *s, boolean bump);
 
 /// @brief Bump reason literals too
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param bumpreason Boolean value
 /// @return boolean value
-int cadical_set_opt_bumpreason(CaDiCaLSolver *s, int bumpreason);
+boolean cadical_set_opt_bumpreason(CaDiCaLSolver *s, boolean bumpreason);
 
 /// @brief Set bump reason depth
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param bumpreasondepth Integer value (1 to 3)
 /// @return boolean value
-int cadical_set_opt_bumpreasondepth(CaDiCaLSolver *s, int bumpreasondepth);
+boolean cadical_set_opt_bumpreasondepth(CaDiCaLSolver *s, int bumpreasondepth);
 
 /// @brief Enable internal checking
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param check Boolean value
 /// @return boolean value
-int cadical_set_opt_check(CaDiCaLSolver *s, int check);
+boolean cadical_set_opt_check(CaDiCaLSolver *s, int check);
 
 /// @brief Check assumptions satisfied
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkassumptions Boolean value
 /// @return boolean value
-int cadical_set_opt_checkassumptions(CaDiCaLSolver *s, int checkassumptions);
+boolean cadical_set_opt_checkassumptions(CaDiCaLSolver *s, int checkassumptions);
 
 /// @brief Check constraint satisfied
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkconstraint Boolean value
 /// @return boolean value
-int cadical_set_opt_checkconstraint(CaDiCaLSolver *s, int checkconstraint);
+boolean cadical_set_opt_checkconstraint(CaDiCaLSolver *s, int checkconstraint);
 
 /// @brief Check failed literals form core
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkfailed Boolean value
 /// @return boolean value
-int cadical_set_opt_checkfailed(CaDiCaLSolver *s, int checkfailed);
+boolean cadical_set_opt_checkfailed(CaDiCaLSolver *s, int checkfailed);
 
 /// @brief Check all frozen semantics
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkfrozen Boolean value
 /// @return boolean value
-int cadical_set_opt_checkfrozen(CaDiCaLSolver *s, int checkfrozen);
+boolean cadical_set_opt_checkfrozen(CaDiCaLSolver *s, int checkfrozen);
 
 /// @brief Set proof checking mode (1=drat, 2=lrat, 3=both)
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkproof Integer value (0 to 3)
 /// @return boolean value
-int cadical_set_opt_checkproof(CaDiCaLSolver *s, int checkproof);
+boolean cadical_set_opt_checkproof(CaDiCaLSolver *s, int checkproof);
 
 /// @brief Check witness internally
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param checkwitness Boolean value
 /// @return boolean value
-int cadical_set_opt_checkwitness(CaDiCaLSolver *s, int checkwitness);
+boolean cadical_set_opt_checkwitness(CaDiCaLSolver *s, int checkwitness);
 
 /// @brief Set chronological backtracking mode
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param chrono Integer value (0 to 2)
 /// @return boolean value
-int cadical_set_opt_chrono(CaDiCaLSolver *s, int chrono);
+boolean cadical_set_opt_chrono(CaDiCaLSolver *s, int chrono);
 
 /// @brief Force always chronological backtracking
 /// @param s Pointer to CaDiCaLSolver instance
 /// @param chronoalways Boolean value
 /// @return boolean value
-int cadical_set_opt_chronoalways(CaDiCaLSolver *s, int chronoalways);
+boolean cadical_set_opt_chronoalways(CaDiCaLSolver *s, int chronoalways);
 
 /// @brief Set chronological level limit
 /// @param s Pointer to CaDiCaLSolver instance
