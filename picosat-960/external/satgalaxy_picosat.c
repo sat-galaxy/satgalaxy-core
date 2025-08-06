@@ -35,7 +35,7 @@
     if (code) { \
       return rv; \
     }else{ \
-      func(s->solver,__VA_ARGS__);\
+      return func(s->solver,__VA_ARGS__);\
     }\
   } while (0)
 
@@ -232,14 +232,14 @@ int picosat_s_add_arg(PicoSATSolver *solver, ...) {
   va_list args;
   CALL_PICOSAT_RETURN(solver,0,picosat_add_arg,args);
 }
-int _picosat_s_add_lits(PicoSAT *solver,const int *lits, size_t len) {
+int _picosat_s_add_lits(PicoSAT *solver,const int lits[], size_t len) {
   int i;
   for (i = 0; i < len; i++) {
     picosat_add(solver, lits[i]);
   }
   return picosat_add(solver, 0); // Add a zero terminator to the clause
 }
-int picosat_s_add_lits(PicoSATSolver *solver,const int *lits, size_t len) {
+int picosat_s_add_lits(PicoSATSolver *solver,const int lits[], size_t len) {
 
   CALL_PICOSAT_RETURN(solver,0,_picosat_s_add_lits,lits,len);
 }
