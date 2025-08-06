@@ -196,6 +196,9 @@ int glucose_okay(GlucoseSolver *s)
 {
     CALL_FN(0, okay, );
 }
+int glucose_error(GlucoseSolver* solver){
+    return solver->last_error;
+}
 const char *glucose_error_msg(int code)
 {
     switch (code)

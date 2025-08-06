@@ -89,9 +89,7 @@ PicoSATSolver *picosat_s_minit(void *state,
 void picosat_s_reset(PicoSATSolver *solver) {
   CALL_PICOSAT_ZORE(solver,picosat_reset);
 }
-void picosat_s_set_output(PicoSATSolver *solver, FILE *file) {
-  CALL_PICOSAT(solver,picosat_set_output, file);
-}
+
 
 void picosat_s_enter (PicoSATSolver *solver){
   CALL_PICOSAT_ZORE(solver,picosat_enter);
@@ -157,9 +155,6 @@ int picosat_s_enable_trace_generation(PicoSATSolver *solver) {
   CALL_PICOSAT_ZERO_RETURN(solver,0,picosat_enable_trace_generation);
 }
 
-void picosat_s_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n) {
-  CALL_PICOSAT(solver,picosat_set_incremental_rup_file,file,m,n);
-}
 
 void picosat_s_save_original_clauses(PicoSATSolver *solver) {
   CALL_PICOSAT_ZORE(solver,picosat_save_original_clauses);
@@ -249,9 +244,7 @@ int picosat_s_add_lits(PicoSATSolver *solver,const int *lits, size_t len) {
   CALL_PICOSAT_RETURN(solver,0,_picosat_s_add_lits,lits,len);
 }
 
-void picosat_s_print(PicoSATSolver *solver, FILE *file) {
-  CALL_PICOSAT(solver,picosat_print,file);
-}
+
 
 void picosat_s_assume(PicoSATSolver *solver, int lit) {
   CALL_PICOSAT(solver,picosat_assume,lit);
@@ -332,21 +325,9 @@ int picosat_s_corelit(PicoSATSolver *solver, int lit) {
   CALL_PICOSAT_RETURN(solver,0,picosat_corelit,lit);
 }
 
-void picosat_s_write_clausal_core(PicoSATSolver *solver, FILE *core_file) {
-  CALL_PICOSAT(solver,picosat_write_clausal_core,core_file);
-}
 
-void picosat_s_write_compact_trace(PicoSATSolver *solver, FILE *trace_file) {
-  CALL_PICOSAT(solver,picosat_write_compact_trace,trace_file);
-}
 
-void picosat_s_write_extended_trace(PicoSATSolver *solver, FILE *trace_file) {
-  CALL_PICOSAT(solver,picosat_write_extended_trace,trace_file);
-}
 
-void picosat_s_write_rup_trace(PicoSATSolver *solver, FILE *trace_file) {
-  CALL_PICOSAT(solver,picosat_write_rup_trace,trace_file);
-}
 
 int picosat_s_usedlit(PicoSATSolver *solver, int lit) {
   CALL_PICOSAT_RETURN(solver,0,picosat_usedlit,lit);

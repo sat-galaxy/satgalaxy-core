@@ -502,7 +502,6 @@ struct PicoSAT
   enum Phase defaultphase;
   int last_sat_call_result;
 
-  FILE *out;
   char * prefix;
   int verbosity;
   int plain;
@@ -552,7 +551,6 @@ struct PicoSAT
   Zhn **zhains, **zhead, **eoz;
   int ocore;
 #endif
-  FILE * rup;
   int rupstarted;
   int rupvariables;
   int rupclauses;
@@ -697,9 +695,7 @@ struct PicoSAT
   picosat_realloc eresize;
   picosat_free edelete;
 
-#ifdef VISCORES
-  FILE * fviscores;
-#endif
+
 
 jmp_buf jmp_env;
 };
@@ -1053,82 +1049,7 @@ end_of_lits (Cls * c)
   return c->lits + c->size;
 }
 
-#if !defined(NDEBUG) || defined(LOGGING)
 
-static void
-dumplits (PS * ps, Lit ** l, Lit ** end)
-{
-  int first;
-  Lit ** p;
-
-  if (l == end)
-    {
-      /* empty clause */
-    }
-  else if (l + 1 == end)
-    {
-      fprintf (ps->out, "%d ", LIT2INT (l[0]));
-    }
-  else
-    { 
-      assert (l + 2 <= end);
-      first = (abs (LIT2INT (l[0])) > abs (LIT2INT (l[1])));
-      fprintf (ps->out, "%d ", LIT2INT (l[first]));
-      fprintf (ps->out, "%d ", LIT2INT (l[!first]));
-      for (p = l + 2; p < end; p++)
-	 fprintf (ps->out, "%d ", LIT2INT (*p));
-    }
-
-  fputc ('0', ps->out);
-}
-
-static void
-dumpcls (PS * ps, Cls * c)
-{
-  Lit **end;
-
-  if (c)
-    {
-      end = end_of_lits (c);
-      dumplits (ps, c->lits, end);
-#ifdef TRACE
-      if (ps->trace)
-	 fprintf (ps->out, " clause(%u)", CLS2IDX (c));
-#endif
-    }
-  else
-    fputs ("DECISION", ps->out);
-}
-
-static void
-dumpclsnl (PS * ps, Cls * c)
-{
-  dumpcls (ps, c);
-  fputc ('\n', ps->out);
-}
-
-void
-dumpcnf (PS * ps)
-{
-  Cls **p, *c;
-
-  for (p = SOC; p != EOC; p = NXC (p))
-    {
-      c = *p;
-
-      if (!c)
-	continue;
-
-#ifdef TRACE
-      if (c->collected)
-	continue;
-#endif
-
-      dumpclsnl (ps, *p);
-    }
-}
-
-#endif
 
 static void
 delete_prefix (PS * ps)
@@ -1228,7 +1149,7 @@ init (void * pmgr,
   ps->lreduceadjustcnt = ps->lreduceadjustinc = 100;
   ps->lpropagations = ~0ull;
 
-  ps->out = stdout;
+
   new_prefix (ps, "c ");
   ps->verbosity = 0;
   ps->plain = 0;
@@ -1592,7 +1513,7 @@ assign_phase (PS * ps, Lit * lit)
 	      if (idx < ps->min_flipped)
 		ps->min_flipped = idx;
 
-              NOLOG (fprintf (ps->out, 
+              NOLOG (printf ( 
 	                      "%sflipped %d\n",
 			       ps->prefix, LIT2INT (lit)));
 	    }
@@ -1977,7 +1898,7 @@ assign_forced (PS * ps, Lit * lit, Cls * reason)
       assert (reason);
     }
 #endif
-  LOG ( fprintf (ps->out,
+  LOG ( printf (
                 "%sassign %d at level %d by ",
                 ps->prefix, LIT2INT (lit), ps->LEVEL);
        dumpclsnl (ps, reason));
@@ -2247,21 +2168,7 @@ incjwh (PS * ps, Cls * c)
     }
 }
 
-static void
-write_rup_header (PS * ps, FILE * file)
-{
-  char line[80];
-  int i;
 
-  sprintf (line, "%%RUPD32 %u %u", ps->rupvariables, ps->rupclauses);
-
-  fputs (line, file);
-  for (i = 255 - strlen (line); i >= 0; i--)
-    fputc (' ', file);
-
-  fputc ('\n', file);
-  fflush (file);
-}
 
 static Cls *
 add_simplified_clause (PS * ps, int learned)
@@ -2422,14 +2329,7 @@ REENTER:
       assert (ps->lhead != ps->oclauses);		/* ditto */
     }
 
-  if (learned && ps->rup)
-    {
-      if (!ps->rupstarted)
-	{
-	  write_rup_header (ps, ps->rup);
-	  ps->rupstarted = 1;
-	}
-    }
+
 
   num_true = num_undef = num_false = 0;
 
@@ -2439,8 +2339,6 @@ REENTER:
       lit = *p;
       *q++ = lit;
 
-      if (learned && ps->rup)
-	fprintf (ps->rup, "%d ", LIT2INT (lit));
 
       val = lit->val;
 
@@ -2450,8 +2348,7 @@ REENTER:
     }
   assert (num_false + num_true + num_undef == size);
 
-  if (learned && ps->rup)
-    fputs ("0\n", ps->rup);
+
 
   ps->ahead = ps->added;		/* reset */
 
@@ -2477,7 +2374,7 @@ REENTER:
     res->connected = 1;
 #endif
 
-  LOG ( fprintf (ps->out, "%s%s ", ps->prefix, learned ? "learned" : "original");
+  LOG ( printf ( "%s%s ", ps->prefix, learned ? "learned" : "original");
         dumpclsnl (ps, res));
 
   /* Shrink clause by resolving it against top level assignments.
@@ -2932,7 +2829,7 @@ unassign (PS * ps, Lit * lit)
 
   assert (lit->val == TRUE);
 
-  LOG ( fprintf (ps->out, "%sunassign %d\n", ps->prefix, LIT2INT (lit)));
+  LOG ( printf ( "%sunassign %d\n", ps->prefix, LIT2INT (lit)));
 
   v = LIT2VAR (lit);
   reason = v->reason;
@@ -3079,7 +2976,7 @@ undo (PS * ps, unsigned new_level)
       ps->adecidelevel = 0;
       ps->alstail = ps->als;
     }
-  LOG ( fprintf (ps->out, "%sback to level %u\n", ps->prefix, ps->LEVEL));
+  LOG ( printf ( "%sback to level %u\n", ps->prefix, ps->LEVEL));
 }
 
 #ifndef NDEBUG
@@ -3165,10 +3062,10 @@ rheader (PS * ps)
 
   ps->lastrheader = ps->reports;
 
-   fprintf (ps->out, "%s\n", ps->prefix);
-   fprintf (ps->out, "%s %s\n", ps->prefix, ps->rline[0]);
-   fprintf (ps->out, "%s %s\n", ps->prefix, ps->rline[1]);
-   fprintf (ps->out, "%s\n", ps->prefix);
+   printf ( "%s\n", ps->prefix);
+   printf ( "%s %s\n", ps->prefix, ps->rline[0]);
+   printf ( "%s %s\n", ps->prefix, ps->rline[1]);
+   printf ( "%s\n", ps->prefix);
 }
 
 static unsigned
@@ -3226,8 +3123,7 @@ relemdata (PS * ps)
 
       rheader (ps);
     }
-  else
-    fputc ('\n', ps->out);
+
 
   ps->RCOUNT = 0;
 }
@@ -3265,7 +3161,7 @@ relemhead (PS * ps, const char * name, int fp, double val)
 
       if (val > -100 && (tmp = val * 10.0 - 0.5) > -1000.0)
 	{
-	   fprintf (ps->out, "-%4.1f ", -tmp / 10.0);
+	   printf ( "-%4.1f ", -tmp / 10.0);
 	}
       else
 	{
@@ -3277,18 +3173,18 @@ relemhead (PS * ps, const char * name, int fp, double val)
 	      e++;
 	    }
 
-	   fprintf (ps->out, "-%2ue%u ", tmp, e);
+	   printf ( "-%2ue%u ", tmp, e);
 	}
     }
   else
     {
       if (fp && val < 1000 && (tmp = val * 10.0 + 0.5) < 10000)
 	{
-	   fprintf (ps->out, "%5.1f ", tmp / 10.0);
+	   printf ( "%5.1f ", tmp / 10.0);
 	}
       else if (!fp && (tmp = val) < 100000)
 	{
-	   fprintf (ps->out, "%5u ", tmp);
+	   printf ( "%5u ", tmp);
 	}
       else
 	{
@@ -3301,7 +3197,7 @@ relemhead (PS * ps, const char * name, int fp, double val)
 	      e++;
 	    }
 
-	   fprintf (ps->out, "%3ue%u ", tmp, e);
+	   printf ( "%3ue%u ", tmp, e);
 	}
     }
 
@@ -3341,7 +3237,7 @@ report (PS * ps, int replevel, char type)
   for (rounds = (ps->reports < 0) ? 2 : 1; rounds; rounds--)
     {
       if (ps->reports >= 0)
-	 fprintf (ps->out, "%s%c ", ps->prefix, type);
+	 printf ("%s%c ", ps->prefix, type);
 
       relem (ps, "seconds", 1, ps->seconds);
       relem (ps, "level", 1, avglevel (ps));
@@ -3377,7 +3273,6 @@ report (PS * ps, int replevel, char type)
   if (ps->reports % (ROWS - 3) == (ROWS - 4))
     rheader (ps);
 
-  fflush (ps->out);
 }
 
 static int
@@ -3851,7 +3746,7 @@ fanalyze (PS * ps)
     (*--ps->mhead)->mark = 0;
 
   if (ps->verbosity)
-     fprintf (ps->out, "%sfanalyze took %.1f seconds\n", 
+     printf ( "%sfanalyze took %.1f seconds\n", 
 	     ps->prefix, picosat_time_stamp () - start);
 }
 
@@ -4349,63 +4244,7 @@ drive (PS * ps)
   return res;
 }
 
-#ifdef VISCORES
 
-static void
-viscores (PS * ps)
-{
-  Rnk *p, *eor = ps->rnks + ps->max_var;
-  char name[100], cmd[200];
-  FILE * data;
-  Flt s;
-  int i;
-
-  for (p = ps->rnks + 1; p <= ps->eor; p++)
-    {
-      s = p->score;
-      if (s == INFFLT)
-	continue;
-      s = mulflt (s, ps->nvinc);
-      assert (flt2double (s) <= 1.0);
-    }
-
-  sprintf (name, "/tmp/picosat-viscores/data/%08u", ps->conflicts);
-  sprintf (cmd, "sort -n|nl>%s", name);
-
-  data = popen (cmd, "w");
-  for (p = ps->rnks + 1; p <= ps->eor; p++)
-    {
-      s = p->score;
-      if (s == INFFLT)
-	continue;
-      s = mulflt (s, ps->nvinc);
-      fprintf (data, "%lf %d\n", 100.0 * flt2double (s), (int)(p - ps->rnks));
-    }
-  fflush (data);
-  pclose (data);
-
-  for (i = 0; i < 8; i++)
-    {
-      sprintf (cmd, "awk '$3%%8==%d' %s>%s.%d", i, name, name, i);
-      system (cmd);
-    }
-
-  fprintf (ps->fviscores, "set title \"%u\"\n", ps->conflicts);
-  fprintf (ps->fviscores, "plot [0:%u] 0, 100 * (1 - 1/1.1), 100", ps->max_var);
-
-  for (i = 0; i < 8; i++)
-    fprintf (ps->fviscores, 
-             ", \"%s.%d\" using 1:2:3 with labels tc lt %d", 
-	     name, i, i + 1);
-
-  fputc ('\n', ps->fviscores);
-  fflush (ps->fviscores);
-#ifndef WRITEGIF
-  usleep (50000);		/* refresh rate of 20 Hz */
-#endif
-}
-
-#endif
 
 static void
 crescore (PS * ps)
@@ -4539,7 +4378,7 @@ backtrack (PS * ps)
   Cls * c;
 
   ps->conflicts++;
-  LOG ( fprintf (ps->out, "%sconflict ", ps->prefix); dumpclsnl (ps, ps->conflict));
+  LOG ( printf ( "%sconflict ", ps->prefix); dumpclsnl (ps, ps->conflict));
 
   analyze (ps);
   new_level = drive (ps);
@@ -4776,7 +4615,7 @@ collect_clauses (PS * ps)
   res -= ps->current_bytes;
   ps->recycled += res;
 
-  LOG ( fprintf (ps->out, "%scollected %ld bytes\n", ps->prefix, (long)res));
+  LOG ( printf ( "%scollected %ld bytes\n", ps->prefix, (long)res));
 
   return res;
 }
@@ -4898,7 +4737,7 @@ restart (PS * ps)
     {
       ps->restarts++;
       assert (ps->LEVEL > 1);
-      LOG ( fprintf (ps->out, "%srestart %u\n", ps->prefix, ps->restarts));
+      LOG ( printf ( "%srestart %u\n", ps->prefix, ps->restarts));
       undo (ps, 0);
     }
 
@@ -4935,8 +4774,8 @@ assign_decision (PS * ps, Lit * lit)
 
   ps->LEVEL++;
 
-  LOG ( fprintf (ps->out, "%snew level %u\n", ps->prefix, ps->LEVEL));
-  LOG ( fprintf (ps->out,
+  LOG ( printf ( "%snew level %u\n", ps->prefix, ps->LEVEL));
+  LOG ( printf (
 		 "%sassign %d at level %d <= DECISION\n",
 		 ps->prefix, LIT2INT (lit), ps->LEVEL));
 
@@ -5086,7 +4925,7 @@ faillits (PS * ps)
 #ifdef STATS
       ps->fltried++;
 #endif
-      LOG ( fprintf (ps->out, "%strying %d as failed literal\n",
+      LOG ( printf ( "%strying %d as failed literal\n",
 	    ps->prefix, LIT2INT (lit)));
 
       assign_decision (ps, lit);
@@ -5096,7 +4935,7 @@ faillits (PS * ps)
       if (ps->conflict)
 	{
 EXPLICITLY_FAILED_LITERAL:
-	  LOG ( fprintf (ps->out, "%sfound explicitly failed literal %d\n",
+	  LOG ( printf ( "%sfound explicitly failed literal %d\n",
 		ps->prefix, LIT2INT (lit)));
 
 	  ps->failedlits++;
@@ -5136,7 +4975,7 @@ CONTRADICTION:
 #ifdef STATS
       ps->fltried++;
 #endif
-      LOG ( fprintf (ps->out, "%strying %d as failed literals\n",
+      LOG ( printf ( "%strying %d as failed literals\n",
 	    ps->prefix, LIT2INT (lit)));
 
       new_trail_count = ps->thead - ps->trail;
@@ -5173,7 +5012,7 @@ CONTRADICTION:
       undo (ps, 0);
 
       LOG (if (common)
-	     fprintf (ps->out, 
+	     printf ( 
 		      "%sfound %d literals implied by %d and %d\n",
 		      ps->prefix, common, 
 		      LIT2INT (NOTLIT (lit)), LIT2INT (lit)));
@@ -5196,7 +5035,7 @@ CONTRADICTION:
 
 	  assert (!other->val);
 
-	  LOG ( fprintf (ps->out, 
+	  LOG ( printf ( 
 			"%sforcing %d as forced implicitly failed literal\n",
 			ps->prefix, LIT2INT (other)));
 
@@ -5394,7 +5233,7 @@ simplify (PS * ps, int forced)
 	}
     }
 
-  LOG ( fprintf (ps->out, "%scollecting %d clauses\n", ps->prefix, collect));
+  LOG ( printf ( "%scollecting %d clauses\n", ps->prefix, collect));
 #ifdef STATS
   bytes_collected = 
 #endif
@@ -5501,7 +5340,7 @@ reduce (PS * ps, unsigned percentage)
   ps->lastreduceconflicts = ps->conflicts;
 
   assert (percentage <= 100);
-  LOG ( fprintf (ps->out, 
+  LOG ( printf ( 
                 "%sreducing %u%% learned clauses\n",
 		ps->prefix, percentage));
 
@@ -5600,10 +5439,6 @@ init_reduce (PS * ps)
   if (ps->lreduce < 100)
     ps->lreduce = 100;
 
-  if (ps->verbosity)
-     fprintf (ps->out, 
-             "%s\n%sinitial reduction limit %u clauses\n%s\n",
-	     ps->prefix, ps->prefix, ps->lreduce, ps->prefix);
 }
 
 static unsigned
@@ -5612,7 +5447,7 @@ rng (PS * ps)
   unsigned res = ps->srng;
   ps->srng *= 1664525u;
   ps->srng += 1013904223u;
-  NOLOG ( fprintf (ps->out, "%srng () = %u\n", ps->prefix, res));
+  NOLOG ( printf ( "%srng () = %u\n", ps->prefix, res));
   return res;
 }
 
@@ -5628,7 +5463,7 @@ rrng (PS * ps, unsigned low, unsigned high)
   tmp >>= 32;
   tmp += low;
   res = tmp;
-  NOLOG ( fprintf (ps->out, "%srrng (ps, %u, %u) = %u\n", ps->prefix, low, high, res));
+  NOLOG ( printf ( "%srrng (ps, %u, %u) = %u\n", ps->prefix, low, high, res));
   assert (low <= res);
   assert (res <= high);
   return res;
@@ -5765,7 +5600,7 @@ rdecide (PS * ps)
   ps->rdecisions++;
 #endif
   res = decide_phase (ps, res);
-  LOG ( fprintf (ps->out, "%srdecide %d\n", ps->prefix, LIT2INT (res)));
+  LOG ( printf ( "%srdecide %d\n", ps->prefix, LIT2INT (res)));
 
   return res;
 }
@@ -5782,7 +5617,7 @@ sdecide (PS * ps)
       res = RNK2LIT (r);
       if (res->val == UNDEF) break;
       (void) hpop (ps);
-      NOLOG ( fprintf (ps->out, 
+      NOLOG ( printf ( 
                       "%shpop %u %u %u\n",
 		      ps->prefix, r - ps->rnks,
 		      FLTMANTISSA(r->score),
@@ -5794,7 +5629,7 @@ sdecide (PS * ps)
 #endif
   res = decide_phase (ps, res);
 
-  LOG ( fprintf (ps->out, "%ssdecide %d\n", ps->prefix, LIT2INT (res)));
+  LOG ( printf ( "%ssdecide %d\n", ps->prefix, LIT2INT (res)));
 
   return res;
 }
@@ -5819,7 +5654,7 @@ adecide (PS * ps)
 
 	  use_var (ps, v);
 
-	  LOG ( fprintf (ps->out, "%sfirst failed assumption %d\n",
+	  LOG ( printf ( "%sfirst failed assumption %d\n",
 			ps->prefix, LIT2INT (ps->failed_assumption)));
 	  fanalyze (ps);
 	  return 0;
@@ -5836,7 +5671,7 @@ adecide (PS * ps)
 #ifdef STATS
       ps->assumptions++;
 #endif
-      LOG ( fprintf (ps->out, "%sadecide %d\n", ps->prefix, LIT2INT (lit)));
+      LOG ( printf ( "%sadecide %d\n", ps->prefix, LIT2INT (lit)));
       ps->adecidelevel = ps->LEVEL + 1;
 
       return lit;
@@ -6126,7 +5961,7 @@ core (PS * ps)
   DELETEN (stack, eos - stack);
 
   if (ps->verbosity)
-     fprintf (ps->out,
+     printf (
 	     "%s%u core variables out of %u (%.1f%%)\n"
 	     "%s%u core original clauses out of %u (%.1f%%)\n"
 	     "%s%u core learned clauses out of %u (%.1f%%)\n",
@@ -6137,192 +5972,10 @@ core (PS * ps)
   return ps->ocore;
 }
 
-static void
-trace_lits (PS * ps, Cls * c, FILE * file)
-{
-  Lit **p, **eol = end_of_lits (c);
-
-  assert (c);
-  assert (c->core);
-
-  for (p = c->lits; p < eol; p++)
-    fprintf (file, "%d ", LIT2INT (*p));
-
-  fputc ('0', file);
-}
-
-static void
-write_idx (PS * ps, unsigned idx, FILE * file)
-{
-  fprintf (file, "%ld", EXPORTIDX (idx));
-}
-
-static void
-trace_clause (PS * ps, unsigned idx, Cls * c, FILE * file, int fmt)
-{
-  assert (c);
-  assert (c->core);
-  assert (fmt == RUP_TRACE_FMT || !c->learned);
-  assert (CLS2IDX (c) == idx);
-
-  if (fmt != RUP_TRACE_FMT)
-    {
-      write_idx (ps, idx, file);
-      fputc (' ', file);
-    }
-
-  trace_lits (ps, c, file);
-
-  if (fmt != RUP_TRACE_FMT)
-    fputs (" 0", file);
-
-  fputc ('\n', file);
-}
-
-static void
-trace_zhain (PS * ps, unsigned idx, Zhn * zhain, FILE * file, int fmt)
-{
-  unsigned prev, this, delta, i;
-  Znt *p, byte;
-  Cls * c;
-
-  assert (zhain);
-  assert (zhain->core);
-
-  write_idx (ps, idx, file);
-  fputc (' ', file);
-
-  if (fmt == EXTENDED_TRACECHECK_TRACE_FMT)
-    {
-      c = IDX2CLS (idx);
-      assert (c);
-      trace_lits (ps, c, file);
-    }
-  else
-    {
-      assert (fmt == COMPACT_TRACECHECK_TRACE_FMT);
-      putc ('*', file);
-    }
-
-  i = 0;
-  delta = 0;
-  prev = 0;
-
-  for (p = zhain->znt; (byte = *p); p++, i += 7)
-    {
-      delta |= (byte & 0x7f) << i;
-      if (byte & 0x80)
-	continue;
-
-      this = prev + delta;
-
-      putc (' ', file);
-      write_idx (ps, this, file);
-
-      prev = this;
-      delta = 0;
-      i = -7;
-    }
-
-  fputs (" 0\n", file);
-}
-
-static void
-write_core (PS * ps, FILE * file)
-{
-  Lit **q, **eol;
-  Cls **p, *c;
-
-  fprintf (file, "p cnf %u %u\n", ps->max_var, core (ps));
-
-  for (p = SOC; p != EOC; p = NXC (p))
-    {
-      c = *p;
-
-      if (!c || c->learned || !c->core)
-	continue;
-
-      eol = end_of_lits (c);
-      for (q = c->lits; q < eol; q++)
-	fprintf (file, "%d ", LIT2INT (*q));
-
-      fputs ("0\n", file);
-    }
-}
 
 #endif
 
-static void
-write_trace (PS * ps, FILE * file, int fmt)
-{
-#ifdef TRACE
-  Cls *c, ** p;
-  Zhn *zhain;
-  unsigned i;
 
-  core (ps);
-
-  if (fmt == RUP_TRACE_FMT)
-    {
-      ps->rupvariables = picosat_variables (ps),
-      ps->rupclauses = picosat_added_original_clauses (ps);
-      write_rup_header (ps, file);
-    }
-
-  for (p = SOC; p != EOC; p = NXC (p))
-    {
-      c = *p;
-
-      if (ps->oclauses <= p && p < ps->eoo)
-	{
-	  i = OIDX2IDX (p - ps->oclauses);
-	  assert (!c || CLS2IDX (c) == i);
-	}
-      else
-	{
-          assert (ps->lclauses <= p && p < ps->EOL);
-	  i = LIDX2IDX (p - ps->lclauses);
-	}
-
-      zhain = IDX2ZHN (i);
-
-      if (zhain)
-	{
-	  if (zhain->core)
-	    {
-	      if (fmt == RUP_TRACE_FMT)
-		trace_clause (ps,i, c, file, fmt);
-	      else
-		trace_zhain (ps, i, zhain, file, fmt);
-	    }
-	}
-      else if (c)
-	{
-	  if (fmt != RUP_TRACE_FMT && c)
-	    {
-	      if (c->core)
-		trace_clause (ps, i, c, file, fmt);
-	    }
-	}
-    }
-#else
-  (void) file;
-  (void) fmt;
-  (void) ps;
-#endif
-}
-
-static void
-write_core_wrapper (PS * ps, FILE * file, int fmt)
-{
-  (void) fmt;
-#ifdef TRACE
-  write_core (ps, file);
-#else
-  (void) ps;
-  (void) file;
-#endif
-}
 
 static Lit *
 import_lit (PS * ps, int lit, int nointernal)
@@ -6444,7 +6097,7 @@ reset_incremental_usage (PS * ps)
 
   check_sat_or_unsat_or_unknown_state (ps);
 
-  LOG ( fprintf (ps->out, "%sRESET incremental usage\n", ps->prefix));
+  LOG ( printf ( "%sRESET incremental usage\n", ps->prefix));
 
   if (ps->LEVEL)
     undo (ps, 0);
@@ -6506,27 +6159,7 @@ leave (PS * ps)
   sflush (ps);
 }
 
-static void
-check_trace_support_and_execute (PS * ps,
-                                 FILE * file, 
-				 void (*f)(PS*,FILE*,int), int fmt)
-{
-  check_ready (ps);
-  check_unsat_state (ps);
-#ifdef TRACE
 
-  ABORTIF(ps, !ps->trace, "API usage: tracing disabled", ERR_TRACING_DISABLED);
-
-  enter (ps);
-  f (ps, file, fmt);
-  leave (ps);
-#else
-  (void) file;
-  (void) fmt;
-  (void) f;
-  ABORT(ps, "compiled without trace support", ERR_NO_TRACE_SUPPORT);
-#endif
-}
 
 static void
 extract_all_failed_assumptions (PS * ps)
@@ -6573,7 +6206,7 @@ extract_all_failed_assumptions (PS * ps)
       u = LIT2VAR (*p);
       if (!u->mark) continue;
       u->failed = 1;
-      LOG ( fprintf (ps->out,
+      LOG ( printf (
                      "%sfailed assumption %d\n",
 		     ps->prefix, LIT2INT (*p)));
     }
@@ -6680,7 +6313,7 @@ picosat_push (PS * ps)
       assert (!v->internal);
       v->internal = 1;
       ps->internals++;
-      LOG ( fprintf (ps->out, "%snew internal variable index %d\n", ps->prefix, res));
+      LOG ( printf ( "%snew internal variable index %d\n", ps->prefix, res));
     }
 
   lit = int2lit (ps, res);
@@ -6691,7 +6324,7 @@ picosat_push (PS * ps)
 
   ps->contexts++;
 
-  LOG ( fprintf (ps->out, "%snew context %d at depth %ld after push\n",
+  LOG ( printf ( "%snew context %d at depth %ld after push\n",
                  ps->prefix, res, (long)(ps->clshead - ps->CLS)));
 
   if (ps->measurealltimeinlib)
@@ -6719,7 +6352,7 @@ picosat_pop (PS * ps)
 
   assert (ps->CLS < ps->clshead);
   lit = *--ps->clshead;
-  LOG ( fprintf (ps->out, "%sclosing context %d at depth %ld after pop\n",
+  LOG ( printf ( "%sclosing context %d at depth %ld after pop\n",
                  ps->prefix, LIT2INT (lit), (long)(ps->clshead - ps->CLS) + 1));
 
   if (ps->cilshead == ps->eocils)
@@ -6727,7 +6360,7 @@ picosat_pop (PS * ps)
   *ps->cilshead++ = LIT2INT (lit);
 
   if (ps->cilshead - ps->cils > MAXCILS) {
-    LOG ( fprintf (ps->out,
+    LOG ( printf (
                   "%srecycling %ld interals with forced simplification\n",
 		  ps->prefix, (long)(ps->cilshead - ps->cils)));
     simplify (ps, 1);
@@ -6735,10 +6368,10 @@ picosat_pop (PS * ps)
 
   res = picosat_context (ps);
   if (res)
-    LOG ( fprintf (ps->out, "%snew context %d at depth %ld after pop\n",
+    LOG ( printf ( "%snew context %d at depth %ld after pop\n",
 		   ps->prefix, res, (long)(ps->clshead - ps->CLS)));
   else
-    LOG ( fprintf (ps->out, "%souter most context reached after pop\n", ps->prefix));
+    LOG ( printf ( "%souter most context reached after pop\n", ps->prefix));
 
   if (ps->measurealltimeinlib)
     leave (ps);
@@ -6772,22 +6405,8 @@ picosat_enable_trace_generation (PS * ps)
   return res;
 }
 
-void
-picosat_set_incremental_rup_file (PS * ps, FILE * rup_file, int m, int n)
-{
-  check_ready (ps);
-  assert (!ps->rupstarted);
-  ps->rup = rup_file;
-  ps->rupvariables = m;
-  ps->rupclauses = n;
-}
 
-void
-picosat_set_output (PS * ps, FILE * output_file)
-{
-  check_ready (ps);
-  ps->out = output_file;
-}
+
 
 void
 picosat_measure_all_calls (PS * ps)
@@ -6828,7 +6447,6 @@ picosat_add (PS * ps, int int_lit)
   else
     check_ready (ps);
 
-  ABORTIF(ps, ps->rup && ps->rupstarted && ps->oadded >= (unsigned)ps->rupclauses, "API usage: adding too many clauses after RUP header written", ERR_TOO_MANY_CLAUSES);
 
 #ifndef NADC
   ABORTIF(ps, ps->addingtoado, "API usage: 'picosat_add' and 'picosat_add_ado_lit' mixed", ERR_ADDING_TO_ADO);
@@ -6928,7 +6546,7 @@ assume (PS * ps, Lit * lit)
     }
 
   *ps->alshead++ = lit;
-  LOG ( fprintf (ps->out, "%sassumption %d\n", ps->prefix, LIT2INT (lit)));
+  LOG ( printf ( "%sassumption %d\n", ps->prefix, LIT2INT (lit)));
 }
 
 static void
@@ -7054,7 +6672,7 @@ minautarky (PS * ps)
       if (!lit)
 	{
 	  assert (best);
-	  LOG ( fprintf (ps->out, "%sautark %d with %d occs%s\n", 
+	  LOG ( printf ( "%sautark %d with %d occs%s\n", 
 	       ps->prefix, best, maxoccs, tl ? " (top)" : ""));
 	  ps->vars[abs (best)].partial = 1;
 	  npartial++;
@@ -7070,7 +6688,7 @@ minautarky (PS * ps)
   ps->partial = 1;
 
   if (ps->verbosity)
-     fprintf (ps->out,
+     printf (
       "%sautarky of size %u out of %u satisfying all clauses (%.1f%%)\n",
       ps->prefix, npartial, ps->max_var, PERCENT (npartial, ps->max_var));
 }
@@ -7105,7 +6723,7 @@ picosat_sat (PS * ps, int l)
   enter (ps);
 
   ps->calls++;
-  LOG ( fprintf (ps->out, "%sSTART call %u\n", ps->prefix, ps->calls));
+  LOG ( printf ( "%sSTART call %u\n", ps->prefix, ps->calls));
 
   if (ps->added < ps->ahead)
     {
@@ -7151,7 +6769,7 @@ picosat_sat (PS * ps, int l)
     }
 
   leave (ps);
-  LOG ( fprintf (ps->out, "%sEND call %u result %d\n", ps->prefix, ps->calls, res));
+  LOG ( printf ( "%sEND call %u result %d\n", ps->prefix, ps->calls, res));
 
   ps->last_sat_call_result = res;
 
@@ -7403,7 +7021,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
   assert (i == len);
   ps->mass[i] = 0;
   if (ps->verbosity)
-     fprintf (ps->out, 
+     printf ( 
       "%sinitial set of failed assumptions of size %d out of %d (%.0f%%)\n",
       ps->prefix, len, norig, PERCENT (len, norig));
   if (cb)
@@ -7423,7 +7041,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
 	continue;
 
       if (ps->verbosity > 1)
-	 fprintf (ps->out,
+	 printf (
 	         "%strying to drop %d%s assumption %d\n", 
 		 ps->prefix, i, enumstr (i), work[i]);
       for (j = 0; j < nwork; j++)
@@ -7438,7 +7056,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
       if (res == 10)
 	{
 	  if (ps->verbosity > 1)
-	     fprintf (ps->out,
+	     printf (
 		     "%sfailed to drop %d%s assumption %d\n", 
 		     ps->prefix, i, enumstr (i), work[i]);
 
@@ -7452,7 +7070,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
 	{
 	  assert (res == 20);
 	  if (ps->verbosity > 1)
-	     fprintf (ps->out,
+	     printf (
 		     "%ssuceeded to drop %d%s assumption %d\n", 
 		     ps->prefix, i, enumstr (i), work[i]);
 	  redundant[i] = 1;
@@ -7469,7 +7087,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
 		{
 		  redundant[j] = -1;
 		  if (ps->verbosity > 1)
-		     fprintf (ps->out,
+		     printf (
 			     "%salso suceeded to drop %d%s assumption %d\n", 
 			     ps->prefix, j, enumstr (j), work[j]);
 		}
@@ -7510,7 +7128,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
 	      }
 
 	    if (ps->verbosity)
-	       fprintf (ps->out, 
+	       printf ( 
 	"%sreduced set of failed assumptions of size %d out of %d (%.0f%%)\n",
 		ps->prefix, len, norig, PERCENT (len, norig));
 	    if (cb)
@@ -7523,8 +7141,7 @@ picosat_mus_assumptions (PS * ps, void * s, void (*cb)(void*,const int*), int fi
 
   if (ps->verbosity)
     {
-       fprintf (ps->out, "%sreinitializing unsat state\n", ps->prefix);
-      fflush (ps->out);
+       printf ( "%sreinitializing unsat state\n", ps->prefix);
     }
 
   for (i = 0; i < len; i++)
@@ -7561,7 +7178,7 @@ mss (PS * ps, int * a, int size)
   ps->szmssass = size + 1;
   NEWN (ps->mssass, ps->szmssass);
 
-  LOG ( fprintf (ps->out, "%ssearch MSS over %d assumptions\n", ps->prefix, size));
+  LOG ( printf ( "%ssearch MSS over %d assumptions\n", ps->prefix, size));
 
   k = 0;
   for (i = k; i < size; i++)
@@ -7569,7 +7186,7 @@ mss (PS * ps, int * a, int size)
       for (j = 0; j < k; j++)
 	picosat_assume (ps, ps->mssass[j]);
 
-      LOG ( fprintf (ps->out, 
+      LOG ( printf ( 
              "%strying to add assumption %d to MSS : %d\n", 
 	     ps->prefix, i, a[i])); 
 
@@ -7578,7 +7195,7 @@ mss (PS * ps, int * a, int size)
       res = picosat_sat (ps, -1);
       if (res == 10)
 	{
-	  LOG ( fprintf (ps->out, 
+	  LOG ( printf ( 
 		 "%sadding assumption %d to MSS : %d\n", ps->prefix, i, a[i])); 
 
 	  ps->mssass[k++] = a[i];
@@ -7588,7 +7205,7 @@ mss (PS * ps, int * a, int size)
 	      if (picosat_deref (ps, a[j]) <= 0)
 		continue;
 
-	      LOG ( fprintf (ps->out, 
+	      LOG ( printf ( 
 		     "%salso adding assumption %d to MSS : %d\n", 
 		     ps->prefix, j, a[j])); 
 
@@ -7606,12 +7223,12 @@ mss (PS * ps, int * a, int size)
 	{
 	  assert (res == 20);
 
-	  LOG ( fprintf (ps->out, 
+	  LOG ( printf ( 
 		 "%signoring assumption %d in MSS : %d\n", ps->prefix, i, a[i])); 
 	}
     }
   ps->mssass[k] = 0;
-  LOG ( fprintf (ps->out, "%sfound MSS of size %d\n", ps->prefix, k));
+  LOG ( printf ( "%sfound MSS of size %d\n", ps->prefix, k));
 
   return ps->mssass;
 }
@@ -7620,7 +7237,7 @@ static void
 reassume (PS * ps, const int * a, int size)
 {
   int i;
-  LOG ( fprintf (ps->out, "%sreassuming all assumptions\n", ps->prefix));
+  LOG ( printf ( "%sreassuming all assumptions\n", ps->prefix));
   for (i = 0; i < size; i++)
     picosat_assume (ps, a[i]);
 }
@@ -7846,7 +7463,7 @@ picosat_humus (PS * ps,
 	    }
 	}
       nmcs++;
-      LOG ( fprintf (ps->out, 
+      LOG ( printf ( 
              "%smcs %d of size %d humus %d\n",
 	     ps->prefix, nmcs, (int)(p - mcs), nhumus));
       if (callback)
@@ -7901,31 +7518,7 @@ picosat_usedlit (PS * ps, int int_lit)
   return res;
 }
 
-void
-picosat_write_clausal_core (PS * ps, FILE * file)
-{
-  check_trace_support_and_execute (ps, file, write_core_wrapper, 0);
-}
 
-void
-picosat_write_compact_trace (PS * ps, FILE * file)
-{
-  check_trace_support_and_execute (ps, file, write_trace,
-                                   COMPACT_TRACECHECK_TRACE_FMT);
-}
-
-void
-picosat_write_extended_trace (PS * ps, FILE * file)
-{
-  check_trace_support_and_execute (ps, file, write_trace,
-                                   EXTENDED_TRACECHECK_TRACE_FMT);
-}
-
-void
-picosat_write_rup_trace (PS * ps, FILE * file)
-{
-  check_trace_support_and_execute (ps, file, write_trace, RUP_TRACE_FMT);
-}
 
 size_t
 picosat_max_bytes_allocated (PS * ps)
@@ -7981,143 +7574,143 @@ picosat_stats (PS * ps)
   assert (ps->sdecisions + ps->rdecisions + ps->assumptions == ps->decisions);
 #endif
   if (ps->calls > 1)
-     fprintf (ps->out, "%s%u calls\n", ps->prefix, ps->calls);
+     printf ( "%s%u calls\n", ps->prefix, ps->calls);
   if (ps->contexts)
     {
-       fprintf (ps->out, "%s%u contexts", ps->prefix, ps->contexts);
+       printf ( "%s%u contexts", ps->prefix, ps->contexts);
 #ifdef STATS
-       fprintf (ps->out, " %u internal variables", ps->internals);
+       printf ( " %u internal variables", ps->internals);
 #endif
-       fprintf (ps->out, "\n");
+       printf ( "\n");
     }
-   fprintf (ps->out, "%s%u iterations\n", ps->prefix, ps->iterations);
-   fprintf (ps->out, "%s%u restarts", ps->prefix, ps->restarts);
+   printf ( "%s%u iterations\n", ps->prefix, ps->iterations);
+   printf ( "%s%u restarts", ps->prefix, ps->restarts);
 #ifdef STATS
-   fprintf (ps->out, " (%u skipped)", ps->skippedrestarts);
+   printf ( " (%u skipped)", ps->skippedrestarts);
 #endif
-  fputc ('\n', ps->out);
+
 #ifndef NFL
-   fprintf (ps->out, "%s%u failed literals", ps->prefix, ps->failedlits);
+   printf ( "%s%u failed literals", ps->prefix, ps->failedlits);
 #ifdef STATS
-   fprintf (ps->out,
+   printf (
            ", %u calls, %u rounds, %llu propagations",
            ps->flcalls, ps->flrounds, ps->flprops);
 #endif
-  fputc ('\n', ps->out);
+
 #ifdef STATS
-   fprintf (ps->out, 
+   printf ( 
     "%sfl: %u = %.1f%% implicit, %llu oopsed, %llu tried, %llu skipped\n", 
     ps->prefix, 
     ps->ifailedlits, PERCENT (ps->ifailedlits, ps->failedlits),
     ps->floopsed, ps->fltried, ps->flskipped);
 #endif
 #endif
-   fprintf (ps->out, "%s%u conflicts", ps->prefix, ps->conflicts);
+   printf ( "%s%u conflicts", ps->prefix, ps->conflicts);
 #ifdef STATS
-   fprintf (ps->out, " (%u uips = %.1f%%)\n", ps->uips, PERCENT(ps->uips,ps->conflicts));
+   printf ( " (%u uips = %.1f%%)\n", ps->uips, PERCENT(ps->uips,ps->conflicts));
 #else
-  fputc ('\n', ps->out);
+
 #endif
 #ifndef NADC
-   fprintf (ps->out, "%s%u adc conflicts\n", ps->prefix, ps->adoconflicts);
+   printf ( "%s%u adc conflicts\n", ps->prefix, ps->adoconflicts);
 #endif
 #ifdef STATS
-   fprintf (ps->out, "%s%llu dereferenced literals\n", ps->prefix, ps->derefs);
+   printf ( "%s%llu dereferenced literals\n", ps->prefix, ps->derefs);
 #endif
-   fprintf (ps->out, "%s%u decisions", ps->prefix, ps->decisions);
+   printf ( "%s%u decisions", ps->prefix, ps->decisions);
 #ifdef STATS
-   fprintf (ps->out, " (%u random = %.2f%%",
+   printf ( " (%u random = %.2f%%",
            ps->rdecisions, PERCENT (ps->rdecisions, ps->decisions));
-   fprintf (ps->out, ", %u assumptions", ps->assumptions);
+   printf ( ", %u assumptions", ps->assumptions);
   fputc (')', ps->out);
 #endif
-  fputc ('\n', ps->out);
+
 #ifdef STATS
-   fprintf (ps->out,
+   printf (
            "%s%u static phase decisions (%.1f%% of all variables)\n",
 	   ps->prefix,
 	   ps->staticphasedecisions, PERCENT (ps->staticphasedecisions, ps->max_var));
 #endif
-   fprintf (ps->out, "%s%u fixed variables\n", ps->prefix, ps->fixed);
+   printf ( "%s%u fixed variables\n", ps->prefix, ps->fixed);
   assert (ps->nonminimizedllits >= ps->minimizedllits);
   redlits = ps->nonminimizedllits - ps->minimizedllits;
-   fprintf (ps->out, "%s%u learned literals\n", ps->prefix, ps->llitsadded);
-   fprintf (ps->out, "%s%.1f%% deleted literals\n",
+   printf ( "%s%u learned literals\n", ps->prefix, ps->llitsadded);
+   printf ( "%s%.1f%% deleted literals\n",
      ps->prefix, PERCENT (redlits, ps->nonminimizedllits));
 
 #ifdef STATS
 #ifdef TRACE
-   fprintf (ps->out,
+   printf (
 	   "%s%llu antecedents (%.1f antecedents per clause",
 	   ps->prefix, ps->antecedents, AVERAGE (ps->antecedents, ps->conflicts));
   if (ps->trace)
-     fprintf (ps->out, ", %.1f bytes/antecedent)", AVERAGE (ps->znts, ps->antecedents));
+     printf ( ", %.1f bytes/antecedent)", AVERAGE (ps->znts, ps->antecedents));
   fputs (")\n", ps->out);
 #endif
 
-   fprintf (ps->out, "%s%llu propagations (%.1f propagations per decision)\n",
+   printf ( "%s%llu propagations (%.1f propagations per decision)\n",
            ps->prefix, ps->propagations, AVERAGE (ps->propagations, ps->decisions));
-   fprintf (ps->out, "%s%llu visits (%.1f per propagation)\n",
+   printf ( "%s%llu visits (%.1f per propagation)\n",
 	   ps->prefix, ps->visits, AVERAGE (ps->visits, ps->propagations));
-   fprintf (ps->out, 
+   printf ( 
            "%s%llu binary clauses visited (%.1f%% %.1f per propagation)\n",
 	   ps->prefix, ps->bvisits, 
 	   PERCENT (ps->bvisits, ps->visits),
 	   AVERAGE (ps->bvisits, ps->propagations));
-   fprintf (ps->out, 
+   printf ( 
            "%s%llu ternary clauses visited (%.1f%% %.1f per propagation)\n",
 	   ps->prefix, ps->tvisits, 
 	   PERCENT (ps->tvisits, ps->visits),
 	   AVERAGE (ps->tvisits, ps->propagations));
-   fprintf (ps->out, 
+   printf ( 
            "%s%llu large clauses visited (%.1f%% %.1f per propagation)\n",
 	   ps->prefix, ps->lvisits, 
 	   PERCENT (ps->lvisits, ps->visits),
 	   AVERAGE (ps->lvisits, ps->propagations));
-   fprintf (ps->out, "%s%llu other true (%.1f%% of visited clauses)\n",
+   printf ( "%s%llu other true (%.1f%% of visited clauses)\n",
 	   ps->prefix, ps->othertrue, PERCENT (ps->othertrue, ps->visits));
-   fprintf (ps->out, 
+   printf ( 
            "%s%llu other true in binary clauses (%.1f%%)"
 	   ", %llu upper (%.1f%%)\n",
            ps->prefix, ps->othertrue2, PERCENT (ps->othertrue2, ps->othertrue),
 	   ps->othertrue2u, PERCENT (ps->othertrue2u, ps->othertrue2));
-   fprintf (ps->out, 
+   printf ( 
            "%s%llu other true in large clauses (%.1f%%)"
 	   ", %llu upper (%.1f%%)\n",
            ps->prefix, ps->othertruel, PERCENT (ps->othertruel, ps->othertrue),
 	   ps->othertruelu, PERCENT (ps->othertruelu, ps->othertruel));
-   fprintf (ps->out, "%s%llu ternary and large traversals (%.1f per visit)\n",
+   printf ( "%s%llu ternary and large traversals (%.1f per visit)\n",
 	   ps->prefix, ps->traversals, AVERAGE (ps->traversals, ps->visits));
-   fprintf (ps->out, "%s%llu large traversals (%.1f per large visit)\n",
+   printf ( "%s%llu large traversals (%.1f per large visit)\n",
 	   ps->prefix, ps->ltraversals, AVERAGE (ps->ltraversals, ps->lvisits));
-   fprintf (ps->out, "%s%llu assignments\n", ps->prefix, ps->assignments);
+   printf ( "%s%llu assignments\n", ps->prefix, ps->assignments);
 #else
-   fprintf (ps->out, "%s%llu propagations\n", ps->prefix, picosat_propagations (ps));
-   fprintf (ps->out, "%s%llu visits\n", ps->prefix, picosat_visits (ps));
+   printf ( "%s%llu propagations\n", ps->prefix, picosat_propagations (ps));
+   printf ( "%s%llu visits\n", ps->prefix, picosat_visits (ps));
 #endif
-   fprintf (ps->out, "%s%.1f%% variables used\n", ps->prefix, PERCENT (ps->vused, ps->max_var));
+   printf ( "%s%.1f%% variables used\n", ps->prefix, PERCENT (ps->vused, ps->max_var));
 
   sflush (ps);
-   fprintf (ps->out, "%s%.1f seconds in library\n", ps->prefix, ps->seconds);
-   fprintf (ps->out, "%s%.1f megaprops/second\n",
+   printf ( "%s%.1f seconds in library\n", ps->prefix, ps->seconds);
+   printf ( "%s%.1f megaprops/second\n",
 	   ps->prefix, AVERAGE (ps->propagations / 1e6f, ps->seconds));
-   fprintf (ps->out, "%s%.1f megavisits/second\n",
+   printf ( "%s%.1f megavisits/second\n",
 	   ps->prefix, AVERAGE (ps->visits / 1e6f, ps->seconds));
-   fprintf (ps->out, "%sprobing %.1f seconds %.0f%%\n",
+   printf ( "%sprobing %.1f seconds %.0f%%\n",
            ps->prefix, ps->flseconds, PERCENT (ps->flseconds, ps->seconds));
 #ifdef STATS
-   fprintf (ps->out,
+   printf (
 	   "%srecycled %.1f MB in %u reductions\n",
 	   ps->prefix, ps->rrecycled / (double) (1 << 20), ps->reductions);
-   fprintf (ps->out,
+   printf (
 	   "%srecycled %.1f MB in %u simplifications\n",
 	   ps->prefix, ps->srecycled / (double) (1 << 20), ps->simps);
 #else
-   fprintf (ps->out, "%s%u simplifications\n", ps->prefix, ps->simps);
-   fprintf (ps->out, "%s%u reductions\n", ps->prefix, ps->reductions);
-   fprintf (ps->out, "%s%.1f MB recycled\n", ps->prefix, ps->recycled / (double) (1 << 20));
+   printf ( "%s%u simplifications\n", ps->prefix, ps->simps);
+   printf ( "%s%u reductions\n", ps->prefix, ps->reductions);
+   printf ( "%s%.1f MB recycled\n", ps->prefix, ps->recycled / (double) (1 << 20));
 #endif
-   fprintf (ps->out, "%s%.1f MB maximally allocated\n",
+   printf ( "%s%.1f MB maximally allocated\n",
 	    ps->prefix, picosat_max_bytes_allocated (ps) / (double) (1 << 20));
 }
 
@@ -8140,94 +7733,6 @@ picosat_seconds (PS * ps)
   return ps->seconds;
 }
 
-void
-picosat_print (PS * ps, FILE * file)
-{
-#ifdef NO_BINARY_CLAUSES
-  Lit * lit, *other, * last;
-  Ltk * stack;
-#endif
-  Lit **q, **eol;
-  Cls **p, *c;
-  unsigned n;
-
-  if (ps->measurealltimeinlib)
-    enter (ps);
-  else
-    check_ready (ps);
-
-  n = 0;
-  n +=  ps->alshead - ps->als;
-
-  for (p = SOC; p != EOC; p = NXC (p))
-    {
-      c = *p;
-
-      if (!c)
-	continue;
-
-#ifdef TRACE
-      if (c->collected)
-	continue;
-#endif
-      n++;
-    }
-
-#ifdef NO_BINARY_CLAUSES
-  last = int2lit (ps, -ps->max_var);
-  for (lit = int2lit (ps, 1); lit <= last; lit++)
-    {
-      stack = LIT2IMPLS (lit);
-      eol = stack->start + stack->count;
-      for (q = stack->start; q < eol; q++)
-	if (*q >= lit)
-	  n++;
-    }
-#endif
-
-  fprintf (file, "p cnf %d %u\n", ps->max_var, n);
-
-  for (p = SOC; p != EOC; p = NXC (p))
-    {
-      c = *p;
-      if (!c)
-	continue;
-
-#ifdef TRACE
-      if (c->collected)
-	continue;
-#endif
-
-      eol = end_of_lits (c);
-      for (q = c->lits; q < eol; q++)
-	fprintf (file, "%d ", LIT2INT (*q));
-
-      fputs ("0\n", file);
-    }
-
-#ifdef NO_BINARY_CLAUSES
-  last = int2lit (ps, -ps->max_var);
-  for (lit = int2lit (ps, 1); lit <= last; lit++)
-    {
-      stack = LIT2IMPLS (lit);
-      eol = stack->start + stack->count;
-      for (q = stack->start; q < eol; q++)
-	if ((other = *q) >= lit)
-	  fprintf (file, "%d %d 0\n", LIT2INT (lit), LIT2INT (other));
-    }
-#endif
-
-  {
-    Lit **r;
-    for (r = ps->als; r < ps->alshead; r++)
-      fprintf (file, "%d 0\n", LIT2INT (*r));
-  }
-
-  fflush (file);
-
-  if (ps->measurealltimeinlib)
-    leave (ps);
-}
 
 void
 picosat_enter (PS * ps)
@@ -8249,11 +7754,11 @@ picosat_message (PS * ps, int vlevel, const char * fmt, ...)
   if (vlevel > ps->verbosity)
     return;
 
-  fputs (ps->prefix, ps->out);
+  puts (ps->prefix);
   va_start (ap, fmt);
-  vfprintf (ps->out, fmt, ap);
+  vprintf ( fmt, ap);
   va_end (ap);
-  fputc ('\n', ps->out);
+
 }
 
 int

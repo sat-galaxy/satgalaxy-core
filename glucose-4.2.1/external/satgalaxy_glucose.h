@@ -16,6 +16,8 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @return message
     const char* glucose_error_msg(int code);
 
+    int glucose_error(GlucoseSolver* solver);
+
     /// @brief The constant used to force restart
     /// @param value must be in (0, 1)
     /// @return error code

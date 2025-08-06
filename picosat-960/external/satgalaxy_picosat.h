@@ -46,9 +46,6 @@ extern "C"
     /// @brief Configures initial solver settings. These functions must be called immediately after picosat_s_init and before adding literals.
     /// @note Do not call these after adding literals.
 
-    /// @param solver Pointer to the PicoSATSolver.
-    /// @param file Output file for solver messages (default: stdout).
-    void picosat_s_set_output(PicoSATSolver *solver, FILE *file);
 
     /// @brief Measure all time spent in all calls in the solver.  By default only the time spent in 'picosat_s_sat' is measured.
     /// @param solver Pointer to the PicoSATSolver.
@@ -134,14 +131,7 @@ extern "C"
     /// @return Non-zero if trace generation is supported, zero otherwise.
     int picosat_s_enable_trace_generation(PicoSATSolver *solver);
 
-    /// @brief Sets a file for incremental RUP proof trace dumping.
-    /// @param solver Pointer to the PicoSATSolver.
-    /// @param file Output file for the RUP trace.
-    /// @param m Maximum number of variables.
-    /// @param n Number of original clauses.
-    /// @note Reduces memory usage but dumped clauses may not be in the clausal core.
-    /// @return None.
-    void picosat_s_set_incremental_rup_file(PicoSATSolver *solver, FILE *file, int m, int n);
+ 
 
     /// @brief Saves original clauses for use with picosat_s_deref_partial.
     /// @param solver Pointer to the PicoSATSolver.
@@ -255,13 +245,9 @@ extern "C"
     /// @param lits Array of literals terminated by zero (picosat_s_add_lits).
     /// @note Adding a literal resets the previous assignment.
     /// @return The original clause index (starting at 0) for the added literal or clause.
-    int picosat_s_add_lits(PicoSATSolver *solver, const int *lits, size_t len);
+    int picosat_s_add_lits(PicoSATSolver *solver, const int lits[], size_t len);
 
-    /// @brief Prints the CNF to a file in DIMACS format.
-    /// @param solver Pointer to the PicoSATSolver.
-    /// @param file Output file for the CNF.
-    /// @return None.
-    void picosat_s_print(PicoSATSolver *solver, FILE *file);
+
 
     /// @brief Adds an assumption for the next picosat_s_sat call.
     /// @param solver Pointer to the PicoSATSolver.
@@ -401,38 +387,7 @@ extern "C"
     /// @return Non-zero if the literal is in the variable core, zero otherwise.
     int picosat_s_corelit(PicoSATSolver *solver, int lit);
 
-    /// @brief Writes clauses used in deriving the empty clause to a file in DIMACS format.
-    /// @param solver Pointer to the PicoSAT solver.
-    /// @param core_file Output file for the clausal core.
-    /// @note Requires trace generation enabled via picosat_s_enable_trace_generation after picosat_s_init.
-    /// @note Incremental mode with assumptions tested only for picosat_s_corelit; may not work reliably here.
-    /// @return None.
-    void picosat_s_write_clausal_core(PicoSATSolver *solver, FILE *core_file);
 
-    /// @brief Writes a compact proof trace in TraceCheck format to a file.
-    /// @param solver Pointer to the PicoSAT solver.
-    /// @param trace_file Output file for the proof trace.
-    /// @note Requires trace generation enabled via picosat_s_enable_trace_generation after picosat_s_init.
-    /// @note Incremental mode with assumptions tested only for picosat_s_corelit; may not work reliably here.
-    /// @return None.
-    void picosat_s_write_compact_trace(PicoSATSolver *solver, FILE *trace_file);
-
-    /// @brief Writes an extended proof trace in TraceCheck format to a file.
-    /// @param solver Pointer to the PicoSAT solver.
-    /// @param trace_file Output file for the proof trace.
-    /// @note Requires trace generation enabled via picosat_s_enable_trace_generation after picosat_s_init.
-    /// @note Incremental mode with assumptions tested only for picosat_s_corelit; may not work reliably here.
-    /// @return None.
-    void picosat_s_write_extended_trace(PicoSATSolver *solver, FILE *trace_file);
-
-    /// @brief Writes a RUP trace of learned core clauses to a file.
-    /// @param solver Pointer to the PicoSAT solver.
-    /// @param trace_file Output file for the RUP trace.
-    /// @note Requires trace generation enabled via picosat_s_enable_trace_generation after picosat_s_init.
-    /// @note Unlike picosat_s_set_incremental_rup_file, only includes learned core clauses.
-    /// @note Incremental mode with assumptions tested only for picosat_s_corelit; may not work reliably here.
-    /// @return None.
-    void picosat_s_write_rup_trace(PicoSATSolver *solver, FILE *trace_file);
 
     /// @brief Checks if a literal was used in resolution to derive a learned clause.
     /// @param solver Pointer to the PicoSAT solver.
