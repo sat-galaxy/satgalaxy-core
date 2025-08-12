@@ -8,6 +8,7 @@
 extern "C"
 {
 #endif
+typedef  int boolean;
 
 typedef struct GlucoseSolver GlucoseSolver;
     
@@ -53,7 +54,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief Use Chanseok Oh strategy for LBD (keep all LBD<=co and remove half of firstreduceDB other learnt clauses)
     /// @param value boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_chanseok_hack(int value);
+    int glucose_set_global_opt_chanseok_hack(boolean value);
     /// @brief Chanseok Oh: all learnt clauses with LBD<=co are permanent
     /// @param value must be a positive integer greater than 1
     /// @return error code
@@ -69,11 +70,11 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief Use inprocessing vivif (ijcai17 paper)
     /// @param value boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_lcm(int value);
+    int glucose_set_global_opt_lcm(boolean value);
     /// @brief Updates LBD when doing LCM
     /// @param value boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_lcm_update_lbd(int value);
+    int glucose_set_global_opt_lcm_update_lbd(boolean value);
     /// @brief The variable activity decay factor (starting point)
     /// @param value must be in (0, 1)
     /// @return error code
@@ -105,7 +106,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief Randomize the initial activity
     /// @param value  boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_rnd_init_act(int value);
+    int glucose_set_global_opt_rnd_init_act(boolean value);
     /// @brief The fraction of wasted memory allowed before a garbage collection is triggered
     /// @param value must be positive
     /// @return error code
@@ -113,11 +114,11 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief glucose strategy to fire clause database reduction (must be false to fire Chanseok strategy)
     /// @param value  boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_glu_reduction(int value);
+    int glucose_set_global_opt_glu_reduction(boolean value);
     /// @brief  Use the Luby restart sequence
     /// @param value  boolean value (1=true, 0=false)
     /// @return error code
-    int glucose_set_global_opt_luby_restart(int value);
+    int glucose_set_global_opt_luby_restart(boolean value);
     /// @brief Restart interval increase factor
     /// @param value must be at least 1.0
     /// @return error code
@@ -256,7 +257,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief Randomize the initial activity
     /// @param value  boolean value (GlucoseSolver*,1=true, 0=false)
     /// @return error code
-    int glucose_set_opt_rnd_init_act(GlucoseSolver*,int value);
+    int glucose_set_opt_rnd_init_act(GlucoseSolver*,boolean value);
     /// @brief The fraction of wasted memory allowed before a garbage collection is triggered
     /// @param value must be positive
     /// @return error code
@@ -265,15 +266,15 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief Shrink clauses by asymmetric branching
     /// @param value boolean value (GlucoseSolver*,1=true, 0=false)
     /// @return error code
-    int glucose_set_opt_use_asymm(GlucoseSolver*,int value);
+    int glucose_set_opt_use_asymm(GlucoseSolver*,boolean value);
     /// @brief Check if a clause is already implied. (GlucoseSolver*,costly)
     /// @param value boolean value (GlucoseSolver*,1=true, 0=false)
     /// @return error code
-    int glucose_set_opt_use_rcheck(GlucoseSolver*,int value);
+    int glucose_set_opt_use_rcheck(GlucoseSolver*,boolean value);
     /// @brief Perform variable elimination.
     /// @param value boolean value (GlucoseSolver*,1=true, 0=false)
     /// @return error code
-    int glucose_set_opt_use_elim(GlucoseSolver*,int value);
+    int glucose_set_opt_use_elim(GlucoseSolver*,boolean value);
     /// @brief  Allow a variable elimination step to grow by a number of clauses.
     /// @param value 
     /// @return error code
@@ -306,11 +307,11 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @param ps  array of literals
     /// @param length  length of the array
     /// @return boolean value
-    int glucose_add_clause(GlucoseSolver *solver, const int ps[], unsigned long length);
+    boolean glucose_add_clause(GlucoseSolver *solver, const int ps[], unsigned long length);
     /// @brief  Add the empty clause to the solver.
     /// @param solver 
     /// @return boolean value
-    int glucose_add_empty_clause(GlucoseSolver *solver); 
+    boolean glucose_add_empty_clause(GlucoseSolver *solver); 
     /// @brief  Get the value of a literal.
     /// @param solver 
     /// @param x  literal
@@ -330,8 +331,8 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
     int glucose_solve_assumps(GlucoseSolver *solver, const int assumps[],
-                              unsigned long length, int do_simp,
-                              int turn_off_simp);
+                              size_t length, boolean do_simp,
+                              boolean turn_off_simp);
 
     /// @brief  Solve the problem with limited.
     /// @param solver 
@@ -341,14 +342,14 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return 10 for sat, 20 for unsat, 30 for unkown
     int glucose_solve_limited(GlucoseSolver *solver, const int assumps[],
-                              unsigned long length, int do_simp,
-                              int turn_off_simp);
+                              size_t length, boolean do_simp,
+                              boolean turn_off_simp);
     /// @brief  Solve the problem.
     /// @param solver 
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
-    /// @return 10 for sat, 20 for unsat, 30 for unkown
-    int glucose_solve(GlucoseSolver *solver, int do_simp, int turn_off_simp);
+    /// @return boolean value, recommand true (1=true, 0=false)
+    boolean glucose_solve(GlucoseSolver *solver, boolean do_simp, boolean turn_off_simp);
     /// @brief   Perform variable elimination based simplification.
     /// @param solver 
     /// @param assumps  array of assumptions
@@ -378,7 +379,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @brief  Check if the solver is okay.
     /// @param solver 
     /// @return boolean value
-    int glucose_okay(GlucoseSolver *solver);
+    boolean glucose_okay(GlucoseSolver *solver);
 #ifdef __cplusplus
 }
 #endif
