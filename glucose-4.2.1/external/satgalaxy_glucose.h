@@ -1,6 +1,6 @@
 #ifndef SATGALAXY_GLUCOSE_H
 #define SATGALAXY_GLUCOSE_H
-
+#include <stddef.h>
 
 //=================================================================================================
 
