@@ -6,8 +6,6 @@ include(../cmake/config.cmake)
 set(CMAKE_CXX_STANDARD 11)
 
 
-add_definitions(-DVERSION="2.1.3"  -DQUIET)
-
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wno-error=date-time)
@@ -89,6 +87,8 @@ include_directories(
 
 # base library
 add_library(cadical STATIC ${LIB_SOURCES})
+target_compile_definitions(cadical PRIVATE -DVERSION="2.1.3"  -DQUIET -DNTRACING)
+
 set_target_properties(cadical PROPERTIES OUTPUT_NAME "satgalaxy_cadical")
 
 file(COPY external/ DESTINATION "${HEADER_OUTPUT_DIR}/satgalaxy"
