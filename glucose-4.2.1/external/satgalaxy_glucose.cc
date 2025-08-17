@@ -2,6 +2,7 @@
 #include "satgalaxy_glucose.h"
 #include "simp/SimpSolver.h"
 #include "utils/Options.h"
+#include <cstddef>
 
 #define GLUCOSE_G_OPT(NAME, TY, COND, CODE)     \
     int glucose_set_global_opt_##NAME(TY value) \
@@ -78,7 +79,7 @@ int glucose_new_var(GlucoseSolver *s)
     CALL_FN(0, newVar, true, true);
 }
 
-int glucose_add_clause(GlucoseSolver *s, const int ps[], unsigned long length)
+int glucose_add_clause(GlucoseSolver *s, const int ps[], size_t length)
 {
     Glucose::vec<Glucose::Lit> lits;
     for (unsigned long i = 0; i < length; i++)
@@ -92,7 +93,7 @@ int glucose_add_empty_clause(GlucoseSolver *s)
     CALL_FN(0, addEmptyClause);
 }
 
-int glucose_solve_assumps(GlucoseSolver *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int glucose_solve_assumps(GlucoseSolver *s, const int ps[], size_t length, int do_simp, int turn_off_simp)
 {
     Glucose::vec<Glucose::Lit> lits;
     for (unsigned long i = 0; i < length; i++)
@@ -102,7 +103,7 @@ int glucose_solve_assumps(GlucoseSolver *s, const int ps[], unsigned long length
     CALL_FN(0, solve, lits, (bool)do_simp, (bool)turn_off_simp);
 }
 
-int glucose_solve_limited(GlucoseSolver *s, const int ps[], unsigned long length, int do_simp, int turn_off_simp)
+int glucose_solve_limited(GlucoseSolver *s, const int ps[], size_t length, int do_simp, int turn_off_simp)
 {
 
     int code = setjmp(s->solver->jmp_env);

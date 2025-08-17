@@ -1,5 +1,6 @@
 #ifndef SATGALAXY_GLUCOSE_H
 #define SATGALAXY_GLUCOSE_H
+#include <cstddef>
 #include <stddef.h>
 
 //=================================================================================================
@@ -11,8 +12,8 @@ extern "C"
 typedef  int boolean;
 
 typedef struct GlucoseSolver GlucoseSolver;
-    
-    /// @brief get error message by error code 
+
+    /// @brief get error message by error code
     /// @param code error code
     /// @return message
     const char* glucose_error_msg(int code);
@@ -156,7 +157,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @return error code
     int glucose_set_global_opt_use_elim(int value);
     /// @brief  Allow a variable elimination step to grow by a number of clauses.
-    /// @param value 
+    /// @param value
     /// @return error code
     int glucose_set_global_opt_grow(int value);
     /// @brief Variables are not eliminated if it produces a resolvent with a length above this limit. -1 means no limit
@@ -276,7 +277,7 @@ typedef struct GlucoseSolver GlucoseSolver;
     /// @return error code
     int glucose_set_opt_use_elim(GlucoseSolver*,boolean value);
     /// @brief  Allow a variable elimination step to grow by a number of clauses.
-    /// @param value 
+    /// @param value
     /// @return error code
     int glucose_set_opt_grow(GlucoseSolver*,int value);
     /// @brief Variables are not eliminated if it produces a resolvent with a length above this limit. -1 means no limit
@@ -299,32 +300,32 @@ typedef struct GlucoseSolver GlucoseSolver;
 
     GlucoseSolver *glucose_new_solver();
     /// @brief  Add a new variable to the solver.
-    /// @param solver 
+    /// @param solver
     /// @return variable id
     int glucose_new_var(GlucoseSolver *solver);
     /// @brief  Add a clause to the solver.
-    /// @param solver 
+    /// @param solver
     /// @param ps  array of literals
     /// @param length  length of the array
     /// @return boolean value
-    boolean glucose_add_clause(GlucoseSolver *solver, const int ps[], unsigned long length);
+    boolean glucose_add_clause(GlucoseSolver *solver, const int ps[], size_t length);
     /// @brief  Add the empty clause to the solver.
-    /// @param solver 
+    /// @param solver
     /// @return boolean value
-    boolean glucose_add_empty_clause(GlucoseSolver *solver); 
+    boolean glucose_add_empty_clause(GlucoseSolver *solver);
     /// @brief  Get the value of a literal.
-    /// @param solver 
+    /// @param solver
     /// @param x  literal
     /// @return 0 if false, 1 if true, 2 if undefined
     int glucose_value(GlucoseSolver *solver, int x);
     /// @brief  Get the value of a literal in the model.
-    /// @param solver 
+    /// @param solver
     /// @param x  literal
     /// @return 0 if false, 1 if true, 2 if undefined
     int glucose_model_value(GlucoseSolver *solver, int x);
 
     /// @brief  Solve the problem with assumptions.
-    /// @param solver 
+    /// @param solver
     /// @param assumps  array of assumptions
     /// @param length  length of the array
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
@@ -335,7 +336,7 @@ typedef struct GlucoseSolver GlucoseSolver;
                               boolean turn_off_simp);
 
     /// @brief  Solve the problem with limited.
-    /// @param solver 
+    /// @param solver
     /// @param assumps  array of assumptions
     /// @param length  length of the array
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
@@ -345,13 +346,13 @@ typedef struct GlucoseSolver GlucoseSolver;
                               size_t length, boolean do_simp,
                               boolean turn_off_simp);
     /// @brief  Solve the problem.
-    /// @param solver 
+    /// @param solver
     /// @param do_simp  boolean value, recommand true (1=true, 0=false)
     /// @param turn_off_simp  boolean value, recommand false  (1=true, 0=false)
     /// @return boolean value, recommand true (1=true, 0=false)
     boolean glucose_solve(GlucoseSolver *solver, boolean do_simp, boolean turn_off_simp);
     /// @brief   Perform variable elimination based simplification.
-    /// @param solver 
+    /// @param solver
     /// @param assumps  array of assumptions
     /// @param length  length of the array
     /// @param turn_off_elim  boolean value, recommand false  (1=true, 0=false)
@@ -359,25 +360,25 @@ typedef struct GlucoseSolver GlucoseSolver;
         GlucoseSolver *solver,
         int turn_off_elim);
     /// @brief The current number of assigned literals.
-    /// @param solver 
+    /// @param solver
     /// @return The current number of assigned literals.
     int glucose_nassigns(GlucoseSolver *solver);
     /// @brief The current number of original clauses.
-    /// @param solver 
-    /// @return 
-    int glucose_nclauses(GlucoseSolver *solver); 
+    /// @param solver
+    /// @return
+    int glucose_nclauses(GlucoseSolver *solver);
     /// @brief The current number of learnt clauses.
-    /// @param solver 
-    /// @return 
-    int glucose_nlearnts(GlucoseSolver *solver); 
+    /// @param solver
+    /// @return
+    int glucose_nlearnts(GlucoseSolver *solver);
     /// @brief The current number of variables.
-    /// @param solver 
-    /// @return 
+    /// @param solver
+    /// @return
     int glucose_nvars(GlucoseSolver *solver);
     int glucose_nfree_vars(GlucoseSolver *solver);
     void glucose_destroy(GlucoseSolver *solver);
     /// @brief  Check if the solver is okay.
-    /// @param solver 
+    /// @param solver
     /// @return boolean value
     boolean glucose_okay(GlucoseSolver *solver);
 #ifdef __cplusplus
